@@ -16,7 +16,7 @@ serve:
 	python3 -m http.server
 
 publish:
-	git branch -D master
+	- git branch -D master
 	git co -b master
 	make
 	git add index.html blog/ logo/*.html
