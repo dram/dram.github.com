@@ -1,0 +1,37 @@
+article: 编译ECLiPSe
+
+  topic: 补遗
+
+    1. 最近（2017-03-16）ECLiPSe{添加}(http://eclipseclp.org/Distribution/ChangeLog.txt)了对Tcl/Tk 8.6的支持。—— 2017-03-24
+    2. `cvs -d/path/to/cvsroot Eclipse`命令遗漏`checkout`指令，另外可以通过`PWD`环境变量指定当前目录，所以从CVSROOT检出代码的命令可以更改为`cvs -d$PWD/cvsroot checkout Eclipse`。—— 2017-03-24
+
+  {ECLiPSe}(http://eclipseclp.org/)是基于Prolog的约束编程系统（Constraint Programming System）。本身编译不存在大的问题，这里只针对开发版本的编译作简单的记录备忘。
+
+  section: 下载
+
+    ECLiPSe当前代码基于CVS管理，可以先利用`rsync`拉取仓库元数据，再使用`cvs`读取本地源，以方便操作，示例如下：
+
+    ```
+      rsync -avz rsync://eclipse-clp.cvs.sourceforge.net/cvsroot/eclipse-clp/ cvsroot
+      cvs -d/path/to/cvsroot Eclipse
+
+  section: 编译
+
+    编译ECLiPSe依赖Tcl、Tk、Graphivz和GMP开发包，当前还不支持Tcl/Tk 8.6版本。在Debian系统中，可以安装以下包：
+
+    ```
+      tcl8.5-dev tk8.5-dev graphviz-dev libgmp-dev
+
+    编译过程如下：
+
+    ```
+      export ECLIPSEARCH=x86_64_linux
+      ./configure
+      make -f Makefile.x86_64_linux
+
+  section: 运行
+
+    ECLiPSe在运行时依赖文档文件，因为不存在平台问题，可以直接下载并在`Eclipse`目录解压，URL地址如下：
+
+    ```
+      http://eclipseclp.org/Distribution/Dev/<version>/common/eclipse_doc.tgz

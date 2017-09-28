@@ -1,0 +1,9 @@
+article: Prolog的核心概念
+
+  Prolog最核心的概念，我觉得是{联合}(link "/blog/2016/11/20/prolog-unification-and-pattern-match.html")（unification）和{回溯}(link "/blog/2016/12/08/backtracking-in-prolog.html")（backtracking）。从另一个角度说，是选择以及基于选择的遍历。
+
+  例如联合产生选择（choice points），而disjunction（`；`）和conjunction（`，`）分别可以增加和减少选择，cut（`!`）可以删减选择。
+
+  对于遍历，`fail`、`true`、`\+`可用于控制backtracking。
+
+  所以说，Prolog最核心的机制就是对选择树的遍历。

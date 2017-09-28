@@ -1,0 +1,29 @@
+article: Swift获取随机数
+
+	topic: 补遗
+
+		1. 可以直接利用Foundation中的{FileHandle}(https://developer.apple.com/reference/foundation/filehandle)读取文件，不需要用Glibc。—— 2017-05-18
+
+	在{数值类型安全}(link "/blog/2017/05/14/type-safty-of-numbers.html")中一文中有将Swift获取随机数作为示例呈现，以下代码基于`/dev/urandom`实现：
+
+	```(swift)
+		import func Glibc.close
+		import func Glibc.open
+		import func Glibc.read
+		import var Glibc.O_RDONLY
+
+		let count = 5
+
+		let buffer = UnsafeMutablePointer<Int8>.allocate(capacity: count)
+
+		let fd = open("/dev/urandom", O_RDONLY)
+		read(fd, buffer, count)
+		close(fd)
+
+		for i in 0..<count {
+		    print(buffer[i])
+		}
+
+		buffer.deallocate(capacity: count)
+
+

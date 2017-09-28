@@ -1,0 +1,37 @@
+article: Graphviz使用指南
+
+  {Graphviz}(http://www.graphviz.org/)是较为常用的图形可视化工具，解析{DOT语言}(https://en.wikipedia.org/wiki/DOT_language)描述的图形内容，并最终生成SVG、PNG等格式文件。
+
+  Graphviz本身存在多种布局引擎，不同引擎在使用时在语言细节上存在一定差异，可以分别参考各自的手册，例如{dot(1)}(http://www.graphviz.org/pdf/dot.1.pdf)、{neato(1)}(http://www.graphviz.org/pdf/neato.1.pdf)等。
+
+  以下以dot引擎为例，这是使用较多的一种布局引擎。
+
+  section: DOT语言
+
+    section: 有向图（digraph）
+
+      有方向的图，基本的语法为：
+
+      ```
+        digraph {
+            A -> {B C};
+            B -> C;
+        }
+
+    section: 无向图（graph）
+
+      有方向的图，基本的语法为：
+
+      ```
+        graph {
+            A -- {B C};
+            B -- C;
+        }
+
+  section: 生成
+
+    以下为使用`dot`命令生成PNG图片文件的示例：
+
+    ```
+      dot file.dot -Tpng -o file.png
+

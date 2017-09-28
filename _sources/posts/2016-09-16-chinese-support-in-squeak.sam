@@ -1,0 +1,64 @@
+article: Squeak中文支持
+
+	topic: 补遗
+
+		Cuis在Unicode支持上与Squeak有不一样的思路，可部分参考{这里}(http://forum.world.st/Unicode-Support-td4865138.html)的讨论。Ken Dickey维护有{Cuis-Smalltalk-Unicode}(https://github.com/KenDickey/Cuis-Smalltalk-Unicode)包，对Unicode字体显示、编辑有基本的支持，还欠缺重要的一块功能是输入。由于Cuis自身只支持ISO8859-15，所以要支持Unicode输入，需要有较多的调整，例如`Character>>isLetter`、`Character>>asString`、`Character>>printOn:`、`String>>at:put:`等。可以参考Squeak中基于become机制实现的`ByteString`和`WideString`之间的自动转化。—— 2016-12-10
+
+	一个软件系统对于国际化语言的支持体现在多个方面，展开来讲，可以包含以下内容：
+
+	1. 显示支持（主要是字体，也包括排版等）；
+	2. 键盘输入支持（可以内置输入法，或者对接操作系统的输入模块）；
+	3. 文件写入和读取支持；
+	4. 剪贴板支持；
+	5. 翻译支持（有系统级国际化和本地化支持）。
+
+	在新近版本（v5.1）中，Squeak对于中文的支持已经非常完善。遗留的问题包括：
+
+	1. 默认不包含中文字体，所有中文字符显示为（?）；
+	2. 在Unix X11环境中，无法使用系统输入法（XIM）。
+
+	本文之后的内容，主要说明如何解决这两个问题。
+
+	section: 中文字体
+
+		当前可供选择的开源的适合作为屏幕显示使用的中文字体，如Droid Sans Fallback，Source Han Sans & Noto，WenQuanYi ZenHei等。但由于Squeak只支持TTF和TTC格式字体，不支持OTF和OTC，所以部分字体被排除在外。
+
+		当前选择的是{Fandol}(link "http://www.ctan.org/tex-archive/fonts/fandol")。Fandol默认只提供OTF字体，但可以在Fandol的{GitHub}(link "https://github.com/clerkma/fandol-fonts")项目中找到PS格式的字体文件，通过FontForge可以转化为TTF字体。
+
+		在字体转化时，注意两点：
+
+		1. 如果提示需要`Adobe-GB1-5.cidmap`文件，可以在FontForge的安装目录找到；
+		2. Fandol中多个字体的空白符宽度存在问题，可以在FontForge中设置（在空白符点右键，选择“Set Width”，设置宽度为333）。
+
+		在完成字体转化之后，可以通过在Workspace中运行以下语句设置字体：
+
+		```(smalltalk)
+				TTCFont newTextStyleFromTTFile: '../../fandol-fonts/FandolHei-Regular/FandolHei-Regular.ttf'.
+				TTCFont newTextStyleFromTTFile: '../../fandol-fonts/FandolFang-Regular/FandolFang-Regular.ttf'.
+				TTCFont newTextStyleFromTTFile: '../../fandol-fonts/FandolHei-Bold/FandolHei-Bold.ttf'.
+
+				UserInterfaceTheme current
+					set: #standardButtonFont to: ((TextStyle named: 'FandolFang-Regular') fontOfPointSize: 15);
+					set: #standardCodeFont to: ((TextStyle named: 'FandolFang-Regular') fontOfPointSize: 24);
+					set: #standardListFont to: ((TextStyle named: 'FandolHei-Regular') fontOfPointSize: 15);
+					set: #standardMenuFont to: ((TextStyle named: 'FandolHei-Regular') fontOfPointSize: 15);
+					set: #standardSystemFont to: ((TextStyle named: 'FandolHei-Regular') fontOfPointSize: 15);
+					set: #windowTitleFont to: ((TextStyle named: 'FandolHei-Bold') fontOfPointSize: 15);
+				apply.
+
+	section: 输入支持
+
+		在UNIX X11环境中，Squeak依赖XIM实现国际化字符输入。但默认情况并没有开启该功能，需要手动设置参数，详情可阅读邮件列表中的{讨论}(link "http://lists.squeakfoundation.org/pipermail/squeak-dev/2016-May/189601.html")。
+
+		具体设置方法为：更改`squeak.sh`文件中最后的`exec ...`行，加入`-compositioninput`参数，另外如果系统尚未设置`XMODIFIERS`环境变量，可在此指定。以下为一示例：
+
+		```(shell)
+			XMODIFIERS=@im=fcitx exec "${VM}" -compositioninput "${IMAGE}"
+
+	section: 其他
+
+		另外还有其他一些细碎的问题，试列举如下：
+
+		1. FileList工具默认以`Latin1TextConverter`编码读取文件，而不是支持中文的UTF-8编码，该问题可以在`FileList>>defaultEncoderFor:`中调整为` UTF8TextConverter`解决；
+		2. 文本编辑器在处理自动折行时依据空格处理，这不适用于中文的场景，该问题的解决方案有待分析；
+		3. X11环境包含两个剪贴板，Squeak不支持选择剪贴板，该问题有待进一步分析。

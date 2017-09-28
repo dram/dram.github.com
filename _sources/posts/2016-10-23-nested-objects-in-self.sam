@@ -1,0 +1,71 @@
+article: Self嵌套对象定义
+
+    昨天在{Self初印象}(link "/blog/2016/10/15/self-first-impressions.html")中添加了补遗，补充了对Self语言优势的描述。现在想就其中的“对象可以嵌套定义”这一点作展开说明，后续文章将对Self其他特性也加以详细介绍。
+
+    section: 代码封装
+
+        在介绍Self这一机制之前，我们先有必要考察下当下主流的几种代码封装方式，包括：类、函数、模块。
+
+        比如Python主要通过结合模块和类来实现接口封装（虽然Python支持类型嵌套定义，但应为并不广泛）。而{Newspeak}(http://www.newspeaklanguage.org/)作为Smalltalk的直系后代，在保留其诸多特性的基础上，去除了类不能嵌套定义的限制，并将此发挥到极致，使嵌套类同时承载了模块的功能。
+
+        再如在诸多函数式编程语言中，则更多的以模块、函数以及抽象数据类型的组合应用来封装接口。
+
+        而Self则主要是以嵌套对象的模式来组织封装。
+
+    section: 示例
+
+        以上介绍可能过于抽象，下面我们以一个解析式语言解析器代码组织为例加以说明。
+
+        Python基于类的代码框架如下：
+
+        ```(python)
+            class Lexer:
+                ...
+            class Parser:
+                ...
+            class Evaluator:
+                ...
+            class Interpreter:
+                lexer = Lexer(...)
+                parser = Parser(...)
+                evaluator = Evaluator(...)
+                ...
+
+        Scheme基于函数的代码框架如下：
+
+        ```(scheme)
+            (define (tokenize ...) ...)
+            (define (parse ...) ...)
+            (define (eval ...) ...)
+            (define (interprete ...)
+              (... (eval ... (parse ... (tokenize ...) ... ) ...) ...))
+
+        Self基于对象的代码框架如下：
+
+        ```(self)
+            (|
+              lexer = (| ... |)
+              parser = (| ... |)
+              evaluator = (| ... |)
+              interpreter = (
+                ... lexer ...
+                ... parser ...
+                ... evaluator ...
+              )
+            |)
+
+    section: 比较分析
+
+        从变量的命名中就可以看出，Scheme是以动作作为封装实体，而Self和Python则是基于名词性的角色进行封装。Scheme的代码依然是过程式的，而Self和Python包含了一层抽象。
+
+        而比较Self和Python的不同可以发现，Python代码中有类和对象这两个概念的转化，而Self中则更为直接。从抽象的层次来说，Python的抽象得更高。
+
+        不同的语言、不同的抽象方式适用于不同的场景和应用，很难绝对性得说哪种优哪种劣，但通过比较分析各种模式的异同，可以加深对其的理解。
+
+    section: 备注
+
+        由于语言设计与实现上的限制，在应用Self嵌套对象时，需要注意以下几点：
+
+        1. Self对象嵌套定义时，父层和子层的变量作用域相互独立，这一特性既带来了一定的不便利性，同时也降低了代码阅读的障碍；
+        2. 虽然Self对方法和对象在概念上做了一定的统一，但当前Self不支持方法的嵌套定义；
+        3. 但在Self中基于块的闭包只在所属方法执行期间才有效，这一特性限制了块的应用范围，通用性不如函数式编程语言中的闭包。

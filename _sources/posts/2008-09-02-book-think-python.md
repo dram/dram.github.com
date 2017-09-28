@@ -1,0 +1,8 @@
+Title: Book: Think Python
+
+找到一本书，叫Think Python，是以GNU Free Documentation License方式开放的，可以[在这][1]找到。
+
+看了简介和目录，感觉还可以，找个时间看一下。 
+
+   [1]: http://www.greenteapress.com/thinkpython/
+

@@ -1,0 +1,9 @@
+article: 关于Perl 6的垃圾回收
+
+	topic: 补遗
+
+		1. 数据库中也有类似垃圾回收的概念，例如PostgreSQL中的{VACUUM}(https://www.postgresql.org/docs/10/static/sql-vacuum.html)指令以及{vacuumdb}(https://www.postgresql.org/docs/10/static/app-vacuumdb.html)工具。—— 2017-09-27
+
+	在{这里}(http://irclog.perlgeek.de/perl6/2017-08-21#i_15049497)有一小段针对Perl 6垃圾回收的讨论，从中可以看到和Perl 5不同，Perl 6没有采用引用计数（Reference counting）的垃圾回收机制。
+
+	对于不同类型GC的优劣，以及使用场景，需要进一步研究，比如Swift采用的是引用计数。其他的GC类型，可以再看看Go语言GC的发展，以及LuaJIT 3.0的{新GC设计}(http://wiki.luajit.org/New-Garbage-Collector)。

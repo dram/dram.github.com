@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>LOGO</title>
+    <script type="application/javascript" src="self.js"></script>
+    <script type="application/javascript" src="paper.js"></script>
+    <script type="application/javascript" src="logo-i18n.js"></script>
+    <script type="application/javascript" src="logo-lang.js"></script>
+    <script type="application/javascript" src="logo-prims.js"></script>
+    <script type="application/javascript" src="logo-draw.js"></script>
+    <script type="application/javascript" src="logo-tile.js"></script>
+    <script type="application/javascript" src="logo-misc.js"></script>
+    <script type="application/javascript">
+      window.onload = function () {
+	  globals.source_canvas.draw_source()
+      }
+
+      window.onresize = function () {
+	  globals.source_canvas.resize()
+      }
+    </script>
+    <style>
+      body { margin: 0 }
+    </style>
+  </head>
+
+  <body>
+    <canvas id="canvas"/>
+  </body>
+</html>

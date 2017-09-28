@@ -1,0 +1,10 @@
+article: Self和Javascript对象模型比较
+
+  虽然Self和Javascript同属于基于原型的面向对象模式，但在细节上存在有较大的差异：
+  
+  1. Self对象的原型可以动态添加删除，JS对象的原型只能在创建的时候指定；
+  2. Self支持多原型继承，而JS只支持单原型链。
+  
+  单从以上两点可以看出，Self比JS更加动态化。但另外有一点差异是，Self对象在创建时值的{生成空间}(http://handbook.selflanguage.org/4.5/langref.html#construction-of-object-literals)为`lobby`，而JS则是依据类似函数定义的词法域原则。虽然这并非对象模型的差异，但与对象的创建模式存在重大影响。
+  
+  导致以上差异的原因，最为重要的是两个语言初始设计的意图不同。Self是用以支撑高度动态化的交互环境，对象可以在图形界面中组建。而JS则是为浏览器添加脚本支持，代码以文本化的形式编写。

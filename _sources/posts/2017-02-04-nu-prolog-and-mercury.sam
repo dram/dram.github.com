@@ -1,0 +1,11 @@
+article: NU-Prolog和Mercury
+
+  {Mercury}(http://www.mercurylang.org/)基于Prolog设计，在其基础上加入了类型系统、模式和确定性申明等特性，所以它与Prolog存在相似性是比较自然的。
+
+  而这里要说的是Mercury和NU-Prolog的关联性，NU-Prolog的特殊性主要包括以下几点：
+
+  1. Mercury最初基于NU-Prolog实现（可以从最初的版本历史中看到）；
+  2. NU-Prolog和Mercury同是澳大利亚墨尔本大学的项目；
+  3. Mercury部分特性直接继承自NU-Prolog，例如if-then-else语句、`when`约束描述、`all/2`和`some/2`前缀二元运算符、`solutions/3`，以及类lint代码检查工具nit的一些特性等。
+
+  所以在研究Mercury时，大致地了解NU-Prolog就显得很有必要，相关文档可以从{这里}(http://people.eng.unimelb.edu.au/lee/src/nuprolog/)获取。

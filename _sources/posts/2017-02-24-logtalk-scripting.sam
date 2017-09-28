@@ -1,0 +1,45 @@
+article: Logtalk脚本
+
+  topic: 补遗
+
+    1. 关于SWI-Prolog对于命令行参数`-t`的处理，可以参考{这里}(https://github.com/LogtalkDotOrg/logtalk3/issues/39)和{这里}(https://github.com/SWI-Prolog/swipl-devel/issues/203)的讨论。—— 2017-02-24
+    2. 可以使用`read`命令代替`head`的使用，例如：`read -r LINE <"${NAME}.lgt"`。—— 2017-02-25
+    3. 如果需要加载多个Logtalk代码文件，可以结合{加载器}(link "/blog/2017/02/23/loader-in-logtalk.html")实现。利用相对路径加载的特性，只需要将加载器的完整路径传入`swilgt`命令，其他文件在加载器中以相对路径指定。—— 2017-02-25
+
+  虽然Logtalk对于脚本执行没有很好的支持，但只需要做适当的封装，就可以满足基本的需求。
+
+  以下是一个示例：
+
+  ```(shell)
+    #!/bin/sh
+    
+    ROOT="$(dirname "$(readlink -f "$0")")"
+    
+    export LOGTALKHOME="$ROOT/logtalk"
+    export LOGTALKUSER="$ROOT/logtalk"
+    
+    NAME="${1%.lgt}"
+    
+    LINE="$(head -1 "${NAME}.lgt")"
+    
+    case "$LINE" in
+            %!*lgtunit*)
+                    GOAL="${LINE#%!}, logtalk_load($NAME, [hook(lgtunit)])"
+                    ;;
+            %!*)
+                    GOAL="${LINE#%!}, logtalk_load($NAME)"
+                    ;;
+            *)
+                    GOAL="logtalk_load($NAME)"
+                    ;;
+    esac
+    
+    exec "$LOGTALKHOME"/integration/swilgt.sh -q -g "$GOAL, $NAME::run" -t halt
+
+  该示例主要实现了以下功能：
+
+  1. 已包含环境变量的设置，对此的详细讨论可以参考{安装Logtalk}(link "/blog/2017/02/21/installing-logtalk.html")；
+  2. 支持lgtunit单元测试代码；
+  3. 支持自定义初始目标（goal）。
+
+  总体来说，上面的脚本虽然有一定通用性，但在使用中，可以针对不同代码环境做适度的调整。

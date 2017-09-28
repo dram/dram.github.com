@@ -1,0 +1,9 @@
+article: 关于概念完整性
+
+  {概念完整性}(https://en.wikipedia.org/wiki/The_Mythical_Man-Month#Conceptual_integrity)是Frederick Brooks《人月神话》以及之后的《设计原本》中都一直{非常强调}(http://wiki.c2.com/?ConceptualIntegrity)的设计理念。
+
+  但想要保证概念完整性难度非常大。下面来说说最近接触到的一个例子。
+
+  Wirth设计的系列语言有高度的概念完整性，例如Pascal、Modula-2和Oberon。这些语言有一个共同特点，就是非常强调安全性：例如类型安全、边界检查等。
+
+  安全性这一概念在Wirth的语言设计中有很好的贯彻（除个别情况外，例如Modula-2符号数与非符数兼容，这里为了便捷性放弃了部分安全性）。但在此基础上开发的系统库，有时就没有将这一理念很好地保持。比如多个实现中包含的`Strings.Assgin`方法在存储溢出时不是抛出错误而是自动截断字符串，再如整数转字符串的过程中如果存储不足也会发生自动截断。

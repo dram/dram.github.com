@@ -1,0 +1,9 @@
+article: 便利性与准确性
+
+	在{寻根究底}(link "/blog/2017/03/29/get-to-the-bottom.html")一文中，有提及Logtalk和SWI-Prolog的一些便利的特性：
+
+	1. 在调用方法时，如果object不存在，Logtalk会自动尝试找同名的Prolog模块；
+	2. SWI-Prolog在模块不存在时会自动创建；
+	3. 在一些谓词不存在时，SWI-Prolog会尝试自动载入。
+
+	这些便利的特性，有时候反而有碍程序逻辑的准确表达和理解。

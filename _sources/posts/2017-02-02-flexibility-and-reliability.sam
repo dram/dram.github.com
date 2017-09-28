@@ -1,0 +1,12 @@
+article: 灵活性和可靠性
+
+  在软件系统中，灵活性和可靠性存在一定的矛盾，Zoltan Somogyi在论文{A parallel logic programming system based on strong and precise modes}(http://www.mercurylang.org/documentation/papers.html#zs_phd_thesis)的开篇就有对此的讨论。Somogyi提及这样的一个观点：
+
+  blockquote:
+    ...if you give the system software control over the less important aspects of your task, you will have more time to devote to the crucial issues.
+
+  而人的思维也是类似的，极致的灵活性会导致思维失去稳定性。必然需要某些支点，一些原则，用于限制漫无边际的思维，这实际上是一种精神上的自律。
+
+  那是怎样的原则呢？我觉得是理性的乐观主义。
+
+  但事物具有两面性。有些问题，如果具备灵活性，可能更容易解决，加以限制之后，就会遇到困难。但并不是说在失去部分灵活性后问题就解决不了了，只是可能需要花费更多的心思以积极的心态才能解决。

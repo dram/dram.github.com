@@ -1,0 +1,22 @@
+article: Prolog中的term expansion
+
+	SWI-Prolog {Web开发教程}(http://www.pathwayslms.com/swipltuts/html/)有用到`http_dispatch:http_handler`，从{文档}(http://www.swi-prolog.org/pldoc/doc_for?object=http_handler/3)中可知该指令使用了term expansion特性。
+
+	但有个奇怪的问题，对于以下代码：
+
+	```(prolog)
+		:- use_module(library(http/http_dispatch)).
+		:- use_module(library(http/thread_httpd)).
+
+		% :- http_handler(/, say_hi, []).
+		:- http_dispatch:http_handler(/, user:say_hi, []).
+
+		say_hi(_Request) :-
+		    format('Content-type: text/plain~n~n'),
+		    format('Hello World!~n').
+
+		main :- http_server(http_dispatch, [port(8000)]).
+	
+	如果在调用`http_handler`加了`http_dispatch`前缀，那么之后的`say_hi/1`也会被追加`http_dispatch`前缀。
+
+	具体可以查看Paul Moura的{讨论}(http://blog.logtalk.org/2011/03/a-more-sane-implementation-of-the-term-expansion-mechanism/)。

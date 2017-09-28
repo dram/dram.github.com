@@ -1,0 +1,37 @@
+article: 邮件记事存储系统实现
+
+  topic: 补遗
+
+    可以研究下使用gnus替代MH-E的可行性，看能否规避MH-E存在的问题。gnus支持通过`nnmail-spool-file`读取本地邮件文件。MIME标准为文本编辑器支持邮件编辑创造了有利条件（可基于标准将二进制文件文本化），所以这一方案值得研究。—— 2016-12-10
+
+  在前些天的{邮件记事存储系统构想}(link "/blog/2016/11/10/designing-email-notes-and-storage-system.html")一文中，简要说明了如果以邮件的形式组织笔记以及存储资料，今天想要来说说这一构想的具体实现。
+  
+  当前有很多免费的邮件服务，在稳定性和易用性上都非常出色，可以从中加以选择，由于这一方式使用简便，这里不再详细讨论。下面想要说明的是基于Linux系统本地邮件服务的方案实现。
+  
+  本地邮件服务的服务端在大多数Linux发行版都有初始配置，以下主要以Debian系统为例说明两款客户端的配置。
+  
+  section: KMail
+
+    KMail是KDE的默认邮件客户端，由于是图形化的交互界面，配置相对简单，具体流程如下：
+
+    1. 在帐号配置的“收件”标签页中添加“Mbox格式”邮箱，并指定路径为`/var/spool/mail/<username>`；
+    2. 在帐号设置的“发件”标签页，添加sendmail发件模式。
+
+    另外有一点需要补充说明的是，由于KMail对于邮件地址检查较为严格，需要设置系统主机名为完整的域名，例如`debian.localdomain`。
+  
+  section: MH-E
+
+    {MH}(https://en.wikipedia.org/wiki/MH_Message_Handling_System)是一种命令行模式的邮件客户端，而MH-E则是Emacs中基于MH的扩展。关于MH的资料，可以查看{MH-E文档}(https://www.gnu.org/software/emacs/manual/mh-e.html)、{nmh的手册}(https://www.freebsd.org/cgi/man.cgi?query=nmh)以及{mailutils文档}(http://mailutils.org/manual/)，其中nmh和mailutils-mh是MH的两个实现，在这里使用的是mailutils-mh，nmh只作为文档参考。
+
+    结合MH-E和mailutils-mh可以实现在Emacs中收发邮件，但由于存在转发邮件时无法处理Unicode字符编码的问题，在此并不大适用，以下内容只作为参考。（希望编码问题可以在以后解决，另外也可以考虑基于{Gnus}(http://www.gnus.org/)实现）
+ 
+    mailutils-mh需要添加以下配置：
+
+    * 在`$HOME/.mh_profile`中添加加`Charset: UTF-8`，这样MH-E在列表页面可以显示Unicode标题。（但内容仍然不支持）
+    
+    * 在`$HOME/.mtstailor`中加入`x-mailer: no`，可以去除`X-Mailer:`邮件头。
+    
+    另外在Emacs中需要对MH-E做如下设置：
+    
+    * `(setq mh-insert-x-mailer-flag nil)`：不添加自定义X-Mailer；
+    * `mh-scan-format-nmh`：设置该变量，可以设置列表页不显示邮件的内容摘要，具体模式可参考{文档}(https://www.gnu.org/software/emacs/manual/html_node/mh-e/Scan-Line-Formats.html)。

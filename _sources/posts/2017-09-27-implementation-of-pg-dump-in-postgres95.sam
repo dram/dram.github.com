@@ -1,0 +1,14 @@
+article: Postgres95 pg_dump实现
+
+	在Postgres95 1.01代码库中，包含有{pg_dump}(https://github.com/postgres/postgres/tree/PG95-1_01/src/bin/pg_dump)的代码，以及{pg4_dump}(https://github.com/postgres/postgres/tree/PG95-1_01/src/bin/pg4_dump)的代码。
+
+	猜测pg4\_dump是为兼容导出POSTGRES数据用的，这里只就pg_dump展开分析，以下为具体流程：
+
+	1. 连接数据库；
+	2. 调用`findLastBuiltinOid`获取系统内部使用的最近oid，代码中是直接查询`pg_database`表中`datname`为`template1`的`oid`，但从{后期版本的文档}(https://www.postgresql.org/docs/7.1/static/catalog-pg-database.html)看，这一字段可能已经更改为`datlastsysoid`（待确认）；
+	3. 调用`dumpSchema`导出元数据，具体实现包括：
+		1. 调用`getTypes`、`getFuncs`、`getAggregates`、`getOperators`、`getTables`、`getIndices`函数，获取数据库中相应系统数据表中的信息，并存储为C结构体实例；
+		2. 调用对应的`dumpTypes`、`dumpTables`等函数，输出可用于恢复数据的SQL语句，例如`CREATE TYPE`、`CREATE TABLE`等；
+	4. 调用`dumpClasses`导出数据，其中会用到上一步骤获取的元数据信息。导出采用`COPY`命令，最终恢复数据命令也是使用`COPY`。
+
+	有一个细节，`getTypes`等函数在获取数据时，先后执行了`begin`和`end`查询，不知是否是表示事务？但其中只有一个查询，为何需要事务？其中原因有待确定。

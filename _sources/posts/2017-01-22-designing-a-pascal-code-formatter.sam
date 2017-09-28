@@ -1,0 +1,40 @@
+article: Pascal代码格式化工具设计
+
+  topic: 补遗
+
+    1. 在格式化时，如果注释与代码同行，则其为对该行的注释，在输出时需要保持。这就需要词法解析保留“行”信息。有两种方式：记录每个token的行号；将换行符作为独立token。如果是编译器，则更适合用第一种方式，而作为格式化工具，第二种方式更为简洁。由此想到的，对于方案优劣性的评价，需要放置到具体的应用场景中考虑。—— 2017-01-24
+    2. 由于回溯和有IO操作结合存在一些不易预知的{问题}(link "/blog/2016/12/08/backtracking-in-prolog.html")，所以在词法解析之前，将文件所有内容一齐读入内存。—— 2017-01-25
+    3. 对未完成的代码做了整理{提交}(https://github.com/dram/prolog-pascal-formatter)，还遗留较多问题，等后续再补充。—— 2017-01-28
+
+  出于以下几方面考虑，想设计一个代码格式化工具：
+
+  1. 阅读{Pascal-P5}(https://sourceforge.net/p/pascalp5/)代码（Pascal代码的整体可读性不如Modula-2，如果有格式化工具可以减轻障碍）；
+  2. 作为{Modo}(link "/blog/2017/01/11/wirth-language-family.html")语言设计实现的前期准备（词法和语法分析部分）；
+  3. 进一步熟悉Pascal语言。
+
+  考虑基于Prolog实现该格式化工具，大体分为三个模块：`lexer`、`parser`和`formatter`，下面详细介绍各模块的功能。
+
+  section: 词法解析器（lexer）
+
+    `lexer`将代码文本流转化为token列表。
+
+  section: 语法解析器（parser）
+
+    `parser`将token列表转化为代码树。
+
+  section: 格式化器（formatter）
+
+    `formatter`将代码树重新格式化生成文本流。
+
+  这里包括几个重要的数据：
+
+  1. 文本流（文本流直接以文件体现）；
+  2. token列表（基于Prolog的列表表达）；
+  3. 代码树（基于Prolog的组合term表达）。
+
+  示例代码如下：
+
+  ```(prolog)
+    lexer:analyze(in, TokenList),
+    parser:analyze(TokenList, SyntaxTree),
+    formatter:write(SyntaxTree, out).

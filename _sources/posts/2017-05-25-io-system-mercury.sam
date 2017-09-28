@@ -1,0 +1,20 @@
+article: Mercury的IO系统
+
+	之前我觉得Mercury的IO系统在实现上可能类似于Haskell，要全然掌握门槛较高，想着待对语言有一定了解后再看，没有深究。但最近有两个示例让我其产生了好奇。
+
+	一是Peter Wang在{Mercury Wiki}(https://github.com/Mercury-Language/mercury/wiki/Hello,-world!#exercises)编写的教程里，有一个练习：如果更换包含状态变量的语句顺序，会有怎样的结果？例如：
+
+	```(mercury)
+		main(IO0, IO) :-
+	        write_string("dear ", IO1, IO2),
+	        write_string("Hello, ", IO0, IO1),
+	        write_string("world!\n", IO2, IO).
+	
+	输出的结果和正常的顺序相同，没有变化：
+
+	```(shell)
+		Hello, dear world!
+	
+	由此可以猜测Mercury会基于状态变量的实例化（instantiation）情况重新组织语句。
+
+	再一个例子是Mercury自带的C接口调用的简单{示例}(https://github.com/Mercury-Language/mercury/blob/master/samples/c_interface/short_example.m)。其中对`io::di`和`io::uo`变量没有太多操作，和我以前猜测的复杂数据结构封装相去甚远。

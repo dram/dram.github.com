@@ -1,0 +1,15 @@
+Title: AtomMorph new openInWorld
+
+一个简单的使用AtomMorph的例子， 
+
+    5000 timesRepeat: [
+    	atom := AtomMorph new openInWorld.
+    	atom color: Color random.
+    	].
+
+这样会在Pharo中出现5000个彩点。位置是随机的，但是被框定在一个有限的范围内。一开始以为Morph的初始位置是openInWorld做的处理，之后才发现是在AtomMorph new时，调用了randomPositionIn:maxVelocity:方法。
+
+要删除这些点，可以运行下面的代码。
+
+    AtomMorph allInstances do: [:each | each delete].
+

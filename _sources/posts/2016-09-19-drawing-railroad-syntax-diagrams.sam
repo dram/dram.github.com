@@ -1,0 +1,59 @@
+article: 程序设计语言语法图（Railroad Diagram）
+
+	所谓“一图胜千言”，在适当的时候，图形化的表述更能快速、简洁地传达信息。
+
+	在Smalltalk{蓝皮书}(link "http://sdmeta.gforge.inria.fr/FreeBooks/")的末尾，附有针对Smalltalk语法的说明，使用的是{railroad diagram}(link "https://en.wikipedia.org/wiki/Syntax_diagram")这种图形化的表述。
+
+	细想之下，Smalltalk没有使用文本化的形式（例如EBNF）而是采用图形化是合乎情理的。因为Smalltalk语言是为让更多非专业人员充分利用计算机的资源而设计，在各个层面上需要做到尽量地平易。
+
+	本文主要介绍生成这类语法图的详细流程，基于SQLite项目使用的基于TCL/TK的{工具}(link "http://www.sqlite.org/faq.html")。	该工具脚本采用PS作为中间数据文件，再经由ImageMagick将PS文件转化为PNG图片（此操作ImageMagick需要依赖GhostScritpt完成）。
+
+	以下详细说明该脚本的用法。
+
+	section: 获取脚本
+
+		SQLite项目使用Fossil处理代码版本管理，语法图的脚本存放在`docsrc`代码库中。由于没有找到直接下载单个文件的方法，这里通过`fossil`获取其全部代码。
+
+		```(shell)
+			fossil clone http://www.sqlite.org/cgi/docsrc sqlite-doc.fossil
+			mkdir sqlite-doc && cd sqlite-doc
+			fossil open ../sqlite-doc.fossil
+
+		生成语法图的脚本路径为`art/syntax/bubble-generator.tcl`。
+
+	section: 编辑语法图数据
+
+		数据描述文件用于指定需要绘制的语法图的所需信息。具体的语法可参考`art/syntax/bubble-generator-data.tcl`文件。可以在此文件基础上直接修改和添加新语法，例如将如下示例代码添加到文件的`all_graphs`块内：
+
+		```
+			digit {
+			  or
+			    {line 0}
+			    {line 1}
+			    {line 2}
+			    {line 3}
+			    {line 4}
+			    {line 5}
+			    {line 6}
+			    {line 7}
+			    {line 8}
+			    {line 9}
+			}
+
+			digits {
+			  loop digit
+			}
+
+			number {
+			  line {opt digits r} {opt -} digits {opt . digits} {opt e {opt -} digits}
+			}
+
+		以上示例代码绘制了和蓝皮书中相同的对于Smalltalk数值常量语法的描述。
+
+	section: 生成语法图
+
+		通过`wish`命令运行`bubble-generator.tcl`，可以看到在图形化菜单中包括了上例中新添加的`digit`、`digits`和`number`项，点击即可生成图片。
+
+		如下图所示为其中`number`的最终效果：
+
+		>>>(image /images/2016-09-19-number.png)

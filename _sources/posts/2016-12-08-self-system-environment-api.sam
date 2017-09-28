@@ -1,0 +1,35 @@
+article: Self系统环境接口
+
+  * 获取环境变量
+
+    * `os environmentAt:`
+    * `os environmentAt:IfFail:`
+
+  * 命令行参数
+  
+    * `_CommandLine` —— 返回以vector组织的命令行参数
+
+  * 执行外部命令
+  
+    * `os command:`
+    * `os command:IfFail:`
+    * `os command:Executing:IfFail:`
+
+  * 读写文件
+
+    * `os_file openForReading:`
+    * `os_file openForWriting:`
+    * `f close`
+
+  * 日志记录
+
+    * `log info:`
+    * `log error:`
+
+  * 日期时间
+
+    * `time current` - 当前时间，其中`year`为年份，`month`为月份，`date`为日期
+
+  * 目录操作
+
+    * `os mkdir:Mode` - 创建目录，例如`os mkdir: 'foo' Mode: 8r755`

@@ -1,0 +1,12 @@
+article: 限制与自由
+
+  {Trealla}(https://github.com/trealla-lang/trealla)由于处于发展初期，很多功能还没有实现，特别是与操作系统相关功能，例如获取命令行参数、获取环境变量参数、完善的外部命令调用机制等，这样在作为日常脚本语言使用时存在障碍。
+
+  对于这个问题的解决方案，有以下几种：
+
+  1. 通过编写Trealla扩展实现需要的功能，这是最为直接的方式，同时Trealla是基于C实现的解释器，扩展实现的难度不大；
+  2. 通过网络调用另一专用的命令服务，类似于Erlang 19中新增的模式；
+  3. 基于shell实现，Prolog生成整合所有相关命令的shell脚本，再调用`sh`执行。
+  4. 在shell脚本中内嵌Prolog代码。shell实质上起到了胶水语言的作用，以文本及文件作为关联各个组件的数据通道。
+
+  Trealla的作者在最近增加了{从stdin读取Prolog代码}(https://github.com/trealla-lang/trealla/issues/38)的功能，使第四种方案成为可能。甚至图形界面也可以通过这一模式整合Tcl的`wish`实现。

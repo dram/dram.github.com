@@ -1,0 +1,30 @@
+article: C语言中的system函数接口
+
+	topic: 补遗
+
+		1. CLIPS先前的`system`接口没有返回值，最近{完善}(https://sourceforge.net/p/clipsrules/tickets/26/)了这个接口。但有一点需要注意的是，`system()`的返回值并不是`exit()`接口指定的值，而是`waitpid`获取的值，其中包含了更多的信息，详见{POSIX标准}(http://pubs.opengroup.org/onlinepubs/9699919799/functions/waitpid.html)。—— 2017-09-17
+
+	`system`函数是C语言中的一个经典接口，很多基于C实现的编程语言也沿用了这一接口。
+
+	虽然有如此的广泛性，但`system`有几点不足：
+
+	1. 命令间接交由SHELL执行，性能有所损失；
+	2. 接口存在{shell injection}(https://en.wikipedia.org/wiki/Code_injection#Shell_injection)安全风险；
+	3. 不能直接处理基于管道的输入输出重定向。
+
+	正因为这些原因，很多高级语言也都有封装另外的用于命令调用的接口。
+
+	我们先回头看看C语言在设计`system`时的考虑。在{Rationle for C99}(http://www.open-std.org/jtc1/sc22/wg14/www/C99RationaleV5.10.pdf) 7.20.4.6节中，总结了C程序与外部命令交互的几种方式：
+
+	* 向外部命令传送数据包括三种机制：命令行参数、环境变量、文件；
+	* 从外部命令获取数据包括两种机制：命令返回值、文件。
+
+	该文档中还特别强调，两种情况下可移植性最强的都是利用文件。
+
+	再回过来看看`system`接口的三点不足：
+
+	1. 对于性能要求并不苛刻的程序，这一点可以不用太过在意；
+	2. 可以通过封装接口，并转义特殊字符规避；
+	3. 可以通过临时文件及SHELL的重定向规避。
+
+	由此可见，`system`可以满足大部分需求。其中一个重点是要对SHELL的特性善加利用，例如管道、重定向、各类常用命令等。

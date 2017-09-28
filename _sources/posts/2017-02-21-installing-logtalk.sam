@@ -1,0 +1,29 @@
+article: 安装Logtalk
+
+  {Logtalk}(http://logtalk.org/)的安装与常见的开源软件编译安装模式有所不同，以下列出主要的不同点：
+
+  1. Logtalk基于Prolog环境实现，安装过程中并不需要编译，只是文件拷贝动作；
+  2. Logtalk包含有用户目录的概念，增加了安装的复杂性。
+
+  section: 生产环境
+
+    生产环境的安装，可以参考Logtalk的{INSTALL.md}(https://github.com/LogtalkDotOrg/logtalk3/blob/master/INSTALL.md)说明。其中涉及到`install.sh`脚本的执行、`LOGTALKHOME`和`LOGTALKUSER`环境变量的设置、`logtalk_user_setup`的执行等。
+
+  section: 开发环境
+
+    开发环境的安装可以参考{这篇}(https://github.com/LogtalkDotOrg/logtalk3/wiki/Running-Developer-Versions)维基的说明，总体与生产环境类似，只是省去了`install.sh`和`logtalk_user_setup`的步骤。
+
+  section: 脚本化
+
+    基于上面开发环境的思路，可以编写简单的脚本直接执行Logtalk，免去设置环境变量的过程，示例脚本如下：
+
+    ```(shell)
+      #!/bin/sh
+
+      ROOT="$(dirname "$(readlink -f "$0")")"
+      
+      export LOGTALKHOME="$ROOT/logtalk3"
+      export LOGTALKUSER="$ROOT/logtalk3"
+      
+      exec "$LOGTALKHOME"/integration/swilgt.sh
+

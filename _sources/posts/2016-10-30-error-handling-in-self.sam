@@ -1,0 +1,29 @@
+article: Self的错误处理机制
+
+    在诸多编程语言的不同类型错误处理机制中，Self是比较特殊的存在，其特殊性主要是由回调块及非本地返回（non-local return）这两个特性的组合应用形成。
+
+    section: 传统机制
+
+        在C和Go语言中，错误处理通过返回值的判断实现，一些函数式编程语言利用代数类型以及模式匹配做了完善优化。
+
+        而另一大类错误处理机制，则是基于异常实现，例如Python、Dart等，Smalltalk也属于此类，这一点曾在{Self初印象}(link "/blog/2016/10/15/self-first-impressions.html")中有提及。
+
+        Javascript的错误处理除了异常之外，还有部分使用回调函数实现。
+
+    section: Self机制
+
+        而Self的错误处理整体上也是通过基于块的回调函数机制实现，例如在{按行读取接口设计}(link "/blog/2016/10/30/reading-by-line.html")中提及的`readLine:IfFail:`，当读取出现错误时，接口会调用`IfFail:`中传入的块。
+
+        但普通的回调函数无法控制外层的函数执行，导致在错误处理上的不灵活，Self继承自smalltalk的非本地返回机制很好的解决了这一问题，所以Self的错误处理比Javascript的回调函数更为自然。
+
+    section: 实例
+
+        以下通过一个示例说明Self的错误处理机制：
+
+        ```(self)
+            foo: argument IfFail: fail = (|result|
+              result: bar: argument IfFail: [|:e| ^ fail value: e]
+              ... result ...
+            )
+
+        在代码中，`foo:IfFail:`依赖`bar:IfFail:`完成功能实现，如果`bar:IfFail:`出错，则通过非本地返回结束`foo:IfFail:`方法的执行，直接抛出错误到上层。Javascript难以简洁实现这一机制。

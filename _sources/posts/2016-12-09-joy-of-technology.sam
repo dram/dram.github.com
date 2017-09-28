@@ -1,0 +1,21 @@
+article: 技术的乐趣
+
+  topic: 补遗
+
+    可以将程序设计和实现类比于写作实践，两者皆可以用以描写和记录生活。而编程语言就是其工具和载体。—— 2016-12-10
+
+  技术有两大乐趣，一是设计的乐趣，二是实现的乐趣。
+
+  设计的素材除了工作之外，其实生活中比比皆是。所谓设计源于生活，也同样适用于软件设计。所以可以在业余以生活为需求，尝试各类系统设计。
+
+  而从另一角度上说，技术的乐趣又可以分为研究的乐趣和工程的乐趣。
+
+  在SICP{开篇引用}(https://mitpress.mit.edu/sicp/full-text/book/book-Z-H-3.html)有一段Alan J. Perlis的话：
+
+  blockquote:
+
+    I think that it's extraordinarily important that we in computer science keep fun in computing. When it started out, it was an awful lot of fun. Of course, the paying customers got shafted every now and then, and after a while we began to take their complaints seriously. We began to feel as if we really were responsible for the successful, error-free perfect use of these machines. I don't think we are. I think we're responsible for stretching them, setting them off in new directions, and keeping fun in the house. I hope the field of computer science never loses its sense of fun.
+
+  这里强调了研究的乐趣，而忽略了工程本身也是一种乐趣。
+
+  工作中的系统在设计和实现上需要有非常多的工程考量，例如交付时间、稳定性等等，如何在有限的时间内交付高质量的系统，这本身就有极大的挑战性和乐趣。再如工程中的性能要求、可靠性要求则同时兼有研究和工程两个方面的乐趣。

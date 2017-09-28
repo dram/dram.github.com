@@ -1,0 +1,18 @@
+article: 阅读PostgreSQL代码
+
+	topic: 补遗
+
+		1. 实际上PostgreSQL仓库中有部分代码是第三方代码，例如这个{提交}(https://github.com/postgres/postgres/commit/47f849a3c9005852926dca551d70ad8111f09f3a)中涉及到的`tzcode`。—— 2017-09-22
+
+	PostgreSQL的代码可读性很高，文档和代码注释也很详尽，另外社区发展也很健康，所以考虑读一读代码。
+
+	统计了当前版本（REL\_10\_BETA4）的代码量，C代码有70万行，非常庞大的。考虑看早期版本（PG95-1\_01），因为从版本发布说明来看，早期版本也已经有很高的成熟度，很多工具和概念一直沿用至今，这个版本的C代码量为9万行。
+
+	PG95的目录结构很清晰（当前版本与此没有大的改动），主要包括以下几部分：
+
+	* `backend/` - 服务端代码；
+	* `bin/` - 客户端工具代码及维护工具；
+	* `interfaces/` - 接口库；
+	* `test/` - 测试代码。
+
+	从{历史说明}(https://www.postgresql.org/docs/10/static/history.html)中可以看到，`psql`工具是Postgres95引入的，替换了之前的客户端工具`monitor`，那么代码阅读也可以由此开始。阅读时可以参考早期的{psql}(https://www.postgresql.org/docs/6.5/static/app-psql.htm)文档。

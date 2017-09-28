@@ -1,0 +1,28 @@
+article: Self数据类型之收集器（collector）
+
+  tags: Self
+
+  Self中没有针对collection（包括vector, sequence和dictionary）设定语法，这在一定程度上导致代码的繁琐。不过取而代之的，Self提供了收集器（collector）对象类型，并针对它定义有`&`方法，经由它可以组织任意多个对象为收集器。
+
+  以下从生成、应用两个角度详细介绍收集器的设计及应用。
+
+  section: 生成收集器
+
+    和收集器相关性最大的是`lobby defaultBehavior`中定义的`&`，以及`traits collector`中定义的`&`，依托这两个运算符，可以灵活地生成收集器。
+ 
+    以下详细介绍`&`的实现逻辑。通过排列组合，我们可以得出四种情况：
+ 
+    |`object & object`| 基于第一对象创建收集器，并将第二对象在之后追加，得到新收集器；
+    |`object & collector`| 基于对象创建收集器，并将收集器中所有元素依序在之后追加，得到新收集器；
+    |`collector & object`| 将对象追加到收集器，得到新收集器；
+    |`collector & collector`| 将第二收集器中所有元素依序追加到第一集合器之后，得到新收集器。
+
+    从以上描述中不难看出，集合器是一个逆序链表。另外Self还在链表每个节点维护索引号。索引号的作用是可以据此快速得到集合器中的元素个数。这样例如在将集合器转化为向量时可以确定向量大小，另外`statePrintString`中也有用到，用于在界面中呈现集合器的元素个数。
+
+    以上说明省略了对辅助函数`appendToCollector:`的说明，其中有double dispatch机制的应用，具体请阅读相关代码。
+
+  section: 收集器应用
+
+    Self并未对收集器定义过多的方法，从中可以看出收集器只是作为中间数据结构。除了`reverseDo:`之外，大部分方法都用于将收集器转化为其他序列类型。
+ 
+    细分的话，转化方法分为两大类：直接转化和平整转化，对应于`conversions`和`flattening`这两个方法类别。直接转化包括`asList`、`asSequence`、`asSet`、`asString`和`asVector`等，平整转化包括`flatList`、`flatSet`、`flatString`、`flatVector`等。对这些方法善加利用，很多时候可以简化序列的处理。

@@ -1,0 +1,6 @@
+article: Swift模板工具GYP
+
+	{GYP}(https://github.com/apple/swift/blob/master/utils/gyb.py)是{Swift}(https://swift.org/)内部使用的一个简单的模板工具，在阅读Swift代码时，了解GYP是必要的。
+
+	GYP的文档可以运行`gyp.py -h`查看。
+

@@ -1,0 +1,29 @@
+article: Postgres95查询的执行流程
+
+	topic: 补遗
+
+		1. `handleCopyOut`和`handleCopyIn`对应的分别是`COPY ... TO`和`COPY ... FROM`语句，而非`COPY OUT`和`COPY IN`。—— 2017-09-27
+
+	PG95查询的执行代码逻辑从{bin/psql/psql.c}(https://github.com/postgres/postgres/blob/PG95-1_01/src/bin/psql/psql.c)的`MainLoop`开始，以下罗列其中的几个关键步骤：
+
+	* 首先通过`GetNextLine`从标准输入（或者`\i`指令指定文件）获取单行内容；
+	* 再略过注释（以`--`起始的输入行）；
+	* 检查行尾是否以`;`或者`\g`结束，如果是，则置位`send_query`；
+	* 判断行首是否以`\`起始，如果是，则表示为指令行，调用`HandleSlashCmds`处理，如果不是，则拼装query buffer，在`send_query`置位时调用`SendQuery`发送查询到后端。
+
+	对于`HandleSlashCmds`中的处理机制，这里不展开说，主要包括以下几类命令：
+
+	* `\a`、`\f`等配置类命令，设置`settings`对应配置项后直接返回；
+	* `\d`相关命令以及`\l`，查询显示数据库元信息，针对这类命令，`HandleSlashCmds`会组装相应的查询语句，调用`PGexec`并显示结果，其中设计到`pg_database`、`pg_class`、`pg_user`、`pg_attribute`、`pg_type`等内部表；
+	* `\c`更改数据库，这个命令的处理详见{这里}(link "/blog/2017/09/17/process-of-postgres95-connecting-to-database.html")；
+	* `\i`指令，读取psql脚本文件，通过递归调用`MainLoop`实现；
+	* `\!`指令，调用`system`执行系统命令，有一个细节，如果`\!`没有跟随执行的系统命令，会开启一个临时的SHELL交互环境，退出后回到psql环境。
+
+	查询和结果显示都是在`SendQuery`中处理，以下详细说明：
+
+	* 调用`PQexec`将查询发送给后端执行，返回值为查询结果；
+	* 通过`PGerrorMessage`判断是否出错；
+	* 通过`PGresultStatus`解析结果类型并对应处理，例如调用`PQdisplayTuples`显示查询结果（tuple和row的概念相同，详见{这里}(https://www.postgresql.org/message-id/C05E7DA1218ED411BF8A00105AC95A8E0599DE96%40sv-cntrmail.emis.local)的讨论）、调用`handleCopyOut`和`handleCopyIn`处理`COPY OUT`和`COPY IN`语句等，`handleCopyOut`批量读取后端返回的数据并打印到标准输出，`handleCopyIn`从标准输入批量读取数据并发送给后端；
+	* 调用`PQnotifies`检查是否有异步通知。
+
+	最后，再说一个细节，在`PQdisplayTuples`中（代码在{interfaces/libpq/fe-exec.c}(https://github.com/postgres/postgres/blob/PG95-1_01/src/interfaces/libpq/fe-exec.c)），会查询`PAGER`环境变量，直接调用`popen`启动该环境变量的值，以此显示结果。另外，还需要忽略`SIGPIPE`信号。这就是`PAGER`的典型用法，Git关于pager的{实现}(https://github.com/git/git/blob/v2.14.1/pager.c)则要复杂得多。

@@ -1,0 +1,7 @@
+article: 关于Collation和Unicode
+
+	最近多次接触到Collation的概念，例如Perl 6的这篇{博文}(https://cry.nu/grant-report/)，还有PostgreSQL的{讨论}(https://www.postgresql.org/message-id/CAH2-Wz=ZrA5Yf55pKtdJb2pYCVN=2dh__VGR9arQqOHMqWgQPg@mail.gmail.com)。
+
+	那么collation究竟是什么？简单地说，collation是指字符串排序。由于数据库中排序的重要性，以及Perl 6对于Unicode的强力支持，所以可以理解两个社区为何这么重视这一问题。
+
+	从此可以看出，数据库中编码和排序是分离的，那是否可以实现中文以UTF8存储以GB2312排序呢？（GB2312有部分是拼音序）

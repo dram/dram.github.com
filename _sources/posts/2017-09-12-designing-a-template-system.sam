@@ -1,0 +1,15 @@
+article: 模板系统设计
+
+	最近考虑在CLIPS中实现一个模板系统，以便做Web应用相关开发。
+
+	最开始考虑参考{ctemplate}(https://github.com/olafvdspek/ctemplate)和{mustache}(http://mustache.github.io/)实现，两者的理念是呈现和逻辑的绝对分离。
+
+	但从当前Web开发的发展来说，呈现端是需要逻辑的，如若不然，逻辑和呈现间很难有清晰的接口分界。例如Angular就是在浏览器端实现了完整的MVC框架，Angular和后端通过RESTful API通信。
+
+	之后由此展开，看了Zope的{TAL}(https://github.com/zopefoundation/zope.tal)系统，以及{XQuery}(https://en.wikipedia.org/wiki/XQuery)标准的发展，有个细节，XQuery也不支持嵌套序列，这一点与CLIPS类似。
+
+	进而又了解了{BaseX}(https://github.com/BaseXdb/basex)和{eXist}(https://github.com/eXist-db/exist)这两个开源的XML Database，以及PostgreSQL 10对于SQL标准XMLTABLE的支持。
+
+	可以看到，传统的数据库正在往多元化的方向发展。
+
+

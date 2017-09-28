@@ -1,0 +1,32 @@
+article: 答案集编程语义
+
+	答案集编程并不是通用的编程语言，它主要适用于解决一些组合（combinatorial）问题，例如基于知识表示的事实推理过程。
+
+	section: 求解过程
+
+		答案集编程包括两个过程，grounding和solving。以以下代码为例：
+
+		```
+			num(1..2).
+			
+			queen(X, Y) :- not free(X, Y), num(X), num(Y).
+			free(X, Y) :- not queen(X, Y), num(X), num(Y).
+
+		grounding的结果（执行`clingo --text example.lp`）是：
+
+		```
+			num(1).
+			num(2).
+			queen(1,1):-not free(1,1).
+			queen(2,1):-not free(2,1).
+			queen(1,2):-not free(1,2).
+			queen(2,2):-not free(2,2).
+			free(1,1):-not queen(1,1).
+			free(2,1):-not queen(2,1).
+			free(1,2):-not queen(1,2).
+			free(2,2):-not queen(2,2).
+
+		grounding去处了所有的变量，体现在Prolog中的choice point在这里已经在grounding阶段处理，所有的choice point都包含在grounding的结果中。
+
+		如果grounding结果中不包含negation，那么求解结果只有一个{stable模型}(https://en.wikipedia.org/wiki/Stable_model_semantics)，如果包含negation，那么就会出现多个stable模型。
+

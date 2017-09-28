@@ -1,0 +1,7 @@
+article: 关于Unicode Normalization
+
+	最近{cperl}(http://perl11.org/cperl/)在{优化}(https://github.com/perl11/cperl/issues/334)UTF-8 normalization的性能。
+
+	那么什么是normalization呢？可以看看Unicode官方的{说明}(http://www.unicode.org/faq/normalization.html)。简单说，显示相同的字符在Unicode中可能存在多种编码，而normalization就是统一化的过程。
+
+	如果缺失normalization这一过程，在字符串比较、代码变量名一致性等情况下都会存在问题，Programming Perl（p.61）中对此也有说明。

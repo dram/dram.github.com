@@ -1,0 +1,9 @@
+article: SQL标准
+
+	SQL的ISO标准并不开放，但从网络上可以{找到}(https://wiki.postgresql.org/wiki/Developer_FAQ#Where_can_I_get_a_copy_of_the_SQL_standards.3F) {一些}(http://jtc1sc32.org/doc/) {草案}(http://isotc.iso.org/livelink/livelink?func=ll&objid=8917401&objaction=ndocslist)。以下以SQL:2003标准为例摘录其中一些重点。通过阅读标准，可以让概念更为清晰。
+
+	4.3 Tables中，约定表格需要有一个或多个列，零个或多个行。这样就规定了表格必须包含有列，但允许没有行（空表格）。
+
+	4.3 Tables中，对_query_的定义是基于零个或多个base table返回一个table的操作。这里有两个细节：查询不一定都是基于表格操作（可以是函数调用等），查询的结果是一个表格。
+
+	4.3 Tables中，将_view_定义为_named query_，这类似于通用编程语言中函数是对动作的抽象，不同的是不能向_view_传入参数。

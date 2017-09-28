@@ -1,0 +1,13 @@
+article: 数据抽象
+
+  在{分层化面向服务架构设计}(link "/blog/2016/10/31/layered-service-oriented-architecture.html")中，有提及”数据透明“的概念，但并未展开讨论。
+
+  近期在了解Prolog语言时想到，Prolog作为typeless语言，也是数据透明性很好的体现。在Prolog中，所有数据包括代码本身都是term。与之类似的还有{Tcl}(http://tcl.tk/)，同样是typeless的，其中所有数据都为字符串。
+
+  抛开数据与代码的统一（Lisp也有此属性），typeless这一特点带来的是模块间交互上的透明。
+
+  另外Erlang的弱数据抽象的特性，也有类似特点。这一特性可以保证Erlang代码的平滑升级（这一点在{这里}(https://dhavaldalal.wordpress.com/2016/10/27/erudite-erlang/)有提及，但并不明确，猜测是因为不用处理由于数据抽象而导致的对象与类型的关联）。
+
+  同样，在{分层化面向服务架构设计}一文中就有提及的，JSON数据描述语言的流行也与数据抽象的思路是相反的。JSON只包含列表、字典等常用类型，并没有深层的自定义数据抽象。
+
+  关系型数据库也是一个很好的例子。新近出现的{Eve}(http://witheve.com/)编程环境的思路是在语言层面支持以类似数据库的关系模型组织数据，而{Pyret}(https://www.pyret.org/)也在最近加入了对table类型的支持。

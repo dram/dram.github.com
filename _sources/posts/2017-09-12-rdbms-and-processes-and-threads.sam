@@ -1,0 +1,11 @@
+article: RDBMS和多进程多线程
+
+	topic: 补遗
+
+		1. Uber的一篇{文章}(https://eng.uber.com/mysql-migration/)中也提到了数据库多进程多线程的问题，另外一位PostgreSQL咨询公司的回应{slide}(http://thebuild.com/presentations/uber-perconalive-2017.pdf)也有提及。—— 2017-09-13
+
+	在PostgreSQL的手册{1.2. Architectural Fundamentals}(https://www.postgresql.org/docs/9.6/static/tutorial-arch.html)中提到，PostgreSQL是传统的多进程C/S架构，而从网上的讨论中有看到，MySQL是基于多线程（未确定）的。
+
+	不管是哪一种情况，都可以看到这样的架构设计无法支持大规模的客户端连接。所以OpenStack中有{Conductor}(https://docs.openstack.org/kilo/config-reference/content/section_conductor.html)服务的存在（虽然文档说是出于安全的考虑，防止计算节点直接访问数据库）。假使没有`nova-conductor`，在使用PostgreSQL时，如果有100个计算节点，就会存在100个或成倍的数据库连接。
+
+	有一个疑问是，多个进程访问数据库时，需要加锁防止竞争，这样是不是存在性能瓶颈？细化的数据库锁、表锁和行锁，具体又是如何实现的？

@@ -1,0 +1,13 @@
+article: 与或（AND/OR）过程模型
+
+  在Zoltan Somogyi的论文{A parallel logic programming system based on strong and precise modes}(http://www.mercurylang.org/documentation/papers.html#zs_phd_thesis)中，有提及_AND/OR process model_的概念，随后有简要的解释。映射到Prolog的语义环境中，其实并不难理解。
+
+  对于一个predicate的定义，Prolog允许指定多个语句，语句之间是或（_OR_）的关系。而单个语句，则是以与（_AND_）关系定义居多。
+
+  基于这样的关联，就容易理解Somogyi下面这段话了：
+
+  blockquote:
+
+    This model views (normal) logic programs as being executed by a tree of alternating levels of AND and OR processes. _AND processes_ are responsible for solving the bodies of clauses; _OR processes_ are responsible for solving individual calls. The root of the tree is an AND process corresponding to the query.
+
+  另外关于AND-parallelism和OR-parallelism的概念，可以参考{这一说明}(http://stackoverflow.com/a/23048252)。

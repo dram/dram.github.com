@@ -1,0 +1,7 @@
+Title: 开始学习Pharo
+
+Pharo是从Squeak那fork出来的，相对Squeak来说，有着更为活跃的社区和开放的开发模式。关注它有段时间了，现在还处于Beta阶段，但已经比较稳定。而且配套的Pharo by Example也已经可以[下载][1]到，是时候开始学习了。书中提到的PBE.image根据Stef的[意思][2]是直接用dev image就可以了。 
+
+   [1]: http://pharo-project.org/PharoByExample
+   [2]: http://lists.gforge.inria.fr/pipermail/pharo-project/2009-September/014004.html
+

@@ -1,0 +1,30 @@
+article: Self初印象
+
+    topic: 补遗
+
+        Self另有两点优势：1. 语法设计较为完整，可作为脚本语言使用；2. 对象可以嵌套定义。—— 2016-10-22
+
+    Self是类似于Smalltalk的纯面向对象编程语言。严格来说，这已经不是我第一次接触{Self}(http://www.selflanguage.org/)，早前在了解Smalltalk时就有体验过Self的环境。当时更关注于Smalltalk，所以只是浅尝则止。
+
+    此次不同，在短短一两周时间中，我已经从完全不熟悉到可以修正简单问题的状态，这期间提交了一些补丁，包括{修复暗色皮肤编辑器色彩问题}(https://github.com/russellallen/self/pull/81)以及{初始窗口大小可配置}(https://github.com/russellallen/self/pull/82)。由此可见，Self对初学者非常友好。
+
+    Self较好得继承了Smalltalk的传统，并有新的发展。正如Self的主要设计者David Ungar所说：“Self is Smalltalk, only more so”。以下通过和Smalltalk的比较，说明Self的特点。
+
+    section: Self的优势
+
+        * 没有复杂的{元类链}(https://en.wikipedia.org/wiki/Metaclass#/media/File:Smalltalk_80_metaclasses.svg)问题；
+        * 基于原型比基于类的面向对象模式更为灵活；
+        * 虚拟机并非基于语言本身实现（易于理解，编译不依赖Self环境）；
+        * 源码可基于模块完全{文件化}(https://github.com/russellallen/self/tree/master/objects)导出；
+        * 可基于源码构建镜像；
+        * 源码（运行时）可通过{Web}(http://browser.russell.larrikin.org/)浏览；
+        * 文档较为集中，质量较高；
+        * 没有异常机制；
+        * 分支少，社区资源集中；
+
+    section: Self的劣势
+
+        * 社区较小；
+        * 基于原型的面向对象模式对开发者要求更高；
+
+    由于Self在设计中大量借鉴Smalltalk的思想，所以也继承了诸多优点。例如语言设计简洁、开发环境强大等。

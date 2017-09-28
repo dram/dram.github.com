@@ -1,0 +1,7 @@
+article: 命名的重要性
+
+	在读{Postgres早期代码}(link "/blog/2017/09/15/reading-postgresql-sources.html")时，发现C字符串处理上的一个小问题（后续应该已经修复了），在{这几行代码}(https://github.com/postgres/postgres/blob/PG95-1_01/src/bin/psql/psql.c#L418-L423)中，`line[MAX_QUERY_BUFFER-1]`被置为`0`，那么`strlen(line)`不可能会等于`MAX_QUERY_BUFFER`。
+
+	另外`line[MAX_QUERY_BUFFER-1]`置位本身也是冗余的，因为`gets`会确保结果字符串以`\0`结束。
+
+	不过这里要说的主要不是以上问题，而是关于`gets`这个接口的命名。由于很长时间没有编写和阅读大量C代码，在这一次看到`gets`时，已经想不起这个接口是阅读单行数据的，误以为是阅读指定大小的字符串（`fread`的功能）。由此想到的就是`gets`（get-string）的命名，并没有清晰地表达按行读取的意图，不同于`getc`（get-character），读取单个字符的意思很清晰。

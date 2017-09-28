@@ -1,0 +1,22 @@
+article: Mercury的模态系统
+
+  topic: 补遗
+
+    1. Prolog的类型与模态系统，是否可以考虑基于其自身的数据库实现？例如定义事实（fact）`type(foo, deterministic([int, list(int)]))`。类似与Lisp的宏系统，只是宏用于生成代码，这里用于检查类型。—— 2017-02-14
+
+  Mercury的模态系统有一定复杂性，这从{手册}(http://mercurylang.org/information/doc-latest/mercury_ref/index.html#SEC_Contents)中所占的篇幅就可见一斑（包括modes、unique modes和determinism三章）。
+
+  但总体上基本的使用并不复杂，这里主要讲两点应用。
+
+  section: IO系统
+
+    在{教程}(http://mercurylang.org/documentation/papers/book.pdf)的第一个例子中，可以看到对`main`谓词的声明为：
+
+    ```
+      :- pred main(io::di, io::uo) is det.
+
+    其中`di`和`uo`是模态的声明，`det`是确定性的声明，这表明`main`谓词的两个输入参数类型都为`io.io`，模态分别为销毁型输入（destructive input）和唯一型输出（unique output）。Mercury以此实现了对输入输出的纯函数化（pure functional）处理。
+
+  section: 多模态谓词
+
+    和Prolog类似，Mercury的参数在不同的模态中可以作为输入或输出参数，关于这一点，手册中有详细的{说明}(http://mercurylang.org/information/doc-latest/mercury_ref/Different-clauses-for-different-modes.html)。另外{这里}(http://lists.mercurylang.org/archives/users/2017-February/008212.html)有与此相关的一些讨论。

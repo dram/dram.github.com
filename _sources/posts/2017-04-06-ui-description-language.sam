@@ -1,0 +1,5 @@
+article: UI描述语言
+
+  依据Prolog声明式语言的特点，设计基于Prolog的UI描述语言，可以作为交互设计的描述工具，甚至可以据此直接生成html代码。
+	
+	Qt的{QML}(http://doc.qt.io/qt-5/qmlapplications.html)可以参考。

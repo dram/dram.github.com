@@ -1,0 +1,17 @@
+article: Prolog和Forth的相似性
+
+  Prolog和Forth是差异很大的两种语言，但在语言设计中也有其相似性。
+
+  section: 数据库与字典
+
+    Prolog中的数据库与Forth的字典是类似的，都是用于存储“代码”，Prolog中对应于语句（clauses），Forth中对应于词（words）。
+
+    * Prolog可以用`asserta/1`、`assertz/1`添加语句，`clause/2`查询语句，`abolish/1`、`retract/1`删除语句；
+    * Forth则是用`:`添加词，用`FORGET`删除词。
+
+  section: 选择结构
+
+    Prolog和Forth的选择结构的形式虽然不同，但都是通过语言层面更基础的组件实现。
+
+    * Prolog通过组合`->`和`;`运算符实现；
+    * Forth通过组合`IF`、`ELSE`和`THEN`这三个词实现。

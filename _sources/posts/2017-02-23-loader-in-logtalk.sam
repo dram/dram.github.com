@@ -1,0 +1,54 @@
+article: Logtalk中的加载器（loader）
+
+  topic: 补遗
+
+    1. 加载器另一个作用是可以简化路径，`logtalk_load/1`在加载代码时，如果是在toplevel调用，则相对于当前工作目录查找，如果`logtalk_load/1`在代码文件中调用，则相对于该文件所在目录的路径，示例可以查看{types_loader.lgt}(https://github.com/LogtalkDotOrg/logtalk3/blob/lgt3092stable/library/types_loader.lgt)。—— 2017-02-25
+
+  在Logtalk中，加载器（loader）这个概念时常出现，总结来说，它包括两点主要功能（在刚接触Logtalk时可能不容易发现）：
+
+  1. 作为库的汇聚器，例如`library/all_loader`、`library/basic_types_loader`；
+  2. 作为程序依赖库的加载器，例如`examples`目录中的示例程序。
+
+  第一点比较容易理解，对于第二点，需要注意的是，Logtalk有以下特点：
+
+  1. Logtalk没有模块机制，通过对象封装；
+  2. 库的实现也相对动态化，只有部分静态化分析库依赖的机制，所以在载入代码前，代码所依赖的库应该预先加载到系统中。
+
+  section: 示例
+
+    以下通过示例说明：
+
+    ```(logtalk)
+      :- initialization((
+          logtalk_load(library(loopp)),
+          logtalk_load(library(loop))
+      )).
+      
+      :- object(foo).
+      
+          :- initialization(main).
+      
+          main :-
+              loop::forto(N, 1, 20, (write(N), nl)).
+      
+      :- end_object.
+
+    以上代码在运行时会提示下面的告警信息：
+
+    ```
+      *     Reference to unknown object: loop
+      *       while compiling object foo
+      *       in file /home/dram/logtalk/foo.lgt between lines 10-11
+
+    通过编写独立的loader代码可以解决，示例如下：
+
+    ```
+      :- initialization((
+          logtalk_load(library(loopp)),
+          logtalk_load(library(loop)),
+          logtalk_load(foo)
+      )).
+
+  section: 延展
+
+    从中可以看到，Logtalk在总体设计上较为动态化，继承了部分Lisp和Smalltalk的特性。如果有Prolog实现支持镜像化机制（image）的话，可能更为贴合Logtalk的设计。

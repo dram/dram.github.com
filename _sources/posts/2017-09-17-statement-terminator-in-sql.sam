@@ -1,0 +1,9 @@
+article: SQL中的语句结束符
+
+	在PostgreSQL和MySQL中，除了使用分号`;`结束语句外，都还可以使用`\g`结束，另外MySQL还支持用`\G`结束语句并按列显示结果。
+
+	翻看标准，在{SQL-92}(https://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt)中只定义了`;`，并没有`\g`的说明。而在最早的{SQUEL}(http://www.almaden.ibm.com/cs/people/chamberlin/sequel-1974.pdf)论文中，有提及使用`;`作为语句结束符，只是语义和当前SQL有些不同，例如在SEQUEL中，`;`可以作为子查询的结束符，而在SQL中，则是由括号分隔子查询。
+
+	在阅读Postgre95的代码时看到，当时就已经同时支持了`\g`和`;`。但在更早的PostgreSQL的前身{POSTGRES}(http://db.cs.berkeley.edu/postgres.html)的代码中，只支持`\g`，不支持`;`，其中指明了`g`是GO的缩写（见v4.2版本的`src/bin/monitor/monitor.c`文件）。
+
+	由于POSTGRES和SQL两者的发展相对独立，直到Postgres95才将SQL整合到POSTGRES中，可以猜测`;`是SQL的分隔符，而`\g`则来自POSTGRES或者更早期的数据库管理系统。

@@ -1,0 +1,23 @@
+article: miniKanren学习
+
+  基于{在Scheme中实现Prolog}(link "/blog/2017/03/12/prolog-in-scheme.html")的讨论，开始学习miniKanren，虽然miniKanren的{资料}(http://minikanren.org/)非常丰富，但入门的门槛依然有点高。可能是以下原因：
+
+  * 缺乏入门资料；
+  * 需要有一定的逻辑编程基础；
+  * 有较多的实现，需要选择（miniKanren最开始在Scheme中实现，而当前Scheme中及有多个{实现版本}(http://minikanren.org/#implementations)，基于其他语言的实现更是丰富）。
+
+  section: 入门材料
+
+    以下是我整理的入门材料（前提是具备Scheme和Prolog基础）：
+
+    * miniKanren作者William E. Byrd当前的{实现}(https://github.com/webyrd/miniKanren-with-symbolic-constraints)；
+    * Byrd的{交互教程}(http://io.livecode.ch/learn/webyrd/webmk)；
+    * Byrd的{博士论文}(https://github.com/webyrd/dissertation-single-spaced)。
+
+  section: 陷阱
+
+    几个容易踩的坑：
+
+    * 论文中的`exist`已经被替换为`fresh`，具体原因还有待研究；
+    * 论文中通过文字排版简化了quote，在转化为代码时需要重新加上，可以参考交互教程；
+    * `run`的结果`(_.0)`并非pair类型的`(_ . 0)`，而是单元素`_.0`的列表。

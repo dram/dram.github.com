@@ -1,0 +1,13 @@
+article: CLIPS中的multifield展开
+
+	topic: 补遗
+
+		1. Perl与CLIPS类似，数组不支持嵌套，所以在调用函数前会自动展开传入的数组参数。—— 2017-09-25
+
+	multifield作为最核心的复合类型，CLIPS对其有很好的支持。其中一点就是展开（expansion）。
+
+	在规则的模式匹配中，如果在变量前加`$`，可以匹配多个值，而在随后使用该变量时，如果前面同样加`$`，这些值将自动展开。
+
+	有一点值得注意的是，默认情况下，CLIPS只在模式匹配中对此有展开的处理，而在RHS的函数调用中，则需要通过`set-sequence-operator-recognition`设置开启。
+
+	另外一点是，由于multifield{不支持嵌套}(https://sourceforge.net/p/clipsrules/discussion/776945/thread/2c68dc68/)，所以在其他一些地方，也会有自动展开的处理。例如向`create$`传入multifield不会生成嵌套的multifield值，而是被flatten了。而`bind`中，传入多个值时，也是会做类似的处理。还有在可变参数中，也有类似的处理（这里`printout`、`format`等原生函数是一个例外，向其传入multifield不会被自动展开，具体原因还需要进一步确认）。

@@ -1,0 +1,25 @@
+article: Wirth语言家族
+
+  topic: 补遗
+
+    1. 重新引入Pascal中`FUNCTION`的概念，只是语义上更为严格，在不允许赋值非本地变量的基础上，同时也不能在函数体中调用其他`PROCEDURE`、不能包含`VAR`参数。—— 2017-01-12
+    2. 设计原则上确保只做有意义的更改，例如不考虑语法层面无谓的改动。—— 2017-01-12
+    3. 借鉴Component Pascal中的`IN`和`OUT`参数的机制。在`IN`参数不能更改和`OUT`需要未初始化的基础上，去处`VAR`变量。这样传参包括三种方式：值传递、只读引用、可写引用。这样也部分实现了{单次赋值}(https://en.wikipedia.org/wiki/Assignment_%28computer_science%29#Single_assignment)的机制。增加这些限制后，如果有需要对数据多次处理的情况，不能再多次传入过程，可以借助子过程规避，对子过程来说，外层参数不是入参，可以在多个子过程中对其处理。—— 2017-01-12
+    4. 前期也可以考虑基于P5实现，ACK的Pascal作为bootstrap使用。—— 2017-01-15
+    5. 从对{模块和过程嵌套}(link "/blog/2017/01/21/module-and-nested-procedure.html")的讨论以及和{分层化面向服务架构设计}(link "/blog/2016/10/31/layered-service-oriented-architecture.html")的结合分析中可以看出，模块并非构建复杂系统的必要元素，更多的是需要一种合理的名字空间机制。大范围的状态化反而会影响对系统的理解。—— 2017-01-21
+    6. 名字空间有这样一种简单的机制：所有可以被外部访问的过程在定义时必须带有名字空间前缀（一层或多层），否则作为内部过程。并在申明段中新增`ALIAS`段，用于为外部（或自身外部可引用的）过程或者外部名字空间（或自身名字空间）取别名。实现上看是否可以通过简单的{name mangling}(https://en.wikipedia.org/wiki/Name_mangling)处理？。—— 2017-01-21
+    7. 根据这几天{Pascal代码格式化工具设计}(link "/blog/2017/01/22/designing-a-pascal-code-formatter.html")的尝试，可以考虑基于Prolog实现Modo。流程如下：Prolog-based Pascal formatter -> Prolog-based Pascal P-code compiler -> Prolog-based Pascal LLVM compiler -> Embed Prolog into Pascal -> Prolog-based bootstrapped self-host Pascal LLVM compiler -> Modo-related etc. —— 2017-01-26
+    8. 补遗2中对于`FUNCTION`的约束，类似于C中`pure`函数的申明，以及Mercury中的`func`。Prolog中compound term在Mercury不是单纯的数据，其可以包含有由`func`体现的运算表达式。一个典型的例子是Prolog中`(is)/2`承载的数值运算在Mercury中是以`func`实现的，如整数的加法为`(int.+)/2`。—— 2017-01-31
+
+  Pascal的设计者Niklaus Wirth设计过多种编程语言，但设计的思路是{一以贯之}(link "/blog/2017/01/11/about-conceptual-integrity.html")的。详细的列表可以参考{这里}(https://www.inf.ethz.ch/personal/wirth/projects.html)。
+
+  另外还有一块是直接基于Wirth的语言发展设计的语言。例如ISO Pascal、ISO Extended Pascal、ISO Modula-2、Modula-3、Oberon-2、Component-Pascal等。
+
+  每一种语言都有它特定的理念和目标领域。我现在考虑是否可以在Modula-2的基础上设计新的语言（暂命名为Modo），主要基于以下想法：
+
+  1. 继承Wirth语言安全性的特性（据此Modula-2 variant record的特性是否需要保留需要考虑下，可以借鉴{Mesa}(http://www.softwarepreservation.org/projects/lang/mesa)对此的处理，另外Algol-68以及新近语言多有采用的类型枚举机制也可以考虑）；
+  2. 继承Wirth语言简洁的特性（直观、易于学习、易于全然掌握，据此倾向于使用传统的命令式语言，而不引入复杂的类型系统、函数式、以及面向对象特性，也因此不采用Oberon中的可扩展结构体的对象特性）；
+  3. 贯彻自顶向下的编程模式（所以继承Modula-2模块定义和实现分离的模式，而不采用Oberon中两者整合的方式）；
+  4. 保持一定的便捷性（例如可以便捷地对数组和结构体赋值，可以参考Algol-68、Mesa、ISO Pascal、ISO Modula-2的设计，再如可以在文件中包含多个模块，只有模块定义文件中包含的模块为对外可见，其他为私有模块，再如增加STRING类型）。
+
+  实现方面，暂时考虑基于NuttX项目的{Pascal}(https://bitbucket.org/nuttx/pascal)，并借鉴参考ACK中的{Modula-2}(https://github.com/davidgiven/ack)以及{Pascal-P5}(https://sourceforge.net/projects/pascalp5/)实现。

@@ -1,0 +1,20 @@
+article: CLIPS连接PostgreSQL数据库
+
+	CLIPS自身由于考虑可移植性，并没有包含网络接口，这增加了极大的不便利性。但和{这里}(link "/blog/2017/09/03/clips-web-service.html")的思路类似，可以通过socat规避。
+
+	具体实现见如下示例代码：
+
+	```(shell)
+		#!/bin/sh
+		
+		ROOT="$(dirname "$(readlink -f "$0")")"
+		
+		PG_DATA="$ROOT/data"
+		
+		socat -d -d -v -x "PIPE:pg-out.pipe,nonblock!!PIPE:pg-in.pipe" "UNIX-CONNECT:$PG_DATA/.s.PGSQL.5432"
+		
+		echo "Connection closed"
+
+	其中`-d -d`选项用于显示调试信息，`-v -x`显示数据交互。另外`nonblock`参数是为让`socat`预先将`pg-in.pipe`管道也创建好，而不是等待在`pg-out.pipe`对端连接。
+
+	之后CLIPS先打开`pg-out.pipe`管道，写入启动信息，之后PostgreSQL服务端响应后，CLIPS可以打开`pg-in.pipe`管道并读取。

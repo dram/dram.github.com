@@ -1,0 +1,25 @@
+Title: foldr 与 foldl
+
+注：以前在其他地方写的笔记，现在重新开始学习 Haskell，所以先搬过来。
+
+在 The Haskell 98 Report 的 Standard Preload 中可以找到 foldl 和 foldr 的定义如下。 
+
+    foldl             :: (a -> b -> a) -> a -> [b] -> a
+    foldl f z []      =   z
+    foldl f z (x:xs)  =   foldl f (f z x) xs
+
+    foldr             :: (a -> b -> b) -> b -> [a] -> b
+    foldr f z []      =   z
+    foldr f z (x:xs)  =   f x (foldr f z xs)
+
+foldr 的运算模式是从 list 的最右边元素开始，将列表元素作为第一个参数，初始值 z 为第二个参数来应用函数 f，并将返回值最为初始值再进行计算。如果 list 为空，则返回 z。
+
+foldl 则是从 list 的第一个元素开始，将 z 最为第一个参数，列表元素最为第二个参数，应用函数 f 后将返回值最为初始值再进行计算。
+
+下面是两个分别用 foldl 和 foldr 定义的 count 函数，是用来统计 list 中满足函数 p 的元素的个数。
+
+    count1 p l = foldr (\x c -> if p x then c+1 else c) 0 l
+
+    count2 p l = foldl (\c x -> if p x then c+1 else c) 0 l
+
+同时可以看到，由于 foldr 需要从最后一个元素开始，它实现的是一个递归的过程，而 foldl 则是一个递代的过程，所以通常 foldl 要比 foldr 高效。而由于 Haskell 的惰性特性，foldr 可以对无限大的 list 进行处理。所以 foldr 和 foldl 还是各有利弊的。

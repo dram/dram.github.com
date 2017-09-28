@@ -1,0 +1,19 @@
+article: 自定义Pelican标记语言支持（SAM插件）
+
+    Pelican默认支持的标记语言种类不多（reStructuredText和Markdown），但它提供了简洁的插件机制，可以方便添加新的标记语言支持。
+
+    在介绍如果添加插件之前，先来分析下Pelican中对标记语言源文件处理的基本工作流程：
+
+    1. 遍历源文件目录，根据扩展名调用不同的解析器（reader）；
+    2. 从解析器中获得页面元数据（标题、日期等）和内容信息；
+
+    可以据此推导出标记语言插件需要具备的功能：
+
+    * 指定支持的扩展名；
+    * 提供源文件解析接口，返回元数据和页面内容；
+
+    具体来说，Pelican的插件通过继承`pelican.readers.BaseReader`类来实现。其中定义有`file_extensions`属性，实现`read`方法。`read`方法返回一个元组，包含页面内容和元数据。
+
+    插件的注册是通过在插件文件中定义`register`函数实现。该函数在Pelican解析器初始化中挂载钩子，钩子的功能是向Pelican添加以上实现的新标记语言的解析类。
+
+    详细的内容，可以参考Pelican的{Plugins文档}(link "http://docs.getpelican.com/en/3.6.3/plugins.html")以及这里的{SAM插件}(link "https://github.com/dram/dram.github.com/blob/master/sam_reader.py")。

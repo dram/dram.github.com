@@ -1,0 +1,13 @@
+article: 关于设计的轨迹和原理
+
+  在《设计原本》第16章中，Frederick Brooks强调了记录设计轨迹及其背后原理的重要性。
+
+  这一点非常重要，但真要实施起来却也非常困难。例如在开源项目中，大量的知识和信息都隐藏在项目发展的过程中。虽然借助于版本管理、项目管理、bug跟踪等工具和系统，有部分信息被记录了下来，但依然有很大的遗漏，另外记录的信息也是相对零散的。
+
+  在{邮件记事存储系统构想}(/blog/2016/11/10/designing-email-notes-and-storage-system.html)中，也曾提到借由“补遗”记录过程的方式。但总体感觉这种方式更适合于个人使用。
+
+  这里举一个记录历史的重要性的例子。当前{RESTful API}(https://en.wikipedia.org/wiki/Representational_state_transfer)的使用已经非常广泛，在RESTful中，将传统的{CRUD}(https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)操作映射到HTTP的`POST`、`GET`、`PUT`、`DELETE`方法。
+
+  由于没有系统性学习过RESTful，一直以来我认为在RESTful中`PUT`方法被设定为支持部分更新。而实际上RESTful的设计者Roy Fielding是将`PUT`指定为{全量更新}(http://stackoverflow.com/a/19736570)，而HTTP/1.1新增的`PATCH`方法也是Roy Fielding提出的，正是作为`PUT`的补充。
+
+  所幸的是，这一重要历史信息被记录在RFC 5789的{附录}(https://tools.ietf.org/html/rfc5789#appendix-A)中。由此可以对`PUT`和`PATCH`在RESTful API中的应用有更深入的理解。

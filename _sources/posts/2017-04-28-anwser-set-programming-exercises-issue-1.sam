@@ -1,0 +1,96 @@
+article: 答案集编程练习（第一期）
+
+	topic: 补遗
+
+		1. 该练习参考了Luger《人工智能》第二部分前言中的例子。—— 2017-04-28
+
+	当前针对答案集编程的资料不多，多数有较高的门槛，在学习的过程中存在一定阻力。
+	
+	现在想通过实践的方式辅助理解，这里将题目与参考的程序加以整理。以下是第一期的题目及题解，完整的程序可以在{这里}(https://github.com/dram/answer-set-programming-exercises/blob/master/issue-1/blocks.lp)查看。
+
+	section: 题目
+
+		有`a`，`b`，`c`，`d`四个块，列举将他们叠加摆放在桌面的所有方法。其中`a`，`b`，`c`为正方形，`d`为三角形。
+	
+	section: 解题
+
+		解题基本按四个步骤进行。
+
+		section: 描述事实
+
+			```
+				block(a).
+				block(b).
+				block(c).
+				block(d).
+
+				cube(a).
+				cube(b).
+				cube(c).
+				pyramid(d).
+
+		section: 枚举答案
+
+			所有块必须摆放在桌面或者其他块之上，基于此可以列举备选的所有可能答案集。
+
+			```
+				on_table(X) ; on(X, Y) : block(Y) :- block(X).
+
+		section: 添加约束
+
+			在上一步骤获得的答案集中，有些答案集是无效的，需要加以筛选。
+
+			只允许将其中一个块放置在桌面上：
+
+			```
+				:- on_table(X), on_table(Y), X != Y.
+
+			块上之后放置一个块：
+
+			```
+				:- on(X, Z), on(Y, Z), X != Y.
+
+			不能将块放置在三角形之上：
+
+			```
+				:- on(_, X), pyramid(X).
+
+			不能循环堆叠：
+
+			```
+				above(X, Y) :- on(X, Y).
+				above(X, Y) :- on(X, Z), above(Z, Y).
+				:- above(X, X).
+
+		section: 显示结果
+
+			```
+				#show on/2.
+				#show on_table/1.
+
+	section: 结果
+
+		以下是在Clingo 5.2中运行的结果：
+
+		```
+			clingo version 5.2.0
+			Reading from blocks.lp
+			Solving...
+			Answer: 1
+			on_table(b) on(d,a) on(c,b) on(a,c)
+			Answer: 2
+			on_table(b) on(c,a) on(a,b) on(d,c)
+			Answer: 3
+			on_table(c) on(b,a) on(d,b) on(a,c)
+			Answer: 4
+			on_table(a) on(b,a) on(c,b) on(d,c)
+			Answer: 5
+			on_table(c) on(d,a) on(a,b) on(b,c)
+			Answer: 6
+			on_table(a) on(c,a) on(d,b) on(b,c)
+			SATISFIABLE
+
+			Models       : 6
+			Calls        : 1
+			Time         : 0.001s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+			CPU Time     : 0.001s

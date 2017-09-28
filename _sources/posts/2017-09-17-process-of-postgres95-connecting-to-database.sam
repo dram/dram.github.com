@@ -1,0 +1,18 @@
+article: Postgres95连接数据库流程
+
+	Postgres95的客户端`psql`主要在以下两点需要连接数据库：
+
+	1. 启动命令时，通过命令行参数或环境变量指定数据库服务器主机和端口，以及数据库名称；
+	2. 执行`\c`命令切换数据库时，需要重连服务。
+
+	`\c`命令在实现上和第一次连接数据库相同，在无法连接到新数据库时，会回退到先前的数据库。所以以上两个流程基本相同，最为核心的代码在{interfaces/libpq/fe-connect.c}(https://github.com/postgres/postgres/tree/PG95-1_01/src/interfaces/libpq/fe-connect.c)文件中的`PQsetdb`和`connectDB`函数实现。
+
+	`PQsetdb`通过参数或者环境变量获取主机、端口、参数、数据库名称信息，初始化`PGconn`结构体实例，之后调用`connectDB`连接数据库。这里有一个细节，数据库名称可以作为参数直接指定，或者通过环境变量`PGDATABASE`指定，如果两者都没有指定，PG95会尝试获取用户名作为数据库名，用户名作为数据库名这一模式一直沿用至今，详见{文档}(https://www.postgresql.org/docs/10/static/tutorial-accessdb.html)。而用户名的获取会在下面详细描述。
+
+	刚才提到，PG95在获取数据库名称时可能会用到用户名，而在`connectDB`连接数据库时，也需要指定。在PG95 1.01版本中，无法通过`psql`命令行指定用户名，另外也没有对应的`PGUSER`环境变量。用户名是基于Kerberos的{credential cache}(https://web.mit.edu/kerberos/krb5-1.12/doc/basic/ccache_def.html)获取的。如果无法获取，则会使用当前登录用户（通过`getpwuid()`获取）。之后就是惯常的TCP连接建立，以及通过`startup2PacketBuf`组装请求数据包，并通过`packetSend`发送。
+
+	另外有一个细节，在这里提一下，在`startup2PacketBuf`和`packetSend`的注释中有提到，这两段代码与backend/libpq的代码类似，只是为了不链接`libpq.a`而在这边定义了。为何同时存在两份`libpq`代码（分别在backend和interfaces目录）？
+
+	从目录中文件命名来看，`fe`表示frontend，`be`表示`backend`。从内容上看，分别是客户端逻辑和服务端逻辑代码，这一点比较认证相关的代码就可以看出。
+
+	从Makefile看，最终的`libpq`库应该是由interfaces目录中的代码生成的，那backend目录中的libpq的意图是什么呢？主要是给PG内部使用的吗？这还需要进一步确认，特别是注释中提到的不链接`libpq.a`令人费解。

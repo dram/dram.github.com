@@ -1,0 +1,24 @@
+article: 界面的形式化语言表述
+
+  前两天在翻N. Wirth一篇早期论文时看到一句话：
+
+  """
+    I prefer to regard programming as the activity of *designing* a new machine (to be implemented with the aid of an existing, general-purpose device).
+
+    {Data Structures and Algorithms}(http://e-collection.library.ethz.ch/view/eth:3168) \(August 1984)
+
+  这是在强调程序设计的严谨性，要以设计硬件设备的态度来设计软件。
+
+  以此想到的，在软件工程过程中，对于严谨性的要求也常是有所缺失的。特别是在产品需求分析和交互设计中，大量依赖描述性语言和图形化的表述。
+
+  那么如何增强严谨性？借用TLA+的思路，可以利用形式化描述语言。但语言只是思路的表达和梳理，还需要建立在清晰的设计思路基础之上。
+
+  在Alan John Dix的{界面设计形式化介绍}(https://www.interaction-design.org/literature/book/the-encyclopedia-of-human-computer-interaction-2nd-ed/formal-methods)文章和{Formal Methods for Interactive Systems}(http://www.hiraeth.com/books/formal/)一书中，他重点介绍用PIE模型描述交互系统的方法。由此引申开的，再结合Eric Evans领域驱动设计方面的思路，可以考虑利用模型的方式规范化需求分析和交互设计。
+
+  首先，交互的细节以及界面的实现可结合状态机和PIE模型分析。状态模型包括两大部分，一是对状态的建模，二是对状态间迁移过程的建模。过程建模可以依赖PIE模型描述，而对状态的建模，在交互设计中，可以针对界面进行。可以将此模型命名为界面状态模型。（这里插句题外话，在现在的B/S系统交互设计中，无形地会受到Web中页面、弹出框、错误提示框等概念模型的影响，这阻碍了形式化分析。通过以“界面”而不是“页面”来限定状态模型中的状态，可以有利于建模。例如弹出框输入页面和原页面就是两个不同界面。）
+
+  具体需要包括哪些界面，则可以通过交互模型确定。在交互模型中包括两部分内容：各类用户需要从系统各界面获取哪些信息，以及各类用户需要通过系统各界面进行哪些操作。
+
+  那么如何将场景化的用户需求、用户用例和交互模型关联？交互模型侧重于界面，业务模型侧重于数据。大部分系统真正的作用往往是实际的动作，比如电饭煲要煮饭，热水壶要烧水。但用户感知到和操作的往往是数据，特别是对计算机系统来说。也就是说数据充当了用户直接操作和系统作用直接的媒介。那么业务建模就是可以理解为对“用户操作”、“数据”、“系统动作”这三者的建模。
+
+  以上三个模型：业务模型、交互模型、界面状态模型，分别对应于需求分析、交互设计和前端实现设计三个阶段。

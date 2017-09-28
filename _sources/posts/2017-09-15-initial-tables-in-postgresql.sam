@@ -1,0 +1,7 @@
+article: PostgreSQL的初始数据表
+
+	在{PostgreSQL多实例运行}(link "/blog/2017/09/12/run-multiple-postgresql-instances.html")的补遗中有提到，PostgreSQL在初始化时会创建`postgres`、`template0`、`template1`这三个数据库，而数据库里面初始就创建了多张系统默认表，可以通过`\dt *`查看。
+
+	对于这些表的说明，具体见这里的{文档}(https://www.postgresql.org/docs/10/static/catalogs-overview.html)。文档中涉及到cluster、catalog、schema的概念，可以分别简单理解为数据库服务、数据库、名字域，具体的解释可以阅读这一个{Stack Overflow}(https://stackoverflow.com/a/17943883/5180632)的回答。
+
+	可以看到，这些表大多为各数据库私有，但也有个别表是在一个cluster中多个数据库共享的，比如`pg_database`存储了cluster中各数据库的信息，这一共享是基于tablespace实现的，具体可以查看{文档}(https://www.postgresql.org/docs/10/static/manage-ag-tablespaces.html)，通过`\d pg_database`可以查看到`pg_global` tablespace。再如`pg_tablespace`表存储了cluster中所有tablespace信息。

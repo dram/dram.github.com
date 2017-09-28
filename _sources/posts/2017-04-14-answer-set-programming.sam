@@ -1,0 +1,11 @@
+article: 答案集程序设计（Answer set programming）
+
+	无意间看到{Potassco}(https://potassco.org/)项目，进而了解到答案集程序设计（{Answer set programming}(https://en.wikipedia.org/wiki/Answer_set_programming)）的概念。
+
+	总体来说，要学习答案集程序设计，需要有这几方面的基础：{逻辑编程}(https://en.wikipedia.org/wiki/Logic_programming)、{知识表示}(https://en.wikipedia.org/wiki/Knowledge_representation_and_reasoning)、稳定模型（{Stable model}(https://en.wikipedia.org/wiki/Stable_model_semantics)），这样的门槛不低。
+
+	以下是一些参考资料：
+
+	* {Artficial Intelligence Volume 138}(http://www.sciencedirect.com/science/journal/00043702/138/1)：这一卷较为系统地介绍了知识表示和稳定模型，出版于2002年，处于答案集程序设计发展的早期，阅读难度相对适中些；
+	* {Lparse 1.0 User's Manual}(http://www.tcs.hut.fi/Software/smodels/lparse.ps) ：{Smodels}(http://www.tcs.hut.fi/Software/smodels/)的Lparse教程，循序渐进，虽然内容有些旧，部分不适用于Clingo，但依然有很高的参考性，可以作为入门材料；
+	* {A Tutorial on Hybrid Answer Set Solving with clingo}(https://www.cs.uni-potsdam.de/~torsten/hybris.pdf)：新近的一篇重实践的Clingo教程，可以作为Clingo快速进阶的起步。

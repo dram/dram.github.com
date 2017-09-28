@@ -1,0 +1,11 @@
+article: 模块和过程嵌套
+
+  除去当前主流语言中常包含的{闭包}(https://en.wikipedia.org/wiki/Closure_(computer_programming))特性，模块和嵌套的过程存在一定的相似性，都可以作为一种封装机制。
+
+  但两者同时又有明显的不同，例如：
+
+  1. 过程只有单一入口，模块有多个入口（另一角度来说，模块涵盖了{名字空间}(https://en.wikipedia.org/wiki/Namespace)的功能特性）；
+  2. 过程具有入口参数，模块不具备（但模块内的全局变量可以替代入口参数的功能）；
+  3. 过程无状态，模块可以通过全局变量包含持久化的状态属性（过程可以通过结合内嵌过程以及入口参数实现临时持久化）。
+
+  总体说来，模块的一些特性接近于“{对象}(https://en.wikipedia.org/wiki/Object_(computer_science))”的概念。

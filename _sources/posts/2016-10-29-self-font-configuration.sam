@@ -1,0 +1,79 @@
+article: Self字体设置
+
+    topic: 补遗
+
+        在{脚本化添加Self属性}(link "/blog/2016/11/07/add-self-slots-in-scripts.html")中，有对字体设置的更新，并包含有配色设置。—— 2016-11-07
+
+    Self中有一`preferences`对象，用于设置开发环境的一些可定制化信息。比如我之前提交的设置{初始化窗口大小}(https://github.com/russellallen/self/pull/82)的功能，就是在`preferences desktop`对象中增加了属性`initialBounds`。
+
+    但`preferences`当前还不支持设置界面的字体。如果需要调整Self字体样式，只能通过变通的方法实现，下文将予详细介绍。
+
+    基本的思路是找到各界面元素对应的fontSpec对象，再调整其配置。查找的流程如下：
+
+    1. 对需要调整字体的文字点击右键，点击*Submorphs...*菜单项；
+    2. 在submorphs菜单中选择最上层的*labelMorph*，也就是文字对应的morph；
+    3. 在随后弹出的菜单中选择*Outliner...*，Self会打开该labelMorph对应的outliner；
+    4. 展开outliner，在*Label Morph State*分类中，找到*myFontSpec*属性；
+    5. 查看*myFontSpec*的详情，在其outliner的标题即可看到其对应的creator路径，由此可以定位到该对象。
+
+    至此，界面文字对应字体设置对象就找到了，之后可使用`traits fontSpec`中定义的方法设置其属性。
+
+    section: 配置脚本
+
+        以下代码可以存放在`$HOME/.selfrc`中，之后在Self的终端shell中执行`cc rc`既可以打开字体经过调整的界面：
+
+        ```
+            (|
+              globals* = globals.
+              mono = fontSpec copyName: 'courier' Size: 16.
+              sans = fontSpec copyName: 'helvetica' Size: 16.
+              serif = fontSpec copyName: 'times' Size: 16.
+            
+              set: font To: font1 = (
+                font name: font1 name.
+                font size: font1 size.
+                font style: font1 style
+              ).
+            
+              setup = (
+                set: generalCategoryModel objectTitleFontSpec To: serif copyStyle: 'bold'.
+                set: selfCatOrObjModel moduleSummaryFontSpec To: serif.
+                set: generalCategoryModel subcategoryTitleFontSpec
+                 To: serif copyStyle: 'italic'.
+            
+                set: outlinerPreferences headerButtonFontSpec
+                 To: (sans copySize: 9) style: 'bold'.
+            
+                set: selfGeneralSlotModel undeclaredTitleFontSpec To: sans.
+                set: selfGeneralSlotModel privateTitleFontSpec To: serif.
+                set: selfGeneralSlotModel publicTitleFontSpec To: serif copyStyle: 'bold'.
+            
+                set: generalLeafModel commentButtonFontSpec
+                 To: (sans copySize: 8) style: 'bold'.
+                set: generalLeafModel contentsLabelFontSpec To: serif copyStyle: 'italic'.
+            
+                set: ui2_textField fontSpec To: mono copyStyle: 'bold'.
+            
+                set: evaluatorMorph preferredFontSpec
+                 To: (sans copySize: 12) style: 'bold'.
+            
+                set: generalModel titleFontSpec To: serif copyStyle: 'bold'.
+                set: generalProcessModel commandButtonFontSpec To: sans copyStyle: 'bold'.
+                set: outlinerPreferences myFontSpec To: serif.
+                outlinerPreferences tinyFontSize: 12.
+            
+                set: ui2Button defaultFontSpec To: serif.
+                set: ui2Menu defaultFontSpec To: serif.
+            
+                desktop open
+              )
+            |) setup
+
+        由于界面元素较多，所以代码比较冗杂，但基本模式类同。
+
+    section: 遗留问题
+
+        以下是在分析过程中发现的问题，需要有所留意：
+
+        1. 界面中大部分的字体配置都可以上述方式找到，但有一些特殊的界面元素需要通过分析其代码，首先还是通过submorphs菜单中定位到该元素的morph实现；
+        2. 由于有一部分fontSpec的配置的初始值机制被设置为*Follow*，导致在导出模块代码时会体现字体的更改，这一点需要留意，完善的解决方案是调整一些对象初始值为固定表达式。

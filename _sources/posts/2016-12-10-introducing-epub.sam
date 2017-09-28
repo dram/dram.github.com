@@ -1,0 +1,33 @@
+article: EPUB介绍
+
+  topic: 补遗
+
+    {Texinfo}(https://www.gnu.org/software/texinfo/)文档可以以DocBook作为中间格式转化到EPUB，利用`makeinfo`的`--docbook`参数实现，详见{这里}(https://github.com/ikrukov/epub)的示例。另外`--ifinfo`可用于包含默认只在生成`info`格式文件时显示的内容。—— 2016-12-12
+
+  EPUB作为兼容性较强的电子图书格式，各类系统对此都有较好的支持，例如DocBook、Sphinx等。
+
+  EPUB 3是最近更新（2014年）的版本，在多个方面做了优化完善。EPUB本身为一ZIP压缩包，具体的内容和格式可以参考Wikipedia的{介绍}(https://en.wikipedia.org/wiki/EPUB#Implementation)，主要内容包括：
+
+  1. `mimetype` —— 文件类型说明；
+  2. `META-INF` —— 内容元数据；
+  3. `OEBPS` —— 主体内容。
+
+  其中`OEBPS`是`Open eBook Publication Structure`的缩写，详见Wikipedia的{说明}(https://en.wikipedia.org/wiki/Open_eBook)。
+
+  以下介绍基于DocBook生成EPUB文件的方法。
+
+  在DocBook的{XSLT Stylesheets}(https://github.com/docbook/xslt10-stylesheets)中已经包含有对EPUB 3的支持，详细的使用说明可以参考{README}(https://github.com/docbook/xslt10-stylesheets/blob/master/xsl/epub3/README)中的内容，概括来说包括以下几步：
+
+  1. 基于`epub3/chunk.xsl`样式表转化DocBook文件，如：
+
+     ```
+       xsltproc --xinclude --stringparam base.dir epub/OEBPS/ /path/to/epub3/chunk.xsl book.xml
+
+     注意：新旧版本对`base.dir`的处理略有不同，新版本不需要指定`OEBPS`子目录。
+
+  2. 将内容打包，如：
+
+     ```
+       bsdtar -acf book.epub --format zip META-INF OEBPS mimetype
+
+  Sphinx在1.5版本默认使用EPUB 3作为EPUB格式的输出，使用`make epub`生成。

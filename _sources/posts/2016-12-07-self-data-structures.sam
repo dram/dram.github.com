@@ -1,0 +1,127 @@
+article: Self数据结构
+
+  之前已对{Self中的序列对象}(link "/blog/2016/10/29/sequences-in-self.html")和{Self数据类型之收集器}(link "/blog/2016/11/08/self-data-structures-collector.html")有简单介绍，以下对Self各数据类型做汇总整理。
+
+  section: 布尔（boolean）
+
+    布尔型是非常基本的类型，在Self及Smalltalk中，更是有其特别的用途。
+
+    传统结构化编程中的分支结构，在Self中通过`true`和`false`对象以及boolean特性（traits）实现，而Smalltalk中则通过`True`和`False`这两个`Boolean`子类实现。
+
+    在boolean特性中，定义有以下方法：
+
+    * `ifTrue:` —— 为真时执行参数（代码块）；
+    * `ifFalse:` —— 为假时执行参数（代码块）；
+    * `ifFalse:True:` —— 选择性执行参数（代码块）。
+
+    以上方法基于`true`和`false`对象中的`ifTrue:False:`实现。
+
+    另外`true`和`false`都定义有以下方法：
+
+    * `&&` —— 逻辑与；
+    * `||` —— 逻辑或。
+
+  section: 数值（number）
+
+    * `predecessor` (`pred`) —— 前一数值；
+    * `successor` (`succ`) —— 后一数值；
+    * `negate` —— 正负取反；
+    * `absoluteValue` —— 绝对值；
+    * `double` —— 倍数；
+    * `half` —— 半数；
+    * `square` —— 平方；
+    * `power:` —— 幂；
+    * `min:` —— 校小值；
+    * `max:` —— 较大值。
+
+  section: 整数（integer）
+
+    * `do:` —— 对`0..n`的数遍历；
+    * `reverseDo:` —— 反向遍历；
+    * `asVector` —— 快速创建`n`大小的向量，并且填充元素，值与索引号相同；
+    * `to:Do:` —— 遍历从`n`到`m`的数；
+    * `to:By:Do:` —— 按`step`遍历从`n`到`m`的数。
+
+  section: 浮点数（float）
+
+    * `ceil` —— 向上取整；
+    * `floor` —— 向下取整；
+    * `round` —— 取相近整数，如果是半数，则靠近偶数；
+    * `truncate` —— 删去小数位。
+
+  section: 集合（collection）
+
+    集合特性包含有序列类以及键值对类的子特性，详细介绍参考{Self中的序列对象}。需要注意的一点是，在使用`do:`遍历集合时，以`:value`、`:key`的顺序传入遍历块，由于Self中支持忽略传入块的多余参数，所以在遍历序列时不需要关心第二个参数。实际上，在序列中，可以认为每个元素的`key`和`value`是相同的，都为其本身。
+
+    * `do:` —— 遍历集合元素，但很多类型都重载了遍历的实现；
+    * `keys` —— 获取字典中的所有键名；
+    * `mapBy:` —— 遍历集合元素，并重新组合结果；
+    * `mapBy:Into:` —— 遍历集合元素，并将结果添加到另一集合；
+    * `filterBy:Into:` —— 过滤集合元素，并将结果添加到另一集合；
+    * `isPrefixOf:` —— 前缀判断；
+    * `isSuffixOf:` —— 后缀判断。
+
+  section: 索引（indexable）
+
+    indexable是键为整型的集合，详细介绍参考{Self中的序列对象}。
+
+    * `copyAtMost:` —— 拷贝限定大小的序列，不超出原序列大小；
+    * `copySize:` —— 拷贝限定大小的序列，如果超出原序列大小，则自动填充；
+    * `copyWithoutFirst:` —— 拷贝序列，不包括第一个元素；
+    * `copyWithoutLast:` —— 拷贝序列，不包括最后一个元素；
+    * `copyFrom:` —— 指定开始拷贝的索引号；
+    * `copyFrom:UpTo:` —— 指定拷贝开始和结束索引号，超出范围会抛出异常；
+    * `copyFrom:Size:` —— 指定开始和大小拷贝序列，超出范围会抛出异常；
+    * `splitOn:` —— 序列切割；
+    * `replace:With:` —— 替换；
+    * `findSubstring:IfPresent:IfAbsent:` —— 子串查找；
+    * `replaceAllSatisfying:With:` —— 基于判断的替换；
+    * `joinUsing:` —— 序列拼接。
+
+  section: 向量（vector）
+
+    从vector的prototype可以看出vector是较为底层的特性，除parent和数据外，他自身并不包含任何额外的slot。
+
+  section: 序列（sequence）
+
+    sequence是基于vector实现的可动态调整存储空间的序列。vector是固定大小的。在traits sequence中包含方法`desiredMinCapacity:`，用于调整大小。另外dictionary也是基于vector实现的。
+
+    如果考虑JSON序列化问题，在Self众多序列对象中，总体sequence较为合适。
+
+    * `filterBy:` —— 过滤。
+
+  section: 字符串（string）
+
+    字符串的主体原型链为：`traits string` -> `traits byteVector` -> `traits mutableIndexable`，后续的原型在{Self中的序列对象}中已有说明。
+
+    * `shrinkwrapped` —— 去首尾空白符；
+    * `matchesPattern:` —— 通配符匹配。
+
+    以下是一段字符串处理的示例代码，实现了简单的字符串格式化功能：
+
+    ```
+      format: format With: arguments = (|parts|
+        parts: sequence copy.
+        (format splitOn: '<>')
+          with: ((arguments copyAddLast: '') mapBy: [|:a| a asString])
+            Do: [|:s1. :s2| (parts add: s1) add: s2].
+        parts joinUsing: ''
+      ).
+
+  section: 列表（list）
+
+    list是不可索引的序列。
+
+    * `filterBy:` —— 过滤。
+
+  section: 字典（dictionary）
+
+    在维基百科中，对于字典（或关联数组、映射）的{定义}(https://en.wikipedia.org/wiki/Associative_array)为：
+
+    blockquote:
+
+      An associative array, map, symbol table, or dictionary is an abstract data type composed of a collection of (key, value) pairs, such that each possible key appears at most once in the collection.
+
+    在这个定义中，有两个关键点：字典是键值对的集合，键在集合中有唯一性。针对字典的操作，有创建、获取值、添加或更新值、遍历等，例如在Squeak中，对应于`class>>new`和`class>>newFromPairs:`、`at:`和`at:ifAbsent:`、`at:put:`和`at:ifAbsentPut:`、`do:`。
+
+    而在Self中，部分功能在上层特性中实现，例如集合中的`keys`和`do:`，`abstractSetOrDictionary`中的`at:Put:`等。

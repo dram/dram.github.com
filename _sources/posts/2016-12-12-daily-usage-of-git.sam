@@ -1,0 +1,45 @@
+article: Git日常使用
+
+  {Git}(https://git-scm.com/)是非常流行的分布式版本控制工具。除了管理代码外，配置、文档等也可以依次管理。借助{GitHub}(https://github.com/)、{BitBucket}(https://bitbucket.org/)等在线系统，更是能获得完善的使用体验。
+
+  本文主要介绍Git的日常使用，作为记录备忘。
+
+  section: 分支管理
+
+    section: 创建分支
+
+      `git checkout -b name`命令可以在本地创建分支。如果需要在远端创建，可以继续使用`git push origin name`将分支上传。
+
+    section: 切换分支
+
+      如果在当前分支有未提交的更改，但需要切换到其他分支编辑，这时可以使用`git stash`缓存更改，然后创建或切换分支，再利用`git stash apply`还原更改。
+
+    section: 上游同步
+
+      ```
+        git remote add upstream /path/to/upstream/repo.git
+        git fetch upstream
+        git checkout master
+        git merge upstream/master
+
+    section: 浅层克隆
+
+      ```
+        git clone --depth=1 --branch=name...
+
+  section: 日志
+
+    * `git log --summary` - 显示文件创建、删除、重命名等信息；
+    * `git log --stat` - 显示每次提交每个文件改动的统计。
+
+  section: SVN整合
+
+    section: 初始化
+
+      ```
+        git svn clone /path/to/svn/repo local-path
+
+    section: 更新
+
+      ```
+        git svn rebase

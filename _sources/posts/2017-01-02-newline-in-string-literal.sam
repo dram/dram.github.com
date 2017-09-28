@@ -1,0 +1,18 @@
+article: 字符串字面值中的换行符
+
+  在Modula-2的{报告}(http://e-collection.library.ethz.ch/view/eth:3135)中，Wirth限定字符串字面值不能包含换行符（这份报告并非最早版本，在Modula-2的{第一份报告}(http://e-collection.library.ethz.ch/view/eth:3131)中，并没有限制）。但在{Oberon}(https://www.inf.ethz.ch/personal/wirth/Oberon/Oberon.Report.pdf)的报告中，又去除了这一限制。
+
+  由此想到的，是其他语言对于这一细节的处理，就此可以参考维基百科中对于{多行字符串字面值}(https://en.wikipedia.org/wiki/String_literal#Multiline_string_literals)的说明。基本上可以分为三类：
+
+  1. 不支持，例如C、Modula-2；
+  2. 直接支持，例如Oberon；
+  3. 通过其他语法支持，例如Python、C++。
+
+  在维基百科中提到支持多行字符串字面值的复杂性，包括对首尾换行的处理，以及对缩进的处理。
+
+  另外想到的一点是：对于换行符的处理。不同系统的换行标识不同，例如：`\r`、`\n`、`\r\n`。那么如果支持多行字符串，那么该如何处理呢？有以下几种方式：
+
+  1. 保持源码文件中的换行字符，这将导致在不同系统间的可移植性问题；
+  2. 统一转化为固定的形式，例如Python统一转为`\n`，这增加了语言的复杂性，在输出时又需要考虑重新转换。
+
+  从Wirth对这一细节的反复考虑中可以反映出这一问题的复杂性。而在Oberon中放开这一限制，部分原因猜测可能正是在Oberon{新版报告}(https://www.inf.ethz.ch/personal/wirth/Oberon/Oberon07.Report.pdf)引言中提到的：将这一自由给予实现者。

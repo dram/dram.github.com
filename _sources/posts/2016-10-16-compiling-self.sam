@@ -1,0 +1,52 @@
+article: 编译Self
+
+    topic: 补遗
+
+        运行Self可以使用`Self -s file.snap`命令，另外`snap`文件本身是可执行文件，可以直接运行，具体细节可以用编辑器打开`snap`文件查看。—— 2016-11-07
+
+    主流计算环境现在大都在往64bit迁移，而Self当前还并不支持64bit。这就导致在编译Self时会遇到一些麻烦。所幸的是各大平台对于multilib的支持都相对完善，所以只需少量额外工作，就可以把Self环境跑起来。
+
+    section: 环境准备
+
+        编译Self时，主要依赖`libX11`、`libXext`和`ncurses`这几个库，所以主要工作就是在环境中安装这些库的32bit版本。
+
+        以下以Gentoo和Debian为例作简要说明。
+
+        section: Gentoo
+
+            在`/etc/portage/package.use`中加入：
+
+            ```
+                x11-libs/libX11 abi_x86_32
+                x11-libs/libXext abi_x86_32
+                sys-libs/ncurses abi_x86_32
+
+            之后运行`emerge --update --newuse --deep @world`，系统会提示设置其他依赖包的use选项，依照配置即可。
+
+        section: Debian
+
+            首先是运行`dpkg --add-architecture i386`启用i386架构，然后安装以下包：
+
+            ```
+                gcc-multilib g++-multilib
+                libx11-dev:i386 libxext-dev:i386 libncurses5-dev:i386
+
+    section: 编译VM
+    
+        在multilib环境中编译Self也需要作部分特殊处理，具体模式如下：
+
+        ```(shell)
+            mkdir build && cd build
+            CC="gcc -m32" CXX="g++ -m32" cmake ../self/
+            cmake --build .
+
+        生成的可执行文件路径为`./vm/Self`。
+
+        可进一步参考手册的{详细说明}(http://handbook.selflanguage.org/4.5/buildvm.html)。
+
+    section: 构建镜像
+
+        镜像文件可以参考Self的{发布脚本}(https://github.com/russellallen/self/blob/master/release/buildMorphicSnapshot.sh)，在Self源码根目录运行如下命令：
+
+        ```(shell)
+            echo "saveAs: 'morphic.snap'. quitNoSave" | ../build/vm/Self -f objects/worldBuilder.self -b objects -o morphic

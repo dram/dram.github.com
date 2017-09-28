@@ -1,0 +1,23 @@
+article: 按行读取接口设计
+
+    在文件处理中，按行读取可以说是最为常见的处理方式。但由于在换行符和文件结束符处理上的不同，导致诸多编程语言在该功能上的差异。
+
+    我针对Self中按行读取接口`readLine:IfFail:`的问题修正的{pull request}(https://github.com/russellallen/self/pull/93)在昨天被采纳，想借此机会在本文中对该功能在各语言中的实现做简单的梳理。
+
+    总体说来，各语言在接口上的不同体现在：
+
+    1. 在返回值中是否包含换行符；
+    2. 遇到文件结束符时的处理方式；
+
+    另外还有一点不同是对Windows、Linux以及早期Mac这三类系统不同换行模式的处理。
+
+    以下列举几种语言对该功能的设计：
+
+    |*C*| POSIX标准定义有{getline}(code)(http://pubs.opengroup.org/onlinepubs/9699919799/functions/getline.html)和{getdelim}(code)(http://pubs.opengroup.org/onlinepubs/9699919799/functions/getdelim.html)接口，接口会在传入的缓冲区写入包含换行符的内容，如果遇到EOF，并且没有读到任何新的内容，则将置位end-of-file标记，并且返回`-1`；
+    |*Python*| Python的接口{readline}(code)(https://docs.python.org/3/library/io.html#io.IOBase.readline)返回值包含换行符，在遇到文件结束符时返回空白符，另外Python可以在打开文件时指定换行符类型；
+    |*Go*| Go语言包含{ReadLine}(code)(https://golang.org/pkg/bufio/#Reader.ReadLine)接口，但建议使用{ReadString}(code)(https://golang.org/pkg/bufio/#Reader.ReadString)。`ReadString`返回值中包含分隔符，如果遇到EOF，返回错误信息以及已经读取的数据；
+    |*Dart*| Dart的{readLineSync}(code)(https://api.dartlang.org/stable/1.20.1/dart-io/Stdin/readLineSync.html)接口可以指定是否保留换行符，如果在遇到文件结束符时已经读取了部分内容，则返回内容，否则返回`null`。
+
+    Self的机制为：返回值不包含换行符，如果遇到EOF，调用错误处理块时传入错误信息以及已经读取到的内容。
+
+    另一点需要提及的是，当前有些语言使用迭代器的机制封装了按行读取的模式，简化了整体的操作逻辑，例如{Python}(https://docs.python.org/3/library/io.html#io.IOBase)。

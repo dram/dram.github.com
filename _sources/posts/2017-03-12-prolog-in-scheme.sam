@@ -1,0 +1,19 @@
+article: 在Scheme中实现Prolog
+
+  topic: 补遗
+
+    1. 还可以参考{PicoLisp}(http://picolisp.com)与数据库和查询相关的设计与实现。—— 2017-03-12
+    2. 可以参考Racket的{Datalog}(https://docs.racket-lang.org/datalog/)和Common Lisp的多个{Prolog实现}(http://www.cliki.net/Prolog)。另外Racket的{Racklog}(http://docs.racket-lang.org/racklog/)作为Schelog的移植版本，也可以参考。—— 2017-03-13
+    3. Prolog和Scheme的一点区别是：对于非专业人士或者初学者来说，Prolog更易于猜测和理解。如果需要在设计中引入编程语言表达严谨的复杂逻辑，可读性和易于理解都非常重要。—— 2017-03-17
+
+  在对{Logtalk}(link "/blog/2017/03/11/modules-in-logtalk.html")和{Prolog}(link "/blog/2017/03/11/modules-in-prolog.html")模块的讨论中，暴露出Prolog模块存在的一些问题，特别是模块名称冲突问题，在当前的生态环境下，并没有好的解决方案。
+  
+  另一方面，Prolog过渡依赖于运算符的语法模式在一定程度上影响了初学者对代码的理解。还有逻辑和控制部分的耦合也并不十分理想。
+
+  基于以上的原因，考虑是否能够在Scheme中实现类似Prolog中数据表示和搜索的机制。正如George F. Luger在《人工智能》中所说的，这是AI最为基本的两个功能，以此作为对Scheme的补充。
+
+  以下是零碎的想法，想在研究{miniKanren}(http://minikanren.org/)和{Schelog}(https://ds26gte.github.io/schelog/index.html)之前记录下来。
+
+  * 基本的组件：`define-logic`, `logic-query`, `make-logic-database`, `current-logic-database`（parameter类型）；
+  * `define-logic`可以定义fact（单参数）或者rule（双参数）；
+  * 以`?`前缀区分变量和atom。

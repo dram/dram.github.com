@@ -1,0 +1,39 @@
+article: CLIPS系统编译
+
+	topic: 补遗
+
+		1. 可以通过命令`find . -name "*.c" -exec grep -o -P 'EnvDefineFunction.+"\K[a-z-]+' {} \;`生成关键字列表，再经由`-f`传入`rlwrap`。—— 2017-08-02
+		2. 生成关键字的命令，可以进一步完善：`find . -name "*.c" -exec grep -o -P '(AddConstruct|EnvDefineFunction).+?"\K[a-z-]+' {} \;`。—— 2017-08-03
+		3. 当前`makefile.gcc`不支持`64x`分支，临时可通过直接编译所有C文件实现：`gcc -Wall -o clips -lm *.c`。—— 2017-08-07
+		4. `64x`分支关键字列表生成：`find . -name "*.c" -exec grep -o -P '(AddConstruct|AddUDF).+?"\K[^"]+' {} \;`。—— 2017-08-07
+		5. 编译时可以传入`-DLINUX=1`，即：`gcc -DLINUX=1 -Wall -o clips -lm *.c`。—— 2017-08-08
+		6. CLIPS仓库中Makefile文件路径最近做了调整，并且新增了`64x`分支的Makefile，所以编译命令可以变更为：`make -C $(CORE) -f makefile.lnx`。—— 2017-08-10
+
+	{CLIPS}(http://clipsrules.net/)是用于构建专家系统（Expert System）的工具（或者也可以认为是语言）。在官方网站上有发布版下载，这里介绍直接基于SVN稳定分支构建的流程。
+
+	首先使用SVN或者git svn获取代码，例如：
+
+	```(shell)
+		git svn clone https://svn.code.sf.net/p/clipsrules/code/
+	
+	之后可以基于如下`Makefile`编译：
+
+	```(makefile)
+		CORE=code/branches/63x/core
+		FILE=code/makefiles/ubuntu/makefile.gcc
+		
+		clips:
+			( cd $(CORE) && git clean -dfx )
+			ln $(FILE) $(CORE)/Makefile
+			make -C $(CORE)
+			ln $(CORE)/clips .
+
+	为便于交互命令行使用，可以借助rlwrap工具，例如封装以下SHELL脚本：
+
+	```(shell)
+		#!/bin/sh
+		
+		CLIPS=/path/to/clips
+		
+		exec rlwrap -b '"()&|~;' -c -e '' -f . -q '"' -r -s 2000 $CLIPS "$@"
+

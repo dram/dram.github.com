@@ -1,0 +1,112 @@
+Title: Common Lisp 脚本编程
+
+Common Lisp 虽然属于编译型语言，但也能够解释执行，所以可以应用到脚本编程中。不过 Common Lisp 在设计之初可能并没有考虑到脚本应用的情况，主要表现为以下几点：
+
+1. 语言的解释、编译、执行、交互、调试等功能是一个整体，存放在单一的内存镜像文件中，这导致程序较为臃肿，不适合脚本这类需要快速启动的轻量级应用；
+2. 语言标准中并不支持 类UNIX系统 的 shebang 。
+
+好在 Common Lisp 有很强的可扩展性，在运用一些小技巧之后，Common Lisp 也可以很好地支持脚本编程，甚至与其他语言相比，在某些方面显得更为强大。
+
+以下就来介绍 Common Lisp 脚本编程中需要的这些技巧，主要参考了 [这里](http://rosettacode.org/wiki/Scripted_Main#Common_Lisp) 和 [这里](https://gist.github.com/728896)。
+
+
+## Shebang 支持
+
+[Shebang](http://en.wikipedia.org/wiki/Shebang_%28Unix%29) 就是在脚本文件头部以 `#!` 起始的一行。内核在执行这类文件时会调用该行内容指定的命令解释文件内容。要让这个脚本文件可执行必须要支持 Shebang 。
+
+CL 在默认情况下无法解析 `#!` 串，可以通过 `set-dispatch-macro-character` 函数让 CL 在解析代码时忽略该行内容，具体代码如下，可以将下面代码存放在 CL 的启动文件中。
+
+	(set-dispatch-macro-character #\# #\!
+	 (lambda (stream character n)
+	  (declare (ignore character n))
+	  (read-line stream nil nil t)
+	  nil))
+
+通过在 Shebang 中指定 CL程序 的路径，再将代码文件权限设置为可执行，这样就可以运行这个脚本了。
+
+
+## 借助 SHELL 执行
+
+Shebang 在参数处理上不够灵活，对参数个数有限制，而且不同平台的处理还存在差异。如果需要向 CL程序 传入更多参数的话，可以使用下面的技巧，在 Shebang 中指定使用 SHELL 来执行该文件，再随后利用 `exec` 命令调用 CL程序 替换 SHELL 进程，具体如下所示：
+
+	#!/bin/sh
+	#|
+	exec ccl -l $0 -e "(main)"
+	|#
+
+其中 `#|` 和 `|#` 为 CL 的块注释语法，而 `#|` 一行将被 SHELL 解析为注释，所以 SHELL 会执行块注释中的内容。在块注释中可以加入任意行 SHELL 代码，所以这一方式有极大的灵活性。
+
+如果希望在 CL程序 执行完成后进行一些收尾工作，也可以不使用 `exec` ，而是使用下面的方式：
+
+	#!/bin/sh
+	#|
+	ccl -l $0 -e "(main)"
+	command-to-run
+	exit
+	|#
+
+
+## C/S 模式控制
+
+上面说到 Common Lisp 不适合快速启动，这一问题可以通过 C/S 模式解决，程序只需要一次启动，作为服务端，需要使用其中的功能时每次向该服务程序发送指令即可。利用 unix-socket 可以实现一个简单的服务端，再利用 netcat 可以直接向 unix-socket 发送信息。
+
+服务端示例如下：
+
+    (defun main ()
+      (with-open-socket (socket :address-family :file
+                                :type :stream
+                                :local-filename "/tmp/sock-file-name.sock"
+                                :connect :passive)
+        (loop
+           (with-open-stream (conn (accept-connection socket))
+             (case (intern (read-line conn))
+               (op1 (action-1))
+               (op2 (action-2)))))))
+
+netcat 的命令如下：
+
+	echo 'op1' | nc.openbsd -U /tmp/sock-file-name.sock
+
+
+## 脱离终端(detach)
+
+上面已经说明了对 Common Lisp 中两点不足的处理，接下来主要介绍 Common Lisp 的一个很有用的特性，并说明在脚本编程中具体的使用方式。
+
+这一特性就是在程序出错时 CL程序 不是直接退出而是进行调试器，这样可以立即排查问题。
+
+这需要 CL程序 在终端一直处于开启交互状态。这会带来一些不便，不过可以通过 `detachtty` 程序将 CL程序 暂时放入后台执行，在需要时再通过 `attachtty` 命令调出。命令示例如下：
+
+    detachtty /tmp/repl.sock $(which ccl) -l $0 -e "(main)"
+	attachtty /tmp/repl.sock
+
+如果在程序启动后不需要再使用交互模式的话，可以直接让 CL程序 在后台运行。但需要注意的一点是，需要关闭程序的调试功能，这样才能让程序在出错时立即退出。具体可以使用如下代码：
+
+    (let ((*debugger-hook* (lambda (c h) (declare (ignore h)) (print c) (quit))))
+
+## 利用 tmux
+
+以上的描述已经基本实现了脚本编程所需要的基本功能，下面再来介绍利用 tmux 代替上文所述的 detachtty, attachtty 以及 C/S 控制的模式。
+
+可以在脚本文件头部中加入下面代码，通过 tmux 启动 CL程序 并将其转入后台执行。
+
+    #!/bin/sh
+    #|
+    tmux new-session -d -s session-name || exit 1
+    tmux send-keys -t session-name "ccl -l $0" C-m
+    exit
+    |#
+
+这一方式通过 tmux 所提供的 `send-keys` 命令直接向终端模拟输入按键，从而可以向 CL程序 的 REPL 传递任意接口函数。示例如下，`C-m` 表示回车。
+
+    tmux send-keys -t session-name "(foo)" C-m
+
+相对来说，这一方式更为灵活。同时如果需要调回交互终端，可以使用下面的命令：
+
+    tmux attach -t session-name
+
+## 总结
+
+总的说来，tmux 的方式最为灵活，[这里](https://github.com/dram/configs/tree/master/tools/volume-control) 和 [这里](https://github.com/dram/configs/blob/master/.config/xchainkeys/xchainkeys.conf) 是一个使用 tmux 的 Common Lisp 脚本编程的实例。
+
+-
+-

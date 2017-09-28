@@ -1,0 +1,19 @@
+article: 寻根究底
+
+	这几天在讨论一个问题：为什么 `prolog::append([a], [b], L)`能在Logtalk中成功返回结果。
+
+	在询问Logtalk作者之后得知，Logtalk在找不到`object`时，会尝试进行Prolog模块。另外他还提到SWI-Prolog在调用不存在的模块时，会自动创建。
+
+	在向SWI-Prolog{提交}(https://github.com/SWI-Prolog/swipl-devel/issues/213)问题报告之后，SWI-Prolog作者提到另一个问题，`append/3`会自动载入，这就又引入了一个新的问题。
+
+	之后自己分析确认，两位作者提到的问题都是存在的。这一问题背后隐藏着三个相关问题。也就是说，要让 `prolog::append([a], [b], L)`有效，依赖以下三个特性：
+
+	1. Logtalk会将`::`调用退化为模块调用；
+	2. SWI-Prolog会自动创建`prolog`模块；
+	3. SWI-Prolog会自动将`append/3`载入到`prolog`模块。
+
+	在理解这些之后，我向SWI-Prolog作者建议可以让“自动创建模块”功能可配置。SWI-Prolog作者又进一步提及性能和内存占用问题。autoload机制可以实现按需载入，没有调用到的代码，模块的依赖不需要立即载入到运行环境中。
+
+	之后的讨论进一步发现YAP也会在模块不存在时自动创建。
+
+	从这次问题分析中可以发现，一个问题在寻根究底之后，往往能了解更多更深层次的知识。

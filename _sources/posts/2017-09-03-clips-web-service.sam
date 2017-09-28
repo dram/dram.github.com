@@ -1,0 +1,37 @@
+article: CLIPS搭建Web服务
+
+	topic: 补遗
+
+		1. 本以为`fdopen`是C标准定义的接口，实则是POSIX{定义}(http://pubs.opengroup.org/onlinepubs/9699919799/functions/fdopen.html)的。如果CLIPS支持`fdopen`，可以先由外围程序建立socket连接，之后`fork`&`exec`创建CLIPS进程，CLIPS再用`fdopen`打开继承的socket句柄，实现网络通信。—— 2017-09-25
+		2. 可以借助FFI机制（多数语言都有实现，例如LuaJIT的{FFI库}(http://luajit.org/ext_ffi.html)、Perl 6的Native Call Interface {1}(https://docs.perl6.org/language/nativecall), {2}(http://www.evanmiller.org/a-review-of-perl-6.html)），直接调用动态库整合CLIPS。IO由外围语言处理，并通过facts实现与CLIPS交互。—— 2017-09-25
+
+	CLIPS自身对于网络并没有支持（这可能出于可移植性的考虑，另外需求不充分也可能是原因之一），所以如果想以CLIPS搭建服务器，需要借助与CGI的结合，或者利用netcat等简易的网络工具。
+
+	但除去没有对网络的支持外，CLIPS在脚本化上的支持也不尽完善。例如虽然`-f2`参数可以载入文件，但如果没有显式调用`exit`，则会进入REPL环境，再如{错误信息都直接输出到stdout}(https://sourceforge.net/p/clipsrules/discussion/776946/thread/2373fbbe/)，这些都为与CGI的整合带来障碍。
+
+	以下介绍的是CLIPS结合{socat}(http://www.dest-unreach.org/socat/)实现相对完善的Web服务。
+
+	首先来看一下相关代码和命令。
+
+	CLIPS代码如下：
+
+	```(clips)
+		(open /proc/self/fd/128 in)
+		(open /proc/self/fd/129 out "w")
+		
+		(format out "HTTP/1.1 200 OK%r%n")
+		(format out "Content-Type: text/html%r%n")
+		(format out "Content-Length: 3%r%n")
+		(format out "%r%n")
+		(format out "Hi!")
+		
+		(exit)
+
+	监听网络服务并调用CLIPS的socat命令如下：
+
+	```(shell)
+		socat -d -d TCP-LISTEN:8000,bind=127.0.0.1,fork EXEC:"clips -f file.clp",pipes,fdin=128,fdout=129
+	
+	其中关键的一点是socat通过`EXEC`地址的`fdin`和`fdout`参数指定文件描述符，CLIPS再通过`/proc/self/fd/`打开对应文件，这样socat和CLIPS之间的通信就不依赖于stdin和stdout了。
+
+	通过以上配置，CLIPS所有的输入输出依然可用，甚至REPL也是依然可用的。

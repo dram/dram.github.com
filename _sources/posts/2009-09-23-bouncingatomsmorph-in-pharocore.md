@@ -1,0 +1,7 @@
+Title: PharoCore中的BouncingAtomsMorph
+
+在PBE 1.3节有这样一个示例，BouncingAtomsMorph new openInWorld，但BouncingAtomsMorph类在PharoCore中没有定义。有点不想用肥硕的dev或web image，在dev中找了一下，发现这个类属于MorphExamplesAndDemos包，之后可以找到Pharo wiki里的一篇[文章][1]，再就可以发现[PharoMorphicExtras][2]中的MorphExamplesAndDemos包了，用MC安装之后，BouncingAtomsMorph就可以在PharoCore中使用了。 
+
+   [1]: http://code.google.com/p/pharo/wiki/MorphicExtrasSorting
+   [2]: http://www.squeaksource.com/PharoMorphicExtras.html
+

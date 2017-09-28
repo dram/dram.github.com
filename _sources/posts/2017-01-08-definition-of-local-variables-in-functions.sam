@@ -1,0 +1,21 @@
+article: 函数局部变量的定义位置
+
+  topic: 补遗
+
+    更早的代码块内起始定义变量的例子是ALGOL 60。—— 2017-01-10
+
+  对于函数内部局部变量的位置，不同语言有不同的处理。
+
+  比如Modula-2以及Oberon中，只在过程定义开始部分的`VAR`段允许定义变量。同样Smalltalk也只支持在方法的头部定义局部变量。
+
+  C语言早期只支持在代码块的开始声明变量，在{C99}(https://en.wikipedia.org/wiki/C99)之后允许在代码块任意位置声明。
+
+  再如JavaScript早期的`var`变量声明虽然可以在代码块任意位置，但是会被{自动提前}(https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Statements/var#var_hoisting)，新近在ECMAScript 6中引入了{let定义}(https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let)的模式对此做了完整的支持。
+
+  单从语言功能的发展来看，C和JavaScript是解除了语言的限制，给予程序员更多的自由。但另一方面，感觉这一自由与“让函数尽量短小”的编码原则是有点相背的。
+
+  这要从最初的问题开始分析。
+
+  在函数体较长时，如果变量的声明和使用距离太远，会导致理解上的困难。C和JS处理这一问题的思路是把变量的定义放到第一次使用的地方。但还有另外一种解决的思路，就是把函数拆分，使得其足够短小，不至于影响阅读。
+
+  从这一角度上说，限制反而增进的代码的可读性。

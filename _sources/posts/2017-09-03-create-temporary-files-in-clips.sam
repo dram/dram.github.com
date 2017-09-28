@@ -1,0 +1,22 @@
+article: 在CLIPS中创建临时文件
+
+	topic: 补遗
+
+		1. 对于C语言中与临时文件处理相关的接口，可详见{这里}(link "/blog/2010/08/15/tmpfile-in-c.html")的整理。—— 2017-09-08
+
+	由于CLIPS对系统编程支持不强，常需要借助于外部命令实现功能。而自身提供的`(system)`函数不支持输入输出管道，所以只能借助于临时文件（利用有名管道可能可以减少临时文件的使用）。
+
+	C语言中可以通过`tmpfile`创建临时文件，但CLIPS没有封装该接口。
+
+	以下代码是一种结合SHELL的变通方案：
+
+	```(shell)
+		TMP=$(mktemp -d /tmp/clips.XXXX)
+		trap "rm -r $TMP" EXIT
+
+		echo "(defglobal ?*temporary-directory* = $TMP)" >>$TMP/start.clp
+		echo "(deffunction generate-temporary-filename () (str-cat $TMP / (gensym*)))" >>$TMP/start.clp
+
+		clips -l $TMP/start.clp -f2 file.clp
+
+	这样CLIPS中`(generate-temporary-filename)`可以满足大部分对于临时文件的需求。对于特殊需求，也可以直接使用`?*temporary-directory*`全局变量。

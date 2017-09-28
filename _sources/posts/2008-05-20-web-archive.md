@@ -1,0 +1,8 @@
+Title: Web Archive
+
+今天找一篇 Larry Clapp 写的 Lisp with Vim，但那网站已经 down 掉了，记得之前用 google cache 访问过的，但现在怎么也找不到。无意间发现了这个网站。
+
+http://www.archive.org/
+
+使用非常方便，直接在文本框上输入你要查看的网页，按时间选一个版本就可以了（当然越近越好啦。:)）。 
+

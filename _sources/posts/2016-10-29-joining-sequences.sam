@@ -1,0 +1,23 @@
+article: 序列拼接
+
+    故事从Self的一个bug说起。
+
+    在Self中，序列的拼接是由`traits indexable`的`joinUsing:`方法实现，具体行为是以某一分隔符将序列组拼接为单一序列。Self原先的实现是以序列的第一元素类型作为返回值的类型。这样如果组中没有任何序列，`joinUsing:`不是返回一个空白序列，而是报`empty collection error`的错误。在{报告}(https://github.com/russellallen/self/issues/98)该问题后，很快得到了修复，改为以分隔符为返回类型的基准。
+
+    序列拼接是较为通用的功能，最常见的是体现在字符串拼接中。该功能各类语言大多有提供，但在接口设计上不尽相同。这在问题{报告}中已经有简要的总结，下文将进一步展开讨论。
+
+    总体来说，各语言在该功能设计上，主要有两点不同：
+
+    1. 是否支持除字符串之外的序列对象拼接；
+    2. 作为哪类对象的方法（是字符串的方法还是序列的方法）。
+
+    以下汇总几种语言的实现：
+
+    |*Open Dylan*| {Open Dylan}(http://opendylan.org/documentation/library-reference/common-dylan/common-extensions.html#common-dylan:common-extensions:join)中该功能为序列组的方法，在结果类型的处理上，如果序列组是空，则返回与分隔符类型相同的序列，否则，返回序列组元素相同的序列；
+    |*Ruby*| {Ruby}(https://ruby-doc.org/core-2.2.0/Array.html#join-method)中该功能为序列组的方法，不管序列中对象是何种类型，统一先转化为字符串，最终结果为字符串拼接后的结果；
+    |*Python*| {Python}(https://docs.python.org/2/library/stdtypes.html#str.join)中该功能为字符串分隔符的方法，序列组中只允许字符串元素，结果为字符串；
+    |*Dart*| {Dart}(https://api.dartlang.org/stable/1.20.1/dart-core/Iterable/join.html)的接口设计与Ruby类似。
+
+    各类语言在序列拼接功能设计上有松散有严谨，有简洁有复杂，可以部分看出各语言的设计哲学。
+
+    最后总结下Self的模式：作为序列组的方法，不事先转化为字符串，允许其他序列的拼接。

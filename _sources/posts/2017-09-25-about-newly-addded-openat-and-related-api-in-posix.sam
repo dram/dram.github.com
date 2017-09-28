@@ -1,0 +1,9 @@
+article: 关于POSIX新增的openat及相关接口
+
+	前阵子（7月）Perl社区在{讨论}(https://www.nntp.perl.org/group/perl.perl5.porters/2017/07/msg245712.html)是否加入POSIX新增的`openat`及相关接口，虽然当时的讨论没有持续，但最近因为`-i`参数（用于直接更改文件）的一个{bug}(https://rt.perl.org/Public/Bug/Display.html?id=127663)，Perl开始{使用}(https://github.com/Perl/perl5/commit/733612e0500c5f8f8dfedaa93a56d04d4f9c1930)`linkat`函数。
+
+	那么`*at`究竟是做什么的呢？可以看看POSIX的{标准定义}(http://pubs.opengroup.org/onlinepubs/9699919799/functions/openat.html)，以及这里的{讨论}(https://stackoverflow.com/questions/35478448/)，还有这份{演示文档}(https://www.eecs.harvard.edu/~cs161/notes/security-part-one.pptx)。
+
+	简单来说，是为防止在多个操作中目录被改动。
+
+	例如检查目录是否存以及在该目录创建文件这两个步骤，在之间可能目录被改动，这存在资源竞争问题，并有安全风险。另外一些考虑可以看看这封{邮件}(https://lwn.net/Articles/172675/)。

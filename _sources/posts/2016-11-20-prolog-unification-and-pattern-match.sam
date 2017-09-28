@@ -1,0 +1,12 @@
+article: Prolog的联合（unification）和模式匹配
+
+  故事从Felix（{CHICKEN Scheme}(https://www.call-cc.org/)作者）的{?-Prolog}(https://bitbucket.org/bunny351/prolog)项目中的一个问题开始。
+
+  ?-Prolog依赖SWI Prolog实现bootstrap，SWI Prolog在v6.5.2版本针对`current_prolog_flag/2`引入了一个不向下兼容的{更改}(http://www.swi-prolog.org/ChangeLog?branch=development&from=6.5.1&to=6.5.2)，具体来说是在处理`args`（命令行参数）时，早期版本会包含所有参数，而新版本则只返回`--`之后的参数。
+
+  这一更改导致?-Prolog无法编译，在报告问题后，Felix很快做了{修复}(https://bitbucket.org/bunny351/prolog/commits/afbf7a8792e7e38af9dd1be08da1098a1396a5f2)。由于对Prolog并不熟悉，即使从与Prolog最相近的Erlang的语义来分析也无法理解。这也引出了本文的话题，Prolog的联合（{unification}(https://en.wikipedia.org/wiki/Unification_%28computer_science%29)）和其他语言中{模式匹配}(https://en.wikipedia.org/wiki/Pattern_matching)的不同。
+
+  相对于Common Lisp中的`destructive-bind`以及Standard ML、Haskell和Erlang等语言中更为成熟的模式匹配，Prolog的联合最为显著的特点是：
+
+  1. 在Prolog中，相同模式可以多次指定，是否执行后续语句依赖于前一语句的结果，而其他语言的模式匹配只对参数判断，不考虑函数体的执行结果；
+  2. 和其他语言不同，大部分时候Prolog不需要有全匹配（catch all）语句，只需要指定为真时的操作即可。

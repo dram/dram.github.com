@@ -1,0 +1,42 @@
+article: 数值类型安全
+
+	Swift语言有比较严格的类型安全检查，由此可以暴露出一些较难发现的问题。
+
+	例如，随机数种子的初始化动作，在C语言中，可以这样处理：
+
+	```(c)
+		#include <stdio.h>
+		#include <stdlib.h>
+		#include <time.h>
+
+		int main(void)
+		{
+		        srandom(time(NULL));
+
+		        printf("%ld\n", random());
+
+		        return 0;
+		}
+	
+	但在64位Linux系统中，`time()`的返回值和`srandom()`接收的参数类型是不一致的，一个是`time_t`，是64位符号整数，另一个是`unsigned int`，是32位无符号整数。但C语言并不会对此报错。
+
+	在Swift中，以下代码会报错：
+
+	```(swift)
+		import Glibc
+		srandom(UInt32(time(nil)))
+		print(random())
+
+	错误信息如下（64位系统中，Swift的Int为64位，C的int则依具体实现而定）：
+
+	```
+		% swift foo.swift
+		foo.swift:2:9: error: cannot convert value of type 'time_t' (aka 'Int') to expected argument type 'UInt32'
+		srandom(time(nil))
+		        ^~~~~~~~~
+		        UInt32(  )
+
+	可以做类型转化，例如`srandom(UInt32(time(nil)))`。但这样依然存在问题，如果`time()`返回值大于`UInt32.max`，在类型转化时会有溢出错误。
+
+	因此，可以调整为`srandom(UInt32(time(nil) % Int(UInt32.max)))`，或者还有一个更优的方式：`srandom(UInt32(truncatingBitPattern: time(nil)))`。
+

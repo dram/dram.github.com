@@ -1,0 +1,124 @@
+article: 更新Gentoo内核
+
+  在Gentoo日常更新维护中，最为繁琐的工作是对内核的更新，特别是在内核大版本更新后，需要重新生成配置文件。本文记录下主要流程，便于以后参考。
+
+  section: 更新源码
+
+    `emerge`在更新`@world`时，会自动下载新版本内核代码，在安装完成之后，可以通过如下命令选择需要编译的内核：
+
+    ```(shell)
+      eselect kernel list
+      eselect kernel set {n}
+
+  section: 生成配置
+
+    配置文件的生成基于内核原生的menuconfig工具，首先切换工作目录到`/usr/src/linux/`目录，之后运行：
+
+    ```(shell)
+      make menuconfig
+
+    之后开始最为繁重的配置调整过程，以下列举一些重点项，依菜单呈现的顺序排列。
+
+    0. 选择压缩方式，不同的压缩方式影响最后内核的体积，以及开机加载和解压速度，例如选择XZ压缩：
+
+       ```
+         General setup
+           Kernel compression mode (XZ)
+
+    0. 选择是否启用审计功能，如果只是个人使用PC，可以考虑禁用：
+
+       ```
+         General setup
+           Auditing support
+
+    0. 选择是否启用IPv6，如无需支持IPv6环境，可禁用：
+
+       ```
+         Networking support
+           Networking options
+             The IPv6 protocol
+
+    0. 选择是否启用Netfilter，个人PC可以考虑禁用：
+
+       ```
+         Networking support
+           Networking options
+             Network packet filtering framework (Netfilter)
+
+    0. 无线网卡firmware加载功能：
+
+       ```
+         Device Drivers
+           Generic Driver Options
+             Fallback user-helper invocation for firmware loading
+
+    0. 启用网卡驱动，可以清理掉非本系统的驱动：
+
+       ```
+         Device Drivers
+           Network device support
+             Eternet driver support
+
+    0. 启用无线网卡驱动，由于{固件问题}(https://forums.gentoo.org/viewtopic-p-7640140.html#7640140)，需要将无线驱动编译为模块而非内置：
+
+       ```
+         Device Drivers
+           Network device support
+             Wireless LAN
+
+    0. 可以禁用一些与本系统无关的硬件驱动，例如：
+
+       ```
+         Device Drivers
+           Input device support
+             Joysticks/Gamepads
+             Tablets
+             Touchscreens
+             Miscellaneous devices
+
+    0. 设置内核启动时的企鹅LOGO：
+
+       ```
+         Device Drivers
+           Graphics support
+             Bootup logo
+
+    0. 声卡驱动：
+
+       ```
+         Device Drivers
+           Sound card support
+             Advanced Linux Sound Architecture
+
+    0. 如果不需要访问网络文件系统，可以禁用：
+
+       ```
+         File Systems
+           Network File Systems
+
+    最后生成`.config`文件后，做下备份，如果只是小版本更新，可以沿用以前的配置，无需每次重新生成。
+
+  section: 编译内核
+
+    使用如下命令编译内核，其中`--lvm`用于启用LVM的环境：
+
+    ```
+      genkernel --lvm --kernel-config=/path/to/config all
+
+  section: 配置引导
+
+    以下以`lilo`为例说明引导的设置。
+
+    编辑`/etc/lilo.conf`文件，内容类似以下示例，其中`append`内容是为支持LVM环境而设置：
+
+    ```
+      image = /boot/kernel-genkernel-...
+              label = Gentoo
+              initrd=/boot/initramfs-genkernel-...
+              append="dolvm real_root=/dev/lvm/path"
+              read-only
+
+    之后运行以下命令，更新引导：
+
+    ```
+      lilo

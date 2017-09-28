@@ -1,0 +1,20 @@
+article: CLIPS函数接口设计
+
+	topic: 补遗
+
+		1. CLIPS中并不支持匿名函数和闭包，这会限制接口设计的自由度。详见这里对于{闭包}(link "/blog/2017/01/29/closure.html")的讨论。—— 2017-09-08
+		2. 一个例子是在{Unnamed}(https://github.com/dram/clips-unnamed-library)库中`call-with-output-file`接口的设计。可以是`(call-with-output-file ?name ?function -rest-arguments (create$))`、`(call-with-output-file ?name (create$ ?function ?rest-argument-1 ...))`、`(call-with-output-file ?name (create$ ?function ?argument-1 _ ?argument-2 ...))`或者`(call-with-output-file ?name ?function (create$))`等方式，第一种方式过于冗长，第二种方式可能存在误解以为不传入文件句柄直接调用函数，第三种方式存在变量捕捉问题（如果变量值为`_`，则会导致异常），相对来说，第四种方式更为自然些。—— 2017-09-12
+
+	除去基本类型，CLIPS支持的数据类型相对单一，主要是`multifield`类型，但该类型{不支持嵌套}(https://sourceforge.net/p/clipsrules/discussion/776945/thread/2c68dc68/)，所以在表达能力上会有所限制。
+
+	这一限制在函数接口设计中就能体现出来。例如在Prolog或Erlang中，可以结合compound term和list表示复杂的数据，以此作为参数，可以很灵活地设计函数接口，这是CLIPS所不能实现的。
+
+	但另一方面，CLIPS支持可变参数，再结合它的符号常量，也可以从另一个角度设计接口，例如在Unnamed库中设计{split-string}(https://github.com/dram/clips-unnamed-library/blob/126d46da376a9339544426e884b7ed5aa3f7dcf1/sources/split-string.clp)接口时，就充分利用了这一特点，具体可以看以下应用示例：
+
+	```(clips)
+		CLIPS> (split-string "a,b, c" -omit-blank TRUE -separators "," " ")
+		("a" "b" "c")
+		CLIPS> (split-string "a:b:c" -max-split 1 -separators ":")
+		("a" "b:c")
+
+	这一函数接口的模式类似于SHELL和Tcl中对命令的处理。

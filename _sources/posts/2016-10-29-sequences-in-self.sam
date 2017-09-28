@@ -1,0 +1,28 @@
+article: Self中的序列对象
+
+    在程序设计中，序列是一种基本的数据类型。大部分编程语言都包含有对序列的支持。只是各自在命名和形式上有所差异。例如在{JSON}(http://www.json.org/)中，将这些类型统一表示为_an ordered list of values_，涵盖了各类语言中的_array_，_vector_，_list_或_sequence_数据类型。
+
+    而在Self中，对于序列的表述，同时包含有vector，list和sequence三类对象。这就要求理解其中的共性和个性，才能够加以合理利用。
+
+    下图为各traits的继承树：
+
+    ```
+        traits collection
+        |-- traits indexable
+        |   `-- traits mutableIndexable
+        |       |-- traits sequence
+        |       `-- traits vector
+        `-- traits list
+
+    从图中可以获得以下信息：
+
+    1. vector，list和sequence都为集合（collection）对象；
+    2. sequence、vector与list的区别在于，前两者的序列元素可以通过整数快速索引（indexable），这一点可以参考{Scheme}(http://www.scheme-reports.org/)中list与vector的区别。
+
+    至于sequence和vector的差异，无法在继承树中获知。通过对sequence实现的大体分析，可以发现sequence是基于vector的封装。
+
+    vector本身更为底层，空间大小在对象创建之后是固定不变的。
+
+    而sequence基于vector实现了可动态调整存储空间的序列。在sequence的traits中包含有方法`desiredMinCapacity:`，用于调整存储空间大小，具体的机制是创建新的vector对象，替换原有对象。
+
+    后续会对vector，list和sequence分别予以详细介绍。

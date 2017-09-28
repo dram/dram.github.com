@@ -1,0 +1,7 @@
+article: PostgreSQL和Perl
+
+	PostgreSQL和Perl存在好些相似处，不单是两者出现的时间很相近（都在80年代后期），更多的是在设计哲学上契合。比如对用户的友好性和便利性，以及对于传统和兼容性上的保持，以及面对变革的开放性，以及两者之间巧妙的平衡。
+
+	对于Perl的设计哲学，在chromatic的{Modern Perl}(http://modernperlbooks.com/books/modern_perl_2016/01-perl-philosophy.html)中以及{这里的讨论}(https://www.quora.com/What-is-the-future-of-the-Perl-language-beyond-2017)有详细的介绍。而PostgreSQL，在使用和阅读代码时都可以感受到，例如代码组织的{稳定性}(link "/blog/2017/09/15/reading-postgresql-sources.html")，再如`psql`极强的便利性。
+
+	另外一点是PostgreSQL和Perl的结合度很高。包括plperl，以及PG自身对于Perl的使用。在庞大的PG代码库中，Perl的代码量大概占2%（{10 BETA4版本}(https://github.com/postgres/postgres/tree/REL_10_BETA4)）。可能的一个原因是两者的用户很多是系统管理员。

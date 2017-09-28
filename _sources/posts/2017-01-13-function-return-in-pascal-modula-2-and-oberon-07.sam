@@ -1,0 +1,7 @@
+article: Pascal、Modula-2和Oberon-07中的函数返回值
+
+  在Wirth设计的三大语言Pascal、Modula-2和Oberon-07中，对于函数的返回语句有不同的设计，具体的模式如下：
+
+  1. 在Pascal中，`FUNCTION`的返回值通过对函数名赋值指定；
+  2. 在Modula-2中，去除了`FUNCTION`语句，返回值可以在`PROCEDURE`过程体中任意位置通过`RETURN`语句指定；
+  3. 在Oberon-07中，Wirth在Modula-2的基础上，{去除}(link "/blog/2017/01/04/difference-between-modula-2-and-oberon-07.html")了`RETURN`语句，而将返回值的指定包含到`PROCEDURE`定义的最后部分，这样一来，`PROCEDURE ... RETURN ... END`基本等同于Pascal中的`FUNCTION`。

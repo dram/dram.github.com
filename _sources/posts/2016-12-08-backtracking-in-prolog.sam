@@ -1,0 +1,19 @@
+article: Prolog的回溯（backtracking）
+
+  topic: 补遗
+
+    1. 回溯和有副作用的函数结合时可能会产生一些意料之外的后果，例如在回溯重新执行`get_char/2`方法时，可能流已经到达尾部，或者已经关闭。—— 2017-01-25
+    2. 由于Prolog回溯机制的存在，在基于模式匹配编码递归函数时，Prolog不能基于函数式编程语言中常用的“特殊匹配+通用匹配”模式实现。因为这样在匹配到“特殊匹配”时，Prolog会生成choice point，随后可能会因为外部失败而被回溯到“通用匹配”上。可以合理利用`->/2`，其会去除最邻近的choice point。—— 2017-01-25
+    4. 在一些情况下，虽然只有一个结果，但Prolog在交互环境中还是会提示尝试寻找其他结果。例如在SWI中查询`append(L, [b], [a, b])`。在Mercury的{文档}(http://mercurylang.org/information/doc-latest/mercury_ref/Different-clauses-for-different-modes.html)中有提及这一问题，原因是第一个结果由第一条语句得出，还需要确认第二条语句是否包含其他结果。—— 2017-02-03
+    5. 对于cut的理解，需要特别关注choice point在何时会产生（例如多语句和`;`），选择点的生成也是阅读和编写Prolog代码时需要特别注意的一点。例如{这里}(https://github.com/LogtalkDotOrg/logtalk2/commit/93a6376be02de81b20cff1066062a403ee12ddc4)是Logtalk中针对`date::leap_year/1`的优化，对于其中新旧代码的理解可以增进对cut的掌握。—— 2017-02-16
+    6. 通过回溯可以实现复杂的循环，这个例子类似Python的`enumerate`函数：`forall(nth1(I, [a,b,c], E), (write([I, E]), nl))`。—— 2017-03-29
+    7. 关于回溯以及backward chaining的概念，在《专家系统原理与编程》的1.12 Nonprocedural Paradigms一节有简明的解释。—— 2017-09-08
+    8. 《专家系统原理与编程》中提及，backward chaining可以简单理解为“conclusion if conditions”，而forward chaining则是“IF-THEN”。—— 2017-09-22
+
+  作为Prolog的重要{概念}(link "/blog/2016/12/08/core-concepts-in-prolog.html")，回溯在Prolog中有着至关重要的作用。
+
+  回溯的最直接体现是在交互模式中，如果可能存在多个{联合}(link "/blog/2016/11/20/prolog-unification-and-pattern-match.html")结果，Prolog会提示是否需要查看其他符合条件的值，其他可能值就是通过回溯得到的。
+
+  在脚本中Prolog默认只尝试获取一个联合的结果。更多的值需要通过`fail`、`\+`等机制主动触发回溯以获取。另外cut（`!`）可用于删减结果，可以形象得理解为园丁修剪枝叶，去除不必要的分支。如果分支存在，那么一旦子分支中出现匹配错误，并且父层或更高层级choice point存在的话，回溯将会被出发。
+
+  针对`fail`和cut有一个细节，可以加深对于回溯的理解。在一个Stack Overflow的{回答}(http://stackoverflow.com/a/14584114/5180632)中提到，`!, fail`的模式可用于强制失败，这是先修剪掉所有分支，再显式出错，这时Prolog没有其他choice point，只能得出匹配出错的结果。

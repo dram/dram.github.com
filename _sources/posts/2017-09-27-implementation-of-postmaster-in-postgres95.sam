@@ -1,0 +1,11 @@
+article: Postgres95 postmaster实现
+
+	postmaster是PG95的主进程，用于监听端口，等待客户端连接并启动后端程序。
+
+	postmaster的主体实现是典型的fork&exec socket服务端模型，但流程上有部分优化。例如在fork&exec之前会先校验请求和用户信息的有效性，如果是无效请求或者用户，则无需启用新进程。
+
+	除了启动任务进程，postmaster还负责管理共享资源，例如调用`CreateSharedMemoryAndSemaphores`初始化共享内存和信号量。
+
+	在{postmaster.c}(https://github.com/postgres/postgres/blob/PG95-1_01/src/backend/postmaster/postmaster.c)文件中可以看到，其中并没有`main`函数，程序的入口在{src/backend/main/main.c}(https://github.com/postgres/postgres/blob/PG95-1_01/src/backend/main/main.c)，其中会根据命令名称和参数判断需要执行的主体函数是`PostmasterMain`、`BootstrapMain`还是`PostgresMain`。
+
+	有一个问题点，在PG95 1.01版本中，postmaster包含`-b`参数，用于指定后端程序路径，并且客户端在发送初始请求时也可以{指定}(https://github.com/postgres/postgres/blob/PG95-1_01/src/backend/postmaster/postmaster.c#L580)（客户端传入的值会被存放到{这里}(https://github.com/postgres/postgres/blob/PG95-1_01/src/backend/libpq/pqcomm.h#L61)，最终`DoExec`{启动进程}(https://github.com/postgres/postgres/blob/PG95-1_01/src/backend/postmaster/postmaster.c#L955)时用的是`-b`参数，客户端传入的参数也并未作为参数传入），在后续的版本{文档}(https://www.postgresql.org/docs/7.1/static/app-postmaster.html)中，`-b`参数不存在了。

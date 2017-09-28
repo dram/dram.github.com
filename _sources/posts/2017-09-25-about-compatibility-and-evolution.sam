@@ -1,0 +1,5 @@
+article: 关于兼容性和发展
+
+	Lua语言版本在不断更迭，现在已经到5.3版本，而LuaJIT则一直停留在5.1。究其原因，很重要的一点是LuaJIT作者出于{兼容性}(https://www.freelists.org/post/luajit/Port-bitop-to-53,1)的考量（以及对于5.3版本功能实现的{不满}(https://github.com/LuaJIT/LuaJIT/issues/63#issuecomment-290395565)）。
+
+	由此，Lua社区因为版本问题被割裂。对于这个问题，有过很多的讨论，例如这篇{博文}(https://blog.separateconcerns.com/2015-06-18-love-hate-luajit.html)，以及HN上的{讨论}(https://news.ycombinator.com/item?id=12573981)。未来会如何发展，存在很大的不确定性。

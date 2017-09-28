@@ -1,0 +1,39 @@
+article: Prolog中的循环
+
+  topic: 补遗
+
+    1. 利用`\+`实现循环还有一个重要特点：外层`\+`界定了backtracking的范围，即使之外还有其他可选值，也不会遍历。—— 2016-11-20
+    2. 在很多Prolog实现中包含有`member/2`，可以以此实现对列表元素的遍历。再紧跟条件判断，可以实现过滤器功能。形式上比传统的循环加判断模式要简洁直观。—— 2016-12-06
+    3. 可以向`member/2`传入组合term，这样可以直接实现部分过滤功能。例如`member(foo(Foo), [foo(1), bar(2)])`。—— 2016-12-07
+
+  和一些函数式编程语言类似，Prolog语言本身并没有定义循环语句，如果需要对数据进行循环处理，可以借助于递归的形式，例如：
+
+  ```(prolog)
+    loop(0).
+    loop(N) :- N1 is N - 1, loop(N1), write(N), nl.
+
+    main :- loop(10), halt.
+
+  不过在Prolog中，还可以借助与backtracking实现循环，因为backtrack本身就具有递归性，代码如下：
+
+  ```(prolog)
+    upto(N, X) :- N > 0, N1 is N - 1, upto(N1, X).
+    upto(N, X) :- N > 0, X = N.
+ 
+    main :- upto(20, N), write(N), nl, fail.
+    main :- halt.
+  
+  关于用`fail`结合backtracking实现循环的详细说明，可以参见{这里}(http://www.coli.uni-saarland.de/projects/milca/courses/coal/html/node162.html)。
+  
+  但利用`fail`实现循环存在问题，详见{这里}(http://stackoverflow.com/a/14584114/5180632)的说明，在回答中推荐的方式如下：
+
+  ```(prolog)
+    main :- \+ (upto(20, N), \+ (write(N), nl)), halt.
+
+  这样的好处是，如果循环中出错，外层可以感知到错误。
+
+  基于同样的思路，双层循环的实现如下：
+
+  ```(prolog)
+    main :-
+      \+ (upto(10, I), upto(I, J), \+ (write(I), write(' '), write(J), nl)), halt.

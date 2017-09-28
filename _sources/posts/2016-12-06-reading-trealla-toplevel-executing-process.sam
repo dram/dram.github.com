@@ -1,0 +1,29 @@
+article: Trealla源码分析：整体执行流程
+
+  topic: 补遗
+
+    在添加{直接从STDIN解析代码}(https://github.com/trealla-lang/trealla/issues/38)功能中，`lexer_consult`被{分拆}(https://github.com/trealla-lang/trealla/commit/f7b32a9ae0bc3b6fad6f3072163c31a2d7e3831e)为`lexer_consult_file`和`lexer_consult_fp`两个函数，`trealla_consult_file`调用的是前者。—— 2016-12-16
+
+  {Trealla}(https://github.com/trealla-lang/trealla)是一个Prolog语言实现，有大量借鉴Erlang的思想，轻量级线程等。
+
+  `tpl.c`是Trealla的入口文件（猜测tpl是Trealla Prolog的缩写，类似于SWI Prolog对主程序swipl的命名思路）。
+
+  从总体来看，Trealla的执行代码包括两种方式：一是执行（consult）文件，再是执行查询（query）。两者都可以在`tpl.c`中找到相应入口。
+
+  执行查询的逻辑体现在对`--goal`参数以及REPL的处理中，主要包括以下流程：
+
+  1. `trealla_create_query`创建查询；
+  2. `query_parse`解析查询；
+  3. `query_run`执行查询；
+  4. 通过`query_choices`判断如果可能存在多个结果，则会提示下一步动作，例如利用`query_trace`切换是否打印trace，`query_continue`获取可能存在的下一个结果；
+  4. `query_destroy`回收资源。
+
+  而执行文件的入口函数则是在`tpl.c`中调用的`trealla_consult_file`函数，`tpl`以此处理在命令行中指定的文件。函数的具体实现在`src/trealla.c`中，其中包括如下操作：
+
+  1. 创建并经由`lexer_init`初始化词法解析器；
+  2. 调用`lexer_consult`解析源码文件；
+  3. 经由`add_clauses`将解析所得语句加入数据库；
+  4. 如果Trealla解释器的`init`属性在词法解析过程中经由`initialization`指令设置，则作为查询语句调用`trealla_run_query`执行；
+  5. `lexer_done`回收解析器资源。
+
+  `trealla_run_query`的流程与上述查询的执行流程基本一致，最大的差异是没有交互式选择choice的过程。

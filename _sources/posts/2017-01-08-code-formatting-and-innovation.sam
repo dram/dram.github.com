@@ -1,0 +1,13 @@
+article: 代码格式化和创新
+
+  最近由于{gofmt}(https://golang.org/cmd/gofmt/)和{clang-format}(http://clang.llvm.org/docs/ClangFormat.html)的流行，代码格式化工具渐渐被开发者所接受，其他语言的格式化工具也如雨后春笋般涌出。
+
+  其实这一类工具早已有之，例如七八十年代的{cb}(http://www.unix.com/man-page/v7/1/cb/)和{indent}(https://www.freebsd.org/cgi/man.cgi?query=indent)，再如现在依然在开发维护的{astyle}(https://sourceforge.net/projects/astyle/)。
+
+  所以gofmt和clang-format不能算完全的创新，他们的{创新点}(https://news.ycombinator.com/item?id=7282221)主要是基于编译器的词法和语法解析工具对代码做了精准的分析，实质上是质量的改进和完善。
+
+  由此想到，一个产品的成功，包括创新创意之外，还有多方面的因素，例如：
+
+  1. 贴合需求的创新创意；
+  2. 质量满足基本需求，并能不断完善；
+  3. 融合到现有环境中。

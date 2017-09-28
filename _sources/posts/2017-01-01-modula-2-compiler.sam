@@ -1,0 +1,26 @@
+article: Modula-2编译器
+
+  topic: 补遗
+
+    1. 编译ACK依赖yacc工具，主要老版本Bison存在{兼容性问题}(https://github.com/davidgiven/ack/issues/39)，建议使用byacc。—— 2017-01-15
+    2. {最近版本}(https://github.com/davidgiven/ack/commit/fd83b09c587b4a2d92102cc4f734b12087d6cb25)已不需要显式指定`ACKDIR`环境变量。—— 2017-01-15
+
+  Modula-2作为上世纪七十年代的语言，由于未能成为主流，现在要找到一个可用的编译器并不容易。当前在维护的项目有{GNU Modula-2}(http://nongnu.org/gm2/)，以及在{ACK}(https://github.com/davidgiven/ack/)（Amsterdam Compiler Kit）中包含的Modula-2实现。
+
+  以下介绍ACK的编译和使用。
+
+  在`git clone`项目之后，首先需要调整其中的`Makefile`文件：
+
+  1. 例如在Linux平台中，需要将`DEFAULT_PLATFORM`设置为`linux386`；
+  2. \[可选]调整`ACK_TEMP_DIR`为`$(PWD)`，该配置指定生成的可执行程序放于仓库根目录。
+
+  之后运行`make`编译，完成后可在仓库根目录找到`ack-build/staging/bin/ack`等文件。
+
+  有一点需要注意的是，在运行`ack`命令时需要指定`ACKDIR`环境变量，例如：
+
+  ```
+    ACKDIR=ack-build/staging ack-build/staging/bin/ack -o foo Foo.mod
+
+  另外，如果系统是64位环境，需确保编译内核时`CONFIG_IA32_EMULATION`打开，当前ACK在Linux下只支持32位环境。
+
+  值得一提的是，除了C、Modula-2之外，ACK还支持Pascal、Basic等语言，可以作为了解早期编程语言很好的环境。

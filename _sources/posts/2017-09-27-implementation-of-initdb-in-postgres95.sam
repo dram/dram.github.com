@@ -1,0 +1,13 @@
+article: Postgres95 initdb实现
+
+	initdb是初始化PostgreSQL cluster的命令，PG95由SHELL脚本{实现}(https://github.com/postgres/postgres/blob/PG95-1_01/src/bin/initdb/initdb.sh)，是对`postgres -boot`命令的封装，具体流程如下：
+
+	* 创建`$PGDATA/base`和`$PGDATA/base/template1`目录，用于存放数据库文件；
+	* 基于`local1_template1.bki`和`global1.bki`文件初始化`template1`数据库（这两个文件由`backend/catalog/genbki.sh`脚本基于`backend/catalog/`目录中的各头文件生成，主要是各系统内部表结构）；
+	* 调用`pg_version`命令生成版本标识文件；
+	* 在`pg_database`数据表中注册`template1`；
+	* 执行`vacuum`命令回收资源。
+
+	在代码中可以看到，`postgres`也能够直接执行命令，例如`open`、`insert`，还有刚才提及的`vacuum`，但感觉与`psql`不同，这留待以后分析。
+
+	有一个细节，`backend/catalog/`各头文件的结构体和`/bin/pg_dump/pg_dump.h`并不一致，总体感觉`pg_dump.h`中表结构的定义也可以基于`backend/catalog/`目录中的内容通过脚本生成。

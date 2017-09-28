@@ -1,0 +1,17 @@
+article: 代码注释与文学编程
+
+  {文学编程}(http://www.literateprogramming.com/)最早由Donald Knuth提出，具体的实现为{WEB}(https://en.wikipedia.org/wiki/WEB)系统，最初版本支持Pascal语言（另有对C语言支持的{CWEB}(http://www-cs-faculty.stanford.edu/~uno/cweb.html)）。该文学编程系统在Knuth的多个软件中有实践，例如著名的TeX。
+
+  现代文学编程的例子有：{Haskell}(https://wiki.haskell.org/Literate_programming)和{Eve}(http://docs.witheve.com/handbook/literate-programming/)，Eve团队另有一篇对文学编程的{讨论}(http://witheve.com/deepdives/literate.html)。
+
+  文学编程主要的意图是希望能提起一种态度的转变：程序不只用于机器执行，还有一大责任是承担思想的沟通。代码注释也部分承担了这样的功能，但总体来说注释关注细节，而文学编程则兼顾了整体组织和细节实现。
+
+  最近在阅读一篇Peter Seibel讨论代码阅读的{文章}(http://www.gigamonkeys.com/code-reading/)时，想到了一些问题：
+
+  1. 文学编程与{模块化编程}(link "/blog/2016/10/31/layered-service-oriented-architecture.html")有哪些相通性？
+  2. 在{系统设计}(link "/blog/2016/12/09/joy-of-technology.html")中是否可以采用文学编程和TLA+及伪代码结合的模式？
+  3. 是否可以考虑通过{SAM文档格式}(link "/blog/2016/09/15/sam-plugin-for-pelican.html")实现文学编程？
+
+  以上问题有些发散，但最终的目的都是为实现可维护性、可读性高的代码。这就必须同时在宏观和微观上保证思路的清晰可见，这同时对代码的整体组织以及细节的注释提出了要求。
+
+  而另外一点是，对可读性的强调可以积极地反作用于程序实现思路的梳理。全局性的设计思路通过系统设计可以保证，而细节则有赖于实现阶段的把控，这样注释代码有利于梳理函数和模块的功能。某种意义上，代码注释的清晰程度可以反映出模块和函数功能划分的合理程度。比如在一个函数实现后，对其的注释非常复杂，甚至无从描述，很可能是因为多个功能杂揉导致，这样的问题可以通过拆分解决。可以参考每个函数只作一件事、只包含一层抽象等{原则}(https://github.com/ryanmcdermott/clean-code-javascript#functions)。

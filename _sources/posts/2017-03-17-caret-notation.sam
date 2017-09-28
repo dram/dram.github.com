@@ -1,0 +1,7 @@
+article: 脱字符表示法
+
+  PicoLisp对于字符串中包含特殊字符的{表达模式}(https://software-lab.de/doc/ref.html#transient-io)有些特别。在C语言中，转意字符是有直接含义的，比如`\n`是newline的缩写，`\t`是tab的缩写。但PicoLisp中用到的字母是什么含义呢？这其实是脱字符表示法。
+
+  脱字符表示法通过`^`以及随后的连续可显示字符`@`，`A`，`B`，`C`等表示ASCII值为`0`，`1`，`2`，`3`的不可显示字符，详细的介绍可以查看{维基百科}(https://en.wikipedia.org/wiki/Caret_notation)的说明。
+
+  另外，严格来说`^`不能说是脱字符，脱字符位于下方。`^`称作抑扬符，详细的说明见{维基百科}(https://en.wikipedia.org/wiki/Circumflex)。

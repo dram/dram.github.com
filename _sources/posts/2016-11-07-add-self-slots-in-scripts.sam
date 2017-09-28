@@ -1,0 +1,113 @@
+article: 脚本化添加Self属性
+
+  tags: Self
+
+  topic: 补遗
+
+    1. 本文所述方式与其他语言的{monkey patch}(https://en.wikipedia.org/wiki/Monkey_patch)类似，其存在的{固有问题}(https://en.wikipedia.org/wiki/Monkey_patch#Pitfalls)在这里同样也会体现，所以需要谨慎使用。使用`bootstrap addSlotsIfAbsentTo:From:`问题可以部分减轻，但根本问题仍然存在。—— 2016-11-08
+    2. 已将`.selfrc`配置文件上传，最新内容可在{这里}(https://github.com/dram/configs/blob/master/.selfrc)查看。—— 2016-11-08
+
+  Self中有方便的图形化界面用于创建对象、添加属性，但有时会遇到希望脚本化添加属性的需求，例如临时向系统添加功能，但不希望维护独立镜像文件。
+
+  Self对此也有支持。可以从transporter的导出结果中看出一些蛛丝马迹。例如在{ISO8601格式时间打印}(https://github.com/russellallen/self/pull/100)这一PR中，添加有如下代码：
+
+  ```(self)
+
+    bootstrap addSlotsTo: bootstrap stub -> 'traits' -> 'time' -> () From: ( | {
+            'Category: printing\x7fCategory: local time\x7fModuleInfo: Module: time InitialContents: FollowSlot\x7fVisibility: public'
+           
+            printISO8601String = ( |
+               | 
+               (year printStringPadWith0ToSize: 4), '-',
+               (month printStringPadWith0ToSize: 2), '-',
+               (date printStringPadWith0ToSize: 2),
+               'T',
+               (hour printStringPadWith0ToSize: 2), ':',
+               (minute printStringPadWith0ToSize: 2), ':',
+               (second printStringPadWith0ToSize: 2)).
+           } | ) 
+
+  关键方法为`bootstrap addSlotsTo: destObj From: object`，用于将`object`中的所有属性添加到`destObj`中。
+
+  基于以上方法，可以将{fixed字体}(https://github.com/russellallen/self/pull/105)和{编辑器配色}(https://github.com/russellallen/self/pull/81)这两个PR临时整合到`$HOME/.selfrc`文件中，待PR整合之后再予以去除。完整的代码如下：
+
+  ```(self)
+    bootstrap addSlotsTo: x11Globals fontFamily From: (|
+      fixed = '-*-fixed-medium-r-normal--'.
+      fixedBold = '-*-fixed-bold-r-normal--'.
+      fixedItalic = '-*-fixed-medium-o-normal--'
+    |).
+    
+    bootstrap addSlotsTo: generalModel parent From: (|
+      preferredEditorColor = (preferences outliner theme generalModelEditor)
+    |).
+    
+    bootstrap addSlotsTo: preferences outliner themes base From: (|
+      generalModelEditor = (bodyColor)
+    |).
+    
+    bootstrap addSlotsTo: preferences outliner themes night From: (|
+      generalModelEditor = (dull)
+    |).
+    
+    bootstrap addSlotsTo: generalModel parent commentStyleProto parent From: (|
+      color = (myModel preferredEditorColor)
+    |).
+    
+    bootstrap addSlotsTo: generalModel parent contentsEditorStyleProto parent From: (|
+      color = (myModel preferredEditorColor)
+    |).
+    
+    bootstrap addSlotsTo: generalModel parent editWholeThingStyleProto parent From: (|
+      color = (myModel preferredEditorColor)
+    |).
+    
+    (|
+      globals* = globals.
+      mono = fontSpec copyName: 'fixed' Size: 15.
+      sans = fontSpec copyName: 'helvetica' Size: 16.
+      serif = fontSpec copyName: 'times' Size: 16.
+    
+      set: font To: font1 = (
+        font name: font1 name.
+        font size: font1 size.
+        font style: font1 style
+      ).
+    
+      run = (
+        preferences outliner theme: preferences outliner themes night.
+        preferences desktop backgroundColor: preferences outliner theme bodyColor.
+        carpetMorph color: preferences outliner theme borderColor.
+    
+        set: generalCategoryModel objectTitleFontSpec To: serif copyStyle: 'bold'.
+        set: selfCatOrObjModel moduleSummaryFontSpec To: serif.
+        set: generalCategoryModel subcategoryTitleFontSpec
+         To: serif copyStyle: 'italic'.
+    
+        set: outlinerPreferences headerButtonFontSpec
+         To: (sans copySize: 9) style: 'bold'.
+    
+        set: selfGeneralSlotModel undeclaredTitleFontSpec To: sans.
+        set: selfGeneralSlotModel privateTitleFontSpec To: serif.
+        set: selfGeneralSlotModel publicTitleFontSpec To: serif copyStyle: 'bold'.
+    
+        set: generalLeafModel commentButtonFontSpec
+         To: (sans copySize: 8) style: 'bold'.
+        set: generalLeafModel contentsLabelFontSpec To: serif copyStyle: 'italic'.
+    
+        set: ui2_textField fontSpec To: mono copyStyle: 'bold'.
+    
+        set: evaluatorMorph preferredFontSpec
+         To: (sans copySize: 12) style: 'bold'.
+    
+        set: generalModel titleFontSpec To: serif copyStyle: 'bold'.
+        set: generalProcessModel commandButtonFontSpec To: sans copyStyle: 'bold'.
+        set: outlinerPreferences myFontSpec To: serif.
+        outlinerPreferences tinyFontSize: 12.
+    
+        set: ui2Button defaultFontSpec To: serif.
+        set: ui2Menu defaultFontSpec To: serif.
+    
+        desktop open
+      )
+    |) run
