@@ -1,0 +1,86 @@
+article: 编写Lua C模块
+
+	在Lua的lua-users wiki中，包含有{两篇}(http://lua-users.org/wiki/BindingCodeToLua)与C模块编写{相关}(http://lua-users.org/wiki/BuildingModules)的文章，描述得并不清楚，另外使用的是共享链接的模式。
+
+	以下介绍静态链接Lua C模块编写方法，整体目录结构如下：
+
+	```
+		foo/
+		├── foo_lua_lib.c
+		├── foo_lua_lib.h
+		├── lua -> link/to/lua-code/
+		└── Makefile
+
+	其中`lua`链接到Lua源码目录，`foo_lua_lib.c`和`foo_lua_lib.h`参考{Binding Code To Lua}(http://lua-users.org/wiki/BindingCodeToLua)的内容，`Makefile`做了编译过程封装。
+
+	以下为各文件的具体内容。
+
+	`foo_lua_lib.c`：
+
+	```(c)
+		#include "lua/lua.h"
+		#include "lua/lauxlib.h"
+		
+		#include "foo_lua_lib.h"
+		
+		static int bar(lua_State *L) {
+			lua_pushnumber(L, luaL_checknumber(L, 1) + 1);
+			return 1;
+		}
+		
+		static const luaL_Reg functions[] = {
+			{"bar", bar},
+			{NULL, NULL}
+		};
+		
+		int luaopen_foo(lua_State *L) {
+			luaL_newlib(L, functions);
+			lua_pushnumber(L, 123);
+			lua_setfield(L, -2, "baz");
+			return 1;
+		}
+
+	`foo_lua_lib.h`：
+
+	```(c)
+		#ifndef foo_lua_lib_h
+		#define foo_lua_lib_h
+		
+		#include "lua/lua.h"
+		
+		int luaopen_foo(lua_State *L);
+		
+		#endif
+
+	`Makefile`：
+
+	```(makefile)
+		NAME = foo
+		FULL_NAME = $(NAME)_lua
+		LIB_NAME = $(FULL_NAME)_lib
+		LINIT_NAME = $(FULL_NAME)_linit
+		
+		$(FULL_NAME): $(LINIT_NAME).o $(LIB_NAME).o
+			gcc -s -o $@ $^ $($(NAME)_OBJS) $($(NAME)_LIBS)
+		
+		clean-$(NAME):
+			rm -f $(FULL_NAME) $(LINIT_NAME).* $(LIB_NAME).o
+		
+		include lua/makefile
+		
+		CC=cc
+		
+		LUA_OBJS = $(patsubst %, lua/%, $(CORE_O) $(AUX_O) $(LIB_O) $(LUA_O))
+		$(NAME)_OBJS = $(patsubst lua/linit.o, , $(LUA_OBJS))
+		$(NAME)_LIBS = $(MYLIBS)
+		
+		$(LIB_NAME).o: $(LIB_NAME).c $(LIB_NAME).h
+		
+		$(LINIT_NAME).c: lua/linit.c
+			sed \
+				-e 's|#include "|#include "lua/|' \
+				-e 's|\(lauxlib.h"\)|\1\n\n#include "$(LIB_NAME).h"|' \
+				-e 's|\(luaopen_debug.*\)|\1 {"$(NAME)", luaopen_$(NAME)},|' \
+			$< >$@
+		
+		$(LINIT_NAME).o: $(LINIT_NAME).c
