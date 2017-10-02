@@ -1,0 +1,61 @@
+article: 编写CLIPS C扩展
+
+	关于如何在CLIPS编写C扩展，在Advanced Programming Guide中已经有详细的介绍。这里只举一个简单的例子。
+
+	整体目录结构如下：
+
+	```
+		foo/
+			├── clips -> link/to/clips-code/
+			├── foo_clips.c
+			└── Makefile
+
+	其中`clips`链接到CLIPS源码目录（64x分支），`foo_clips.c`包含一个简单的扩展实例，`Makefile`做为编译过程封装。
+
+	以下为各文件的具体内容。
+
+	`foo_clips.c`：
+
+	```(c)
+		#include "clips/clips.h"
+		
+		#include <math.h>
+		
+		static void Bar(Environment *env, UDFContext *udfc, UDFValue *out)
+		{
+			UDFValue arg;
+		
+			UDFFirstArgument(udfc, NUMBER_BITS, &arg);
+		
+			out->integerValue = CreateInteger(env, arg.integerValue->contents + 1);
+		}
+		
+		void UserFunctions(Environment *env)
+		{
+			AddUDF(env, "bar", "l", 1, 1, "l", Bar, "Bar", NULL);
+		}
+
+	`Makefile`：
+
+	```(makefile)
+		NAME = foo
+		LIB_NAME = $(NAME)_clips
+		
+		$(LIB_NAME): $(LIB_NAME).o
+			gcc -s -o $@ $^ $($(NAME)_OBJS) $($(NAME)_LIBS)
+		
+		clean-$(NAME):
+			rm -f $(LIB_NAME) $(LIB_NAME).o
+		
+		include clips/makefile
+		
+		CC=cc
+		
+		CLIPS_OBJS = $(patsubst %, clips/%, $(OBJS) main.o)
+		$(NAME)_OBJS = $(patsubst clips/userfunctions.o, , $(CLIPS_OBJS))
+		$(NAME)_LIBS = -lm
+		
+		$(LIB_NAME).o: $(LIB_NAME).c
+			$(CC) -Wall -c -o $@ $<
+
+	从例子中可以看到，与Lua的{扩展模块}(link "/blog/2017/10/02/writing-lua-c-modules.html")不同，CLIPS的扩展是全局的，不是模块化的。
