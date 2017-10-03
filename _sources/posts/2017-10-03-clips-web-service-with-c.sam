@@ -1,0 +1,109 @@
+article: 基于C的CLIPS Web服务
+
+	前阵子有{介绍}(link "/blog/2017/09/03/clips-web-service.html")基于socat工具搭建CLIPS Web服务，但依赖第三方工具，且依赖proc系统以及固定的fd编号，总体并不灵活。
+
+	以下介绍使用CLIPS的C接口实现简易Web服务，代码目录结构如下：
+
+	```
+		serve-web/
+		├── clips -> link/to/clips/code/
+		├── main.clp
+		├── Makefile
+		└── serve.c
+
+	其中`serve.c`为C接口代码，`main.clp`为主体服务代码，`Makefile`为编译过程封装。以下为具体内容：
+
+	`serve.c`：
+
+	```(c)
+		#include <netinet/in.h>
+		#include <sys/socket.h>
+		
+		#include "clips/clips.h"
+		
+		int main(int argc, char *argv[])
+		{
+			int sock;
+			if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+				goto error;
+			
+			struct sockaddr_in addr;
+			addr.sin_family = AF_INET;
+			addr.sin_addr.s_addr = INADDR_ANY;
+			addr.sin_port = htons(5000);
+			if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) == -1)
+				goto error;
+		
+			if (listen(sock, 5) == -1)
+				goto error;
+		
+			Environment *env = CreateEnvironment();
+			RerouteStdin(env, argc, argv);
+		
+			struct fileRouter *in_router = get_struct(env, fileRouter);
+			in_router->logicalName = "net-in";
+			struct fileRouter *out_router = get_struct(env, fileRouter);
+			out_router->logicalName = "net-out";
+			in_router->next = out_router;
+			out_router->next = FileRouterData(env)->ListOfFileRouters;
+			FileRouterData(env)->ListOfFileRouters = in_router;
+		
+			BatchStar(env, "main.clp");
+		
+			int conn;
+			while ((conn = accept(sock, NULL, NULL)) != -1) {
+				Reset(env);
+		
+				in_router->stream = fdopen(conn, "r");
+				out_router->stream = fdopen(conn, "w");
+		
+				Run(env, -1);
+		
+				fclose(in_router->stream);
+				fclose(out_router->stream);
+			}
+		
+		error:
+			perror("main");
+		
+			DestroyEnvironment(env);
+		
+			return 1;
+		}
+
+	`main.clp`：
+
+	```(clips)
+		(defrule parse-request
+		 =>
+		  (assert (request-line (readline net-in))))
+		
+		(defrule process-request
+		  (request-line ?)
+		 =>
+		  (bind ?body "<p>Hello, world</p>")
+		
+		  (format net-out
+		          "HTTP/1.1 200 OK%r
+		Content-Type: text/html%r
+		Content-Length: %d%r
+		%r
+		%s" (str-length ?body) ?body))
+		
+		(watch activations)
+		(watch facts)
+		(watch rules)
+
+	`Makefile`：
+
+	```(makefile)
+		.PHONY: clean
+		
+		serve: serve.o
+			make PLATFORM=Linux -C clips libclips.a
+			$(CC) -s -o $@ $^ clips/libclips.a -lm
+		
+		serve.o: serve.c
+		
+		clean:
+			rm -f serve serve.o
