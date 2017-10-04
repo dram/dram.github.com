@@ -4,6 +4,8 @@ article: 基于C的CLIPS Web服务
 
 		1. 虽然在CLIPS中`open`接口不支持以读写方式打开文件，但是在用C创建router时并没有约束，可以直接将读写句柄赋值给`router->stream`，所以以下代码可以简化。—— 2017-10-04
 		2. router相关的代码是参考{filertr.c}(https://github.com/dram/clips-mirror/blob/03593bee8ef2c15815ce585c18e30f7f1e54f269/branches/64x/core/filertr.c)中的`OpenAFile`函数实现的。—— 2017-10-04
+		3. 如果要保持与CLIPS`close`接口的兼容性，`logicalName`需要基于`gm2`申请内存，因为`CloseFile`包含有释放该内存的动作。—— 2017-10-04
+		4. 如果需要更严谨些，在程序结束时，`net-in`和`net-out`需要调用`CloseFile`关闭以回收内存。—— 2017-10-04
 
 	前阵子有{介绍}(link "/blog/2017/09/03/clips-web-service.html")基于socat工具搭建CLIPS Web服务，但依赖第三方工具，且依赖proc系统以及固定的fd编号，总体并不灵活。
 
