@@ -1,0 +1,7 @@
+article: 关于popen接口
+
+	Lua作为扩展性语言，非常注重可移植性，所以在接口设计实现中很少带有平台相关的代码。有一个例外是`popen`，由此可见这个接口的重要性。
+
+	对于`popen`接口，POSIX标准中有{定义}(http://pubs.opengroup.org/onlinepubs/9699919799/functions/popen.html)。
+
+	有一个细节是，`mode`参数只支持`r`或`w`模式，而不支持读写模式。这估计是由于部分系统中`pipe`单向性的约束，而`popen`接口返回的`FILE`句柄只能对应单个管道。
