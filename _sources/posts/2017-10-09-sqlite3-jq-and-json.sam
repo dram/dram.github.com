@@ -1,0 +1,16 @@
+article: SQLite3、JSON和jq
+
+	{jq}(https://stedolan.github.io/jq/)是较为流行的一个JSON处理命令行工具，虽然功能强大，但命令语法有一定的学习门槛，并且可记忆性不强。而SQLite3对JSON有较好的{支持}(http://sqlite.org/json1.html)，很多时候，完全可以用SQLite3替代jq。
+
+	以下为一个示例：
+
+	```(shell)
+		cat >foo.json <<EOF
+		[{"name": "foo"}, {"name": "bar"}]
+		EOF
+
+		sqlite3 :memory: <<EOF
+		SELECT json_extract(json_each.value, '$.name')
+		  FROM json_each(readfile('foo.json'))
+		EOF
+
