@@ -4,6 +4,7 @@ article: PostgreSQL多实例运行
 
 		1. PostgreSQL在初始化的时候会生成一个默认数据库`postgres`（另外还有两个模板库`template0`和`template1`，可以通过`psql -l`查看。详见{文档}(https://www.postgresql.org/docs/10/static/manage-ag-templatedbs.html)），所以如果只是生成单数据库环境，初始化时可以省去`createdb`的过程。—— 2017-09-15
 		2. 在Cygwin环境中运行PostgreSQL依赖于Cygserver提供的共享内存服务，如何配置详见{文档}(https://cygwin.com/cygwin-ug-net/using-cygserver.html)（注意需要以管理员身份运行Terminal后执行相关命令）。—— 2017-09-15
+		3. 利用环境变量`PGDATA`和PostgreSQL配置文件，可以简化下面的脚本，详见{这里}(link "/data/2017-10-09-postgresql-playground-service.sh")。—— 2017-10-09
 
 	虽然众多RDBMS设计之初就是向着多数据库多用户的方向发展的（SQLite是一个例外），但并不是说不能各用户独立实例使用。例如KDE就可以使用MySQL存储用户数据。
 
