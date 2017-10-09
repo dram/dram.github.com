@@ -1,5 +1,9 @@
 article: CLIPS连接PostgreSQL数据库（续）
 
+	topic: 补遗
+
+		1. 借鉴{这里}(link "/blog/2017/10/09/sqlite3-jq-and-json.html")SQLite3的示例，CLIPS和PostgreSQL的对接也可以考虑命令行的模式对接psql命令，而不是直接基于网络协议对接。—— 2017-10-09
+
 	前阵子有{介绍}(link "/blog/2017/09/12/run-multiple-postgresql-instances.html")过基于socat实现CLIPS连接PostgreSQL，但只是建立了TCP连接，并没有介绍数据交互。以下代码是数据交互相关的示例。
 
 	主要参考了PostgreSQL {Frontend/Backend Protocol}(https://www.postgresql.org/docs/10/static/protocol.html)一章以及这份{演示文档}(https://www.pgcon.org/2014/schedule/attachments/330_postgres-for-the-wire.pdf)的介绍。
