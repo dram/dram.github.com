@@ -7,6 +7,7 @@ article: 基于C的CLIPS Web服务
 		3. 如果要保持与CLIPS`close`接口的兼容性，`logicalName`需要基于`gm2`申请内存，因为`CloseFile`包含有释放该内存的动作。—— 2017-10-04
 		4. 如果需要更严谨些，在程序结束时，`net-in`和`net-out`需要调用`CloseFile`关闭以回收内存。—— 2017-10-04
 		5. 以读写的方式`fdopen` socket句柄不具可移植性，在Cygwin中没有问题，但在Linux下会出现Illegal seek错误，详见{这里}(https://stackoverflow.com/a/10257164/5180632)。—— 2017-10-09
+		6. 代码中存在`conn`文件句柄被重复关闭的情况，需要在其中一个`fdopen`调用前`dup`。—— 2017-10-10
 
 	前阵子有{介绍}(link "/blog/2017/09/03/clips-web-service.html")基于socat工具搭建CLIPS Web服务，但依赖第三方工具，且依赖proc系统以及固定的fd编号，总体并不灵活。
 
