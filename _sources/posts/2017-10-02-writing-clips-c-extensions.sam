@@ -1,5 +1,9 @@
 article: 编写CLIPS C扩展
 
+	topic: 补遗
+
+		1. 从`OBJS`变量中删除`userfunctions.o`可以用`filter-out`函数替代`patsubst`。—— 2017-10-11
+
 	关于如何在CLIPS编写C扩展，在Advanced Programming Guide中已经有详细的介绍。这里只举一个简单的例子。
 
 	整体目录结构如下：
