@@ -4,7 +4,7 @@
 
 default: pelican
 
-.PHONY: pelican sphinx serve clean
+.PHONY: pelican sphinx serve clean tools
 
 pelican:
 	pelican -s pelicanconf.py
