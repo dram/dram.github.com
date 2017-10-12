@@ -1,0 +1,111 @@
+article: NetBSD零碎笔记
+
+	\[2008/11/14更新\]
+
+	section: sudo设置
+
+		以前一直没有去尝试过sudo，现在发现这确实是个好东西。如果只是需要简单的功能，设置也并不复杂。运行visudo之后：
+
+		```
+			danran ALL=(ALL) ALL
+			Defaults:danran runaspw
+
+	section: ksh提示符
+
+		NetBSD默认安装了三个shell，sh, csh和ksh，我用的是ksh，下面是一个简单的提示符，有颜色，同时当命令出错时会提示返回值或者接收到的信号值。
+
+		```
+			my_prompt () {
+			        status=$?
+			        path=${PWD#$HOME}
+			        [ "$path" != $PWD ] && prefix='~'
+			        echo -n "^[[32m${prefix:-}${path}^[[31m${status#0}^[[0m\n\$ "
+			}
+
+			PS1='$(my_prompt)'
+
+		其中的 `^[` 需要通过 Ctrl-V + Esc输入。
+
+	section: 更改终端字体
+
+		在`/etc/wscons.conf`中加入：
+
+		```
+			font	sfnt	-	-	-	/root/s.fnt
+
+			setvar ttyE0 font sfnt
+
+		顺便推荐一下这个字体，就是s.fnt，可以在{kbd}(ftp://ftp.altlinux.org/pub/people/legion/kbd/)包中找到它。 另外terminus也是可以在console下使用的。首先去一些linux的发行版的二进制文件中抓取编译好的psf字体文件，我是从slackware中找的。然后按照{这里}(http://www.skosi.org/~lkundrak/fonts/)提示的方法对psf文件做一些转化，之后就可以在NetBSD下使用了。转化的命令摘录如下：
+
+		```(shell)
+			dd if=font.psf of=font.fnt bs=1 count=4096 skip=4
+
+	section: 网络设置
+
+		如果网络环境是DHCP的话，在/etc/rc.conf中加入`dhclient=YES`再运行`/etc/rc.d/dhclient start`即可启用网络。 如果要设置静态IP，则需要在`/etc/rc.conf`中加入：
+
+		```
+			hostname="name"
+			defaultroute="网关"
+			ifconfig_rtk0="inet IP地址 netmask 掩码"
+
+		DNS与Linux系统一样，在/etc/resolv.conf中设置。
+
+		```
+			nameserver DNS
+
+		网络服务通过/etc/rc.d/network重启。 一般需要启用sshd，需要在/etc/rc.conf中加入sshd=YES。
+
+	section: ctags 没有 -R
+
+		NetBSD 中的 ctags 好像没有 -R 选项，去网上查了下，可以配合 find 实现：
+
+		```(shell)
+			find  dirname -name "*.[ch]" | xargs ctags
+
+		但这不是长久之计，应该NetBSD自带的ctags不支持tag重复的情况，所以最好还是安装pkgsrc中的exctags。
+
+	section: stardict安装
+
+		wip 里的好像和 gnome 的依赖性太大，所以没有从那安装，自己下了 stardict-2.4.8 的包，然后再用下面的 configure 一下：
+
+		```(shell)
+			./configure  -prefix=/usr --sysconfdir=/etc --mandir=/usr/man --disable-gnome-support
+
+		编译到最后会出现无法编译 stardict.desktop 的问题，不管它，反正这东西我也不用，所以直接进入 data 目录，将 stardict.desktop.in 改名为 stardict.desktop，这样就可以编译通过了。
+
+		编译时除了 gtk2 的包外，可能还需要 expat, freetype 这两个包。
+
+	section: readline 问题
+
+		NetBSD 下的 readline 好像有点问题，Python 历史，方向键等都不能使用，挺恼人的。找了下，好像 rlwrap，socat，rlfe 这些都是专门提供这种功能的软件，效果还不错。其实 python 的 readline 问题也可以通过安装 py-readline 这个包来解决。
+
+	section: gimmie 编译时 intltool 版本过低问题
+
+		原本也是摸不着头脑，但无意间 ls -l 可以看到 intltool-update.in 等三个文件链接到 /usr/share 上了，应该时 /usr/pkg/share 才对啊。
+
+	section: vim 编译
+
+		NetBSD 自带的 vim 不支持 python，但直接改 pkgsrc 好像又有问题，所以还是直接自己下载编译吧。
+
+		其实编译VIM并没有想像中的那么难。下载用 aap 就可以了。编译的话，只要在 src/Makefile 上把一下几个开启就可以了。
+
+		```(makefile)
+			CONF_OPT_GUI = --disable-gui
+			CONF_OPT_X = --without-x
+			CONF_OPT_MULTIBYTE = --enable-multibyte
+			CONF_OPT_PYTHON = --enable-pythoninterp
+			CONF_OPT_CSCOPE = --enable-cscope
+
+	section: fcitx输入法
+
+		fcitx 我是直接从 www.fctix.org 下载的 fcitx 'GirlDog' 3.5-070703 版本。编译安装没什么问题，设置的话在 .xinitrc 中加入：
+
+		```(shell)
+			export LC_CTYPE=zh_CN.eucCN
+			export XMODIFIERS="@im=fcitx"
+			export XIM_PROGRAM=fcitx
+			export GTK_IM_MODULE="xim"
+			export QT_IM_MODULE="xim"
+
+		我的系统的 locale 是 `en_US.UTF-8`。

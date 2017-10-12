@@ -1,0 +1,58 @@
+article: Continuation Passing Style
+
+	注：以前在其他地方写的笔记，现在重新开始学习 Haskell，所以先搬过来。
+
+	看到 Yet Another Haskell Tutorial 的 4.6 节：Continuation Passing Style 时脑袋有点晕。去网上找了点资料，总算有点清晰了。
+
+	http://www.cacs.louisiana.edu/~mgr/404/burks/foldoc/84/24.htm 这个网页中的文档虽然很短，但对 CPS 作了比较清晰的描述，并给出了一个非常简单的例子。
+
+	blockquote:
+		CPS is a style of programming in which every user function f takes an
+		extra argument c known as a continuation. Whenever f would normally
+		return a result r to its caller, it instead returns of applying the
+		continuation to r. The continuation thus represents the whole of the
+		rest of the computation.
+
+	大概翻译一下：
+
+	CPS 是一种编程风格，在 CPS 中，每个函数都需要一个额外的参数 c （也就是 continuation，是一个函数）。任何时候，如果函数 f 通常是返回一个结果 r 给调用者的话，在 CPS 中，f 返回的将是以 r 为参数调用 c 后的结果。f 之后的运算完全地转化到 c 函数中了。
+
+	```(haskell)
+		--normal
+		square x = x * x
+		(square 3) + 1
+
+		-- CPS
+		square x c = c (x * x)
+		square 3 (\s -> s + 1)
+
+	现在再来看 YAHT 的那个 CPS 版 fold。为了清晰，我将 cfold' 中的 f 统一改为 h。
+
+	```(haskell)
+		cfold' h z [] = z
+		cfold' h z (x:xs) = h x z (\y -> cfold' h y xs)
+
+		cfold f z l = cfold' (\x t g -> f x (g t)) z l
+
+	先不要看 cfold 这个包装。普通的 foldr 或 foldl 中 f 接受两个参数，而 cfold' 中由于 h 则多了一个参数，为一个函数，我们这里用 k 表示，这就是 continuation。从第二行代码中可以看出，k 为 \\y -> cfold' f y xs，它对 xs 进行 cfold'，这和递归比较相似。
+
+	再来看 cfold，此时 h 为 \\x t g -> f x (g t)，观察后可以得出，一般 z 为累加器的，但这里它在每次 cfold' 的调用中没有变化，一直为初始值不变。
+
+	实际上以上过程和 foldr 差不多。
+
+	将上面两个函数合并为一个，这样可能会清晰一点。
+
+	```(haskell)
+		cfold f z [] = z
+		cfold f z (x:xs) = (\x t k -> f x (k t)) x z (\y -> cfold f y xs)
+
+	最后贴上习题 4.12 我做的答案。
+
+	```(haskell)
+		cmap f [] = []
+		cmap f (x:xs) = (\x k -> f x : k) x (cmap f xs)
+
+		cfilter p [] = []
+		cfilter p (x:xs) = (\x k -> if p x then x : k else k) x (cfilter p xs)
+
+	怎么有感觉不像 CPS 了呢？（主要是我还不知道在 Haskell 中怎么写没有参数的匿名函数呢！还是根本没有这概念？:P）
