@@ -24,5 +24,13 @@ publish:
 	git push -f origin master
 	git co sources
 
+generate:
+	tools/unnamed -f2 tools/main.clp
+
+tools:
+	make PLATFORM=Linux -C tools/clips libclips.a main.o
+	make PLATFORM=Linux -C tools unnamed
+
 clean:
-	-rm -rf notes/*
+	make -C tools/clips clean
+	make -C tools clean-unnamed

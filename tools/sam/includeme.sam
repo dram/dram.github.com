@@ -1,0 +1,10 @@
+    message: Hello World.
+
+        This is the include test file.
+
+        +++
+            foo | bar
+            baz | bat
+
+        Annotation lookup test: {test phrase}(test).
+

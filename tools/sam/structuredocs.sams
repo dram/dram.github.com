@@ -1,0 +1,70 @@
+!namespace: http://spfeopentoolkit.org/ns/sam-schema
+$namespace = http://example.com/ns/structure-docs
+$word =	\W+
+
+structure-docs: xs:string
+
+	description:
+		~~~(*text-general)(?many)
+			p:
+			ul:
+			ol:
+
+	group:(?repeat)
+		title: xs:string
+			# The title of the group
+		description: 
+			# A description of the group
+			>>>(*text-general)
+		element:(?repeat)
+			index:: type, term
+				>($word), xs:string
+			type:
+				xs:string
+			description:
+				>>>(*text-general)
+
+schema: 
+	block: sturcuture-docs
+		>>>(#text-general)
+
+	group:(#text-general)(?many)
+		paragraph:
+		block: ol
+		block: ul
+
+
+structure-docs{}
+	description
+		@text-general
+	*group
+		title
+		description
+			@text-general
+		+element
+			@index
+			type(xs:string)
+			description
+				@text-general
+
+@text-general
+	*{
+		para=p
+		ul
+		ol
+	}
+	
+@annotations
+	element-name
+	group-name
+	
+@decorations
+	bold
+	italic
+	quotes
+	code=pre
+
+@index
+	index
+		*entry::type(xs:NMTOKEN),+term
+

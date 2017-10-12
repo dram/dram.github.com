@@ -1,0 +1,286 @@
+article: SAM Recipes
+
+    SAM is an abstract markup language, otherwise known as a meta-language. This means that it is intended, like XML,
+    defining your own markup languages. Unlike XML, however, SAM pre-defines a basic set of structures.
+    SAMs predefined structures provide a simple clear syntax of common text structures, but they don't cover
+    everything you might need. The following recipes are suggestions on how to handle some common markup
+    problems in SAM. But remember, these involve you defining markup for yourself and require you to handle that
+    markup in the application layer.
+
+    recipe: Footnotes
+
+        SAM does not have an predefined markup for footnotes, but it does have support for IDs and citations,
+        which provide a reference mechanism for footnotes. The suggested recipe for footnotes is to create a
+        footnote block with an id, and use a citation to reference that id:
+
+        ```(sam)
+            This paragraph reqires a footnote.[*1]
+
+            footnote:(*1)
+                This is a footnote.
+
+        The footnote structure can be anywhere in the document, but it makes sense to place it immediately
+        after the paragraph in which the reference occurs. You can move it to the bottom of the page or the
+        of the chapter or book in the publishing process.
+
+        Note that the footnote structure is not a child of the paragraph but a sibling at the same
+        level of indentation. Paragraphs cannot have block children.
+
+    recipe: Terminal sessions
+
+        There is no support for SAM markup in the body of a codeblock. This works for code, since it
+        requires no escaping, regardless of language. It does not work so well for terminal sessions
+        if you want to markup the prompt, input, and output. If you need this kind of terminal session
+        support, the suggested recipe is to create a terminal session block and use fields for
+        the sequence of prompt, input, and response. This reads quite clearly and you can easily
+        use it to construct a formatted terminal session illustration when publishing.
+
+        ```(sam)
+            terminal:
+                prompt: $
+                input: dir
+                response: Empty directory.
+
+    recipe: Semantic lists
+
+        Sometimes you have semantic lists. That is, the list and its items are of a specific type. For
+        example:
+
+        ```(sam)
+            filmography:
+                film: Rio Bravo
+                film: The Shootist
+
+        If you don't want to have to repeat the item name over and over, you can use a recordset
+        with a single field.
+
+        ```(sam)
+            filmography:: film
+                Rio Bravo
+                The Shootish
+
+        Notice that while these two constructions capture the same data and the same semantics,
+        they are not the same structure, and therefore not to interchangeable. You have to decide
+        which one you want in your markup language and provide processing for it accordingly.
+
+        Also note the the XML representation of the two forms is different. The first outputs this:
+
+        ```(xml)
+             <filmography>
+             <film>Rio Bravo</film>
+             <film>The Shootist</film>
+             </filmography>
+
+        The second outputs this:
+
+        ```(xml)
+             <filmography>
+             <row>
+             <film>Rio Bravo</film>
+             </row>
+             <row>
+             <film>The Shootist</film>
+             </row>
+             </filmography>
+
+        Of course, it is easy enough to transform the second output into the first in post-processing.
+
+    recipe: Subscripts and superscripts
+        SAM does not have predefined support for superscripts and subscripts. If you need then, you
+        need to define a tagging language the provides them. You would do this with annotations:
+
+        ```(sam)
+            H{2}(super)S0{4}(super)
+
+    recipe: Conditional paragraphs
+        You can't apply attributes to a paragraph. If you want to make paragraphs conditional,
+        support fragments in your tagging language and put the conditions on the fragments.
+
+        ```(sam)
+            ~~~(?novice)
+                Be very careful and ask for help if you need it.
+
+            Push the big red button and run.
+
+    recipe: Use a lookup file to make annotations easier
+        SAM allows you to omit the annotations on a phrase after you have annotated it the first
+        time in a file. When the parser sees a phrase with no annotation or citation, it looks
+        back through the file an finds the last instance of that phrase and copies its annotation.
+
+        This is a time saver. If you have a set of phrases that are commonly annotated
+        the same way across a number of documents, you can create a lookup file in which those
+        phrases are annotated and import it into each document. You with then not need to
+        annotate any of those phrases in the document. Just mark them up as phrases using
+        curly braces and the parser will fill in the annotations.
+
+        You need to make sure that the contents of the lookup file do not become part of the
+        published document. To do this, simply create a structure in the lookup file to hold
+        the list of annotations and suppress that structure in the application layer.
+
+        ```(sam)
+            dont-publish-this:
+                {Enter}(key)
+                {the Duke}(actor "John Wayne" (SAG))
+
+    recipe: Complex labeled lists
+        SAM provides a simple labeled list format that allows only one paragraph attached to a
+        label. For anything more complex than this, construct a labeled list structured with
+        blocks and fields.
+
+        ```(sam)
+            ll:
+                li:
+                    lable: Item label
+                    item:
+                        The text of the item, including:
+
+                        * paragraphs
+                        * lists
+                        * etc
+
+    recipe: Single sourcing via attribute substitution
+        You can provide single sourcing support via attribute chaining. That is, you can provide both an
+        HTTP link and a subject annotation. But if you use the trick of importing a file of
+        annotation definitions and relying on annotation lookup to add them to the content, you
+        can also substitute in different annotation lookup sets for different media (or different
+        anything else). This will get easier when we add catalog support.
+
+    recipe: Index markers
+
+        There are a number of ways to implement index markers in SAM. The first it to avoid the
+        use of explict index marker altogether and to generate an index based on semantic annotation.
+
+        ```(sam)
+            {The Duke}(actor "John Wayne") plays an ex-Union colonel.
+
+        In this case you could generate an index entry for `John Wayne`, and a categorized entry
+        for `Actor:John Wayne` from this annotation.
+
+
+        Note that you don't have to generate an index entry for every instance of
+        and annotated phrase. You can choose to generate an entry only for the first occurrence of
+        an annotated phrase in a section or chapter, for instance.
+
+        To implement explicit index markers, you can use annotations with a type `index`:
+
+        ```(sam)
+            {The Duke}(index "John Wayne; Actor:John Wayne") plays an ex-Union colonel.
+
+        To implement index markers that span a passage, you can use a field on a block:
+
+        ```(sam)
+            bio: John Wayne
+                index: John Wayne; Actor:John Wayne
+
+                John Wayne was an actor known for his roles in westerns.
+
+        To implement index markers that span an arbitrary passage within a block, you
+        can use a field on a fragment:
+
+        ```(sam)
+            ~~~
+                index: John Wayne; Actor:John Wayne
+
+                Jimmy Stewart also made a number of films with John Wayne.
+                ...
+
+        Remember that these are suggestions as to how you might implement index markers
+        in a tagging language based on SAM. SAM does not provide explicit support for
+        index markers.
+
+    recipe: Code callouts
+
+        There is no way to insert markup into a regular codeblock. If you want to do callouts
+        in code, you can use lines for the code and citations for the callouts. (The presumptive
+        semantics for citations is that what they produce is base on the thing they refer to.)
+
+        ```(sam)
+        codesample:
+            language: python
+            code:
+                | print("Hello World")[*c1]
+                | print ("Goodbye, cruel World")[*c2]
+            callouts:
+                callout:(*c1) This prints "Hello World".
+                callout:(*c2) This prints "Goodbye, cruel World".
+
+    recipe: Markdown style deferred links
+        ```(sam)
+            Look it up in {Wikipedia}[*wikipedia]
+
+            link(*wikipedia): http://wikipedia.org
+
+    recipe: Compound Identifiers
+
+        Compound identifiers are ones that reference one resource inside another, such as a figure inside a particular chapter, as opposed to just referencing the figure itself. 
+
+        ```
+            #chapter2/#figure3
+
+        SAM does not have any syntax support for this directly. The following discussion explains the issues and some possibilities:
+
+        SAM does not provide any facility for dereferencing compound identifiers. Neither does XML. That is purely an application layer thing.
+
+        But unlike XML, SAM provide specific syntax for dereferencing identifiers in the form of citation markup. And SAM also makes an explicit distinction between names and IDs at the authoring level, whereas in XML the distinction between ID/IDREF and all other forms of identifier creation and dereferencing that you may decide to invent at the application layer, is not expressed in the markup, but only in the schema. The author does not know, when creating an attribute `id="foo"` if the id attribute is of type "ID" or not. Similarly when they create a reference `idref="foo"`, they do not know if the attribute `idref` is of type `IDREF` or not (and therefore if it must be resolved locally or not.)
+
+        The decision in SAM to force the author to choose between an ID with a * and a name with a # was based on my distaste for hidden semantics. If I am forcing the author create things that have different rules, then they should have a different form so that the distinction is clear.
+
+        However, this approach makes dereferencing of compound identifiers more problematic. If the compound identifier is in the form
+
+        ```
+            [ #chapter.separate/#ex.separate-1]
+
+        The XML serialization would render it as:
+
+        ```
+            <citation type="nameref" value="chapter.separate/#ex.separate-1"/>
+
+        That is by no means impossible to process. It requires the processor to break apart the nameref value, but any compound identifier is going to require that. There is nothing (currently) to prevent the application designer from implementing this in their markup language and its processors.
+
+        However, this will only work for names as the first identified resource. The following would produce a parser error:
+
+        ```
+            [*section.separate/*ex.separate-1]
+
+        This is an error because the parser will consider the entire string as an ID, which means it won't match and IDs in the document, which it must, in the case of IDs.
+
+        In an XML vocabulary it is possible to create a reference to an ID without running into this issue by not declaring the reference to be of type IDREF. In SAM, the citation of a ID is always an IDREF.
+
+        Of course, when you are designing your markup language, nothing forces you to use IDs. You can use names for all references, and the current processing will give you free reign to create whatever conventions you like for dereferencing names at the application layer. 
+
+        Compound identifiers are really all about namespaces. In SAM (and XML) the namespace of an ID is the current file. In XML, any other identifiers is an invention of the application layer and the application layer can make the scope of its namespace anything it likes. It can make names global in scope but specific to different types of objects, so that a footnote named #foo is different from a figure named #foo or a page named #foo. But this assumes that you have different constructs for dereferencing the names, so that the reference to a footnote is different from a reference to a figure or a page.
+
+        SAM's names do not work like that. The dereferencing of a name by a citation makes no statement about what is being dereferenced. Thus [#foo] becomes a reference to a footnote because the application layer looks up what type of thing has that name and formats it accordingly. In other words, the format is determined based on the type of the object named, not the type of the reference. This means that SAM names have a global namespace with respect to types. The application layer could decide to restrict their namespace to the file in which they occur, or indeed to any subset of the docset it chooses, but it can't restrict it by type.
+
+        All of which suggests that it is best to treat SAM names as global in scope in all senses. One way to deal with this is to have a naming convention for names which encodes their type in the name. For examples, prefix all figure names with `figure.` as in `#figure.foo`.
+
+        Since names are global in scope, you don't need to do:
+
+        ```
+            [#chapter.separate/#ex.separate-1]
+
+        Because the name #ex.separate-1 is global in scope anyway. So
+
+        ```
+            [#ex.separate-1]    
+
+        is all you need to identify that resource.
+
+        SAM's name facility is not as flexible as some of the naming conventions you could invent in a XML-based language where you can use arbitrary attributes to create arbitrary addressing and dereferencing schemes. This is deliberate, because relationships based on arbitrary names don't scale well without big iron CMSs that add complexity and reduce {functional lucidity}. SAM wants you to manage relationships based on {subject annotations} as far as possible, not arbitrary names or IDs.
+
+        SAM does have one other identifier dereferencing mechanism, however, and that is key citations.
+
+        ```
+            [%foo]
+
+        SAM does not provide a mechanism for creating keys or any rules for managing them. That is entirely up to the application layer. One way it might do this would be:
+
+        ```
+            key:
+                  name: foo
+                  chapter: chapter.separate
+                  example: ex.separate-1
+
+        If DITA has taught us anything it is that when you are creating compound identifiers, things will get out of hand as the scale increases and keys will help restore some order (or at least some management potential). {Subject annotation} is still infinitely preferable, where practical, but {keys} are sometimes a necessary fallback.
+
+

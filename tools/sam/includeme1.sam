@@ -1,0 +1,6 @@
+
+
+message:
+    This file includes another file.
+
+    <<<(includeme2.sam)
