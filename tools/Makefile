@@ -17,4 +17,4 @@ generate-unnamed:
 		call-with-input-file call-with-input-process \
 		call-with-output-process create-directory \
 		create-temporary-directory read-contents read-lines \
-		remove-directory replace-substring run-process
+		remove-directory replace-substring run-command run-process

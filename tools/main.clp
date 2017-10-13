@@ -46,9 +46,7 @@
                                        (- (str-length ?file) 4)
                                        ?file)
                            ".html")
-                  creation-date (U::call-with-input-process
-                                    date (create$ "+%d %b %Y" -d ?date)
-                                  readline (create$))))))
+                  creation-date ?date))))
 
 (defrule generate-post-html
   (post ?source ?uri creation-date ?date)
@@ -58,28 +56,18 @@
 
   (if (= (U::run-process /usr/bin/test (create$ ?source -nt ?target)) 0)
    then
-     (U::call-with-output-process
-         python3 (create$ "tools/sam/samparser.py"
-                          -outfile
-                          (bind ?content-xml (generate-temporary-filename))
-                          "/dev/stdin")
-       printout (create$ (U::call-with-input-file ?source
-                           read-contents (create$))))
+     (U::run-command (U::make-command python3
+                                      (create$ "tools/sam/samparser.py"
+                                               ?source))
 
-     (U::run-process xsltproc
-                     (create$ --output (bind ?content-html
-                                         (generate-temporary-filename))
-                              --stringparam date ?date
-                              "stylesheets/sam-article.xsl" ?content-xml))
-
-     (U::run-process xsltproc
-                     (create$ --output ?target
-                              --stringparam
-                              current-year
-                              (U::call-with-input-process
-                                  date (create$ "+%Y")
-                                readline (create$))
-                              "stylesheets/main.xsl" ?content-html))))
+                     (U::make-command xsltproc
+                                      (create$ --stringparam date ?date
+                                               "stylesheets/sam-article.xsl"
+                                               "-"))
+                     (U::make-command xsltproc
+                                      (create$ --output ?target
+                                               "stylesheets/main.xsl"
+                                               "-")))))
 
 (defrule find-page-sources
  =>

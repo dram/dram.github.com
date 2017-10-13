@@ -8,6 +8,7 @@
 ;;;     read-lines
 ;;;     remove-directory
 ;;;     replace-substring
+;;;     run-command
 ;;;     run-process
 
 
@@ -205,4 +206,42 @@
   (run-process "/bin/rm" (create$ -r ?name)))
 
 ;;; END of remove-directory
+
+
+;;; BEGIN DEFINITION of join-strings
+
+(deffunction join-strings (?strings $?options)
+  (bind ?separator " ")
+
+  (bind ?option-length (length$ ?options))
+  (bind ?i 1)
+  (while (<= ?i ?option-length)
+    (switch (nth$ ?i ?options)
+      (case -separator
+       then (bind ?separator (nth$ (+ ?i 1) ?options))
+            (bind ?i (+ ?i 2)))
+      (default
+        (leave-message ERROR join-strings
+                                "invalid option `%s'" (nth$ ?i ?options))
+        (return))))
+
+  (bind ?length (length$ ?strings))
+  (switch ?length
+    (case 0 then "")
+    (case 1 then (nth$ 1 ?strings))
+    (default (format nil
+                     "%s%s%s"
+                     (nth$ 1 ?strings)
+                     ?separator
+                     (join-strings (rest$ ?strings) -separator ?separator)))))
+
+;;; END of join-strings
+
+
+;;; BEGIN DEFINITION of run-command
+
+(deffunction run-command ($?commands)
+  (system (join-strings ?commands -separator " | ")))
+
+;;; END of run-command
 

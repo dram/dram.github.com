@@ -1,12 +1,19 @@
 <xsl:stylesheet version="1.0"
-		        xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-				xmlns="http://www.w3.org/1999/xhtml">
+                extension-element-prefixes="date"
+                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:date="http://exslt.org/dates-and-times"
+                xmlns="http://www.w3.org/1999/xhtml">
   <xsl:template match="article">
     <article>
-	  <h1><xsl:value-of select="/article/title"/></h1>
-	  <time><xsl:value-of select="$date"/></time>
-	  <xsl:apply-templates/>
-	</article>
+      <h1><xsl:value-of select="/article/title"/></h1>
+      <time>
+        <xsl:variable name="year" select="date:year($date)"/>
+        <xsl:variable name="month" select="date:month-abbreviation($date)"/>
+        <xsl:variable name="day" select="date:day-in-month($date)"/>
+        <xsl:value-of select="concat($day, ' ', $month, ' ', $year)"/>
+      </time>
+      <xsl:apply-templates/>
+    </article>
   </xsl:template>
 
   <xsl:template match="article/title"/>
@@ -69,23 +76,23 @@
   </xsl:template>
 
   <xsl:template match="ol">
-	<ol><xsl:apply-templates/></ol>
+    <ol><xsl:apply-templates/></ol>
   </xsl:template>
 
   <xsl:template match="ul">
-	<ul><xsl:apply-templates/></ul>
+    <ul><xsl:apply-templates/></ul>
   </xsl:template>
 
   <xsl:template match="li">
-	<li><xsl:apply-templates/></li>
+    <li><xsl:apply-templates/></li>
   </xsl:template>
 
   <xsl:template match="ll">
-	<dl><xsl:apply-templates/></dl>
+    <dl><xsl:apply-templates/></dl>
   </xsl:template>
 
   <xsl:template match="ll/li">
-	<xsl:apply-templates/>
+    <xsl:apply-templates/>
   </xsl:template>
   <xsl:template match="ll/li/p">
     <dd><xsl:apply-templates/></dd>
@@ -98,6 +105,6 @@
     <blockquote><xsl:apply-templates/></blockquote>
   </xsl:template>
   <xsl:template match="p">
-	<p><xsl:apply-templates/></p>
+    <p><xsl:apply-templates/></p>
   </xsl:template>
 </xsl:stylesheet>

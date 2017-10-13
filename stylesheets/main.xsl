@@ -1,5 +1,7 @@
 <xsl:stylesheet version="1.0"
+                extension-element-prefixes="date"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:date="http://exslt.org/dates-and-times"
                 xmlns:html="http://www.w3.org/1999/xhtml"
                 xmlns="http://www.w3.org/1999/xhtml">
 
@@ -39,7 +41,7 @@
         <xsl:copy-of select="/"></xsl:copy-of>
 
         <footer>
-          <p>Copyright &#169; 2007&#8211;<xsl:value-of select="$current-year"/> Xin Wang</p>
+          <p>Copyright &#169; 2007&#8211;<xsl:value-of select="date:year()"/> Xin Wang</p>
         </footer>
       </body>
     </html>
