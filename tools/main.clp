@@ -38,8 +38,7 @@
                             (+ (str-length ?*post-directory*) 10)
                             ?file))
 
-    (assert (post (U::call-with-input-file ?file
-                    read-contents (create$))
+    (assert (post ?file
                   (str-cat "/blog/"
                            (U::replace-substring ?date "-" "/")
                            "/"
@@ -47,40 +46,40 @@
                                        (- (str-length ?file) 4)
                                        ?file)
                            ".html")
-                  creation-date ?date))))
+                  creation-date (U::call-with-input-process
+                                    date (create$ "+%d %b %Y" -d ?date)
+                                  readline (create$))))))
 
 (defrule generate-post-html
   (post ?source ?uri creation-date ?date)
  =>
-  (U::call-with-output-process
-      python3 (create$ "tools/sam/samparser.py"
-                       -outfile
-                       (bind ?content-xml (generate-temporary-filename))
-                       "/dev/stdin")
-    printout (create$ ?source))
+  (bind ?target (str-cat ?*output-directory*
+                         (sub-string 2 (str-length ?uri) ?uri)))
 
-  (U::run-process xsltproc
-                  (create$ --output
-                           (bind ?content-html (generate-temporary-filename))
-                           --stringparam
-                           date
-                           (U::call-with-input-process
-                               date (create$ "+%d %b %Y" -d ?date)
-                             readline (create$))
-                           "stylesheets/sam-article.xsl"
-                           ?content-xml))
+  (if (= (U::run-process /usr/bin/test (create$ ?source -nt ?target)) 0)
+   then
+     (U::call-with-output-process
+         python3 (create$ "tools/sam/samparser.py"
+                          -outfile
+                          (bind ?content-xml (generate-temporary-filename))
+                          "/dev/stdin")
+       printout (create$ (U::call-with-input-file ?source
+                           read-contents (create$))))
 
-  (U::run-process xsltproc
-                  (create$ --output
-                           (str-cat ?*output-directory*
-                                    (sub-string 2 (str-length ?uri) ?uri))
-                           --stringparam
-                           current-year
-                           (U::call-with-input-process
-                               date (create$ "+%Y")
-                             readline (create$))
-                           "stylesheets/main.xsl"
-                           ?content-html)))
+     (U::run-process xsltproc
+                     (create$ --output (bind ?content-html
+                                         (generate-temporary-filename))
+                              --stringparam date ?date
+                              "stylesheets/sam-article.xsl" ?content-xml))
+
+     (U::run-process xsltproc
+                     (create$ --output ?target
+                              --stringparam
+                              current-year
+                              (U::call-with-input-process
+                                  date (create$ "+%Y")
+                                readline (create$))
+                              "stylesheets/main.xsl" ?content-html))))
 
 (defrule find-page-sources
  =>
