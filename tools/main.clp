@@ -32,6 +32,7 @@
  =>
   (bind ?files (U::call-with-input-process
                    find (create$ ?*post-directory* -name "*.sam")
+                 ;; U::read-lines
                  read-lines (create$)))
   (foreach ?file ?files
     (bind ?date (sub-string (+ (str-length ?*post-directory*) 1)

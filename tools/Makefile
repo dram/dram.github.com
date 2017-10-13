@@ -12,9 +12,5 @@ unnamed.o: unnamed.c
 clean-unnamed:
 	rm -f unnamed unnamed.o
 
-generate-unnamed:
-	clips-unnamed-compiler . \
-		call-with-input-file call-with-input-process \
-		call-with-output-process create-directory \
-		create-temporary-directory read-contents read-lines \
-		remove-directory replace-substring run-command run-process
+generate-unnamed: main.clp
+	clips-unnamed-compiler . $(shell grep -hoP 'U::\K(\S+)' $^ | sort -u)
