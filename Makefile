@@ -25,7 +25,7 @@ publish:
 	git co sources
 
 generate:
-	tools/unnamed -f2 tools/main.clp
+	clips-tcl -f2 tools/main.clp
 
 tools:
 	make PLATFORM=Linux -C tools/clips libclips.a main.o

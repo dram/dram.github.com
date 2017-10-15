@@ -1,47 +1,46 @@
 ; find all sources
 ; (assert (page source output-path))
 
-(defmodule U
-  (export deffunction ?ALL))
-
-(load* "tools/unnamed.clp")
-
 (defmodule MAIN)
 
 (defglobal ?*page-directory* = "_sources/pages/")
 (defglobal ?*post-directory* = "_sources/posts/")
 (defglobal ?*output-directory* = "./")
 
-(defglobal ?*temporary-directory* = nil)
+(deffunction get-modification-time (?path)
+  (bind ?o (tcl-new-string-obj ?path))
+  (bind ?stat (tcl-alloc-stat-buf))
+  (tcl-incr-ref-count ?o)
+  (tcl-fs-stat ?o ?stat)
+  (tcl-decr-ref-count ?o)
+  (tcl-get-modification-time-from-stat ?stat))
 
-(deffunction generate-temporary-filename ()
-  (str-cat ?*temporary-directory* / (gensym*)))
-
-(defrule create-temporary-directory
-  (declare (salience 100))
+(defrule create-tcl-interpeter
  =>
-  (bind ?*temporary-directory*
-    (U::create-temporary-directory "/tmp/clips.XXXXXX")))
-
-(defrule remove-temporary-directory
-  (declare (salience -100))
- =>
-  (U::remove-directory ?*temporary-directory*))
+  (assert (tcl (tcl-create-interp))))
 
 (defrule find-post-sources
+  (tcl ?tcl)
  =>
-  (bind ?files (U::call-with-input-process
-                   find (create$ ?*post-directory* -name "*.sam")
-                 ;; U::read-lines
-                 read-lines (create$)))
-  (foreach ?file ?files
+  (tcl-eval-obj-ex ?tcl
+                   (tcl-new-string-obj
+                    (format nil
+                            "set files [glob -path %s *.sam]"
+                            ?*post-directory*))
+                   /)
+
+  (foreach ?file (tcl-split-list ?tcl (tcl-get-var ?tcl "files" /))
     (bind ?date (sub-string (+ (str-length ?*post-directory*) 1)
                             (+ (str-length ?*post-directory*) 10)
                             ?file))
 
-    (assert (post ?file
+    (assert (post (str-cat ?file)
                   (str-cat "/blog/"
-                           (U::replace-substring ?date "-" "/")
+                           (sub-string 1 4 ?date)
+                           "/"
+                           (sub-string 6 7 ?date)
+                           "/"
+                           (sub-string 9 10 ?date)
                            "/"
                            (sub-string (+ (str-length ?*post-directory*) 12)
                                        (- (str-length ?file) 4)
@@ -50,25 +49,23 @@
                   creation-date ?date))))
 
 (defrule generate-post-html
+  (tcl ?tcl)
   (post ?source ?uri creation-date ?date)
  =>
   (bind ?target (str-cat ?*output-directory*
                          (sub-string 2 (str-length ?uri) ?uri)))
 
-  (if (= (U::run-process /usr/bin/test (create$ ?source -nt ?target)) 0)
+  (if (> (get-modification-time ?source) (get-modification-time ?target))
    then
-     (U::run-command (U::make-command python3
-                                      (create$ "tools/sam/samparser.py"
-                                               ?source))
-
-                     (U::make-command xsltproc
-                                      (create$ --stringparam date ?date
-                                               "stylesheets/sam-article.xsl"
-                                               "-"))
-                     (U::make-command xsltproc
-                                      (create$ --output ?target
-                                               "stylesheets/main.xsl"
-                                               "-")))))
+     (tcl-open-command-channel
+      ?tcl
+      (create$ "python3"
+               "tools/sam/samparser.py" ?source
+               "|" "xsltproc"
+               "--stringparam" "date" ?date "stylesheets/sam-article.xsl" "-"
+               "|" "xsltproc"
+               "--output" ?target "stylesheets/main.xsl" "-")
+      /)))
 
 (defrule find-page-sources
  =>
