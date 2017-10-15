@@ -26,12 +26,10 @@
  =>
   (tcl-eval-obj-ex ?tcl
                    (tcl-new-string-obj
-                    (format nil
-                            "set files [glob -path %s *.sam]"
-                            ?*post-directory*))
+                    (format nil "glob -path %s *.sam" ?*post-directory*))
                    /)
 
-  (foreach ?file (tcl-split-list ?tcl (tcl-get-var ?tcl "files" /))
+  (foreach ?file (tcl-split-list ?tcl (tcl-get-string-result ?tcl))
     (bind ?date (sub-string (+ (str-length ?*post-directory*) 1)
                             (+ (str-length ?*post-directory*) 10)
                             ?file))
