@@ -1,0 +1,19 @@
+article: CLIPS-Tcl中标志型参数设计
+
+	在{CLIPS-Tcl}(https://github.com/dram/clips-tcl)中封装Tcl标志型参数时，由于CLIPS没有原生的位运算符和常量定义的支持，所以遇到一些问题。
+
+	一开始的处理方式，是用multifield的模式，例如在`tcl-open-command-channel`中，如果需要同时重定向标准输入和标准输出，就传入`(create$ stdin stdout)`参数，对应到Tcl端，则是将`TCL_STDIN|TCL_STDOUT`传入`Tcl_OpenCommandChannel`。
+
+	这样的处理方式存在两个问题：
+
+	1. 性能问题，相较于C的整型和位运算，multifield的方式耗费大量时间处理对象的创建和销毁；
+	2. 由于CLIPS不支持multifield常量语法，所以代码有些许繁重。
+
+	之后考虑的另一种机制是直接以单个常量表示，例如`stdin`、`stdout`、`stdin/stdout`（CLIPS中，`|`为特殊字符，无法在符号常量中使用）。另外还需要考虑到不指定任何标志的情况，所以最终的方案是：
+
+	```
+		/
+		/stdin/
+		/stdin/stdout/
+
+	具体实现可以查看这个{提交}(https://github.com/dram/clips-tcl/commit/d70b4aeaea4f6543e41bb6fec6cf7a625afd3d76)。
