@@ -24,7 +24,9 @@
 (defrule find-post-sources
   (tcl ?tcl)
  =>
-  (tcl-eval-ex ?tcl (format nil "glob -path %s *.sam" ?*post-directory*) /)
+  (tcl-eval-ex ?tcl
+               (tcl-merge (create$ "glob" "-path" ?*post-directory* "*.sam"))
+               /)
 
   (foreach ?file (tcl-split-list ?tcl (tcl-get-string-result ?tcl))
     (bind ?date (sub-string (+ (str-length ?*post-directory*) 1)
