@@ -11,9 +11,11 @@
   (bind ?o (tcl-new-string-obj ?path))
   (bind ?stat (tcl-alloc-stat-buf))
   (tcl-incr-ref-count ?o)
-  (tcl-fs-stat ?o ?stat)
+  (bind ?r (tcl-fs-stat ?o ?stat))
   (tcl-decr-ref-count ?o)
-  (tcl-get-modification-time-from-stat ?stat))
+  (if (= ?r 0)
+   then (tcl-get-modification-time-from-stat ?stat)
+   else -1))
 
 (defrule create-tcl-interpeter
  =>
