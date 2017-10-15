@@ -16,4 +16,6 @@ article: CLIPS-Tcl中标志型参数设计
 		/stdin/
 		/stdin/stdout/
 
+	`/`表示空值类似于文档中表格对于空值的表示，而多值`/`分割类似于Rebol（但Rebol中是表示传入关键词参数）。
+
 	具体实现可以查看这个{提交}(https://github.com/dram/clips-tcl/commit/d70b4aeaea4f6543e41bb6fec6cf7a625afd3d76)。
