@@ -1,0 +1,17 @@
+article: Cygwin中的Tcl/Tk
+
+	在{Tcl}(https://tcl.tk/)官网，列出了多个Windows平台下的安装包，而实际上，在Cygwin中，同样存在着两个版本的Tcl/Tk。
+
+	```
+		tcl
+		mingw64-x86_64-tcl
+		tk
+		mingw64-x86_64-tk
+
+	其中`mingw64-x86_64-tcl`和`mingw64-x86_64-tk`是Windows原生程序，这个版本的Tk可以不依赖于X系统运行。
+
+	后续可以基于此编译CLIPS-Tcl，这样可以实现CLIPS + Tcl + Tk的轻量级原生Windows图形化工具。
+
+	如果对Cygwin如何编译该版本Tcl/Tk感兴趣，可以安装对应的{src包}(https://cygwin.com/cgi-bin2/package-grep.cgi?grep=mingw64-x86_64-tcl&arch=x86_64)，其中包含有cygport文件。另外有早期的{Git仓库}(https://cygwin.com/cgi-bin2/package-grep.cgi?grep=mingw64-x86_64-tcl&arch=x86_64)，可以直接查看。Tcl中也有对Windows下编译的{说明}(https://github.com/tcltk/tcl/blob/master/win/README)。
+
+	粗略看了下Cygwin中其他mingw64的包，包含有Lua，但只有库，没有可执行文件。而Perl，Python，Ruby则都没有。从中也可见Tcl对MinGW平台良好的支持。
