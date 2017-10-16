@@ -7,7 +7,7 @@
 (defglobal ?*post-directory* = "_sources/posts/")
 (defglobal ?*output-directory* = "./")
 
-(deffunction get-modification-time (?path)
+(deffunction tcl/get-modification-time (?path)
   (bind ?o (tcl-new-string-obj ?path))
   (bind ?stat (tcl-alloc-stat-buf))
   (tcl-incr-ref-count ?o)
@@ -53,7 +53,8 @@
   (bind ?target (str-cat ?*output-directory*
                          (sub-string 2 (str-length ?uri) ?uri)))
 
-  (if (> (get-modification-time ?source) (get-modification-time ?target))
+  (if (> (tcl/get-modification-time ?source)
+         (tcl/get-modification-time ?target))
    then
      (tcl-open-command-channel
       ?tcl
