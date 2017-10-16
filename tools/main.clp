@@ -17,6 +17,9 @@
    then (tcl-get-modification-time-from-stat ?stat)
    else -1))
 
+(deffunction tcl/eval (?tcl $?arguments)
+  (tcl-eval-ex ?tcl (tcl-merge ?arguments) /))
+
 (defrule create-tcl-interpeter
  =>
   (assert (tcl (tcl-create-interp))))
@@ -24,9 +27,7 @@
 (defrule find-post-sources
   (tcl ?tcl)
  =>
-  (tcl-eval-ex ?tcl
-               (tcl-merge (create$ "glob" "-path" ?*post-directory* "*.sam"))
-               /)
+  (tcl/eval ?tcl "glob" "-path" ?*post-directory* "*.sam")
 
   (foreach ?file (tcl-split-list ?tcl (tcl-get-string-result ?tcl))
     (bind ?date (sub-string (+ (str-length ?*post-directory*) 1)
@@ -35,11 +36,9 @@
 
     (assert (post (str-cat ?file)
                   (str-cat "/blog/"
-                           (sub-string 1 4 ?date)
-                           "/"
-                           (sub-string 6 7 ?date)
-                           "/"
-                           (sub-string 9 10 ?date)
+                           (progn
+                             (tcl/eval ?tcl "string" "map" "- /" ?date)
+                             (tcl-get-string-result ?tcl))
                            "/"
                            (sub-string (+ (str-length ?*post-directory*) 12)
                                        (- (str-length ?file) 4)
