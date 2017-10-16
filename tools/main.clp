@@ -56,15 +56,17 @@
   (if (> (tcl/get-modification-time ?source)
          (tcl/get-modification-time ?target))
    then
-     (tcl-open-command-channel
-      ?tcl
-      (create$ "python3"
-               "tools/sam/samparser.py" ?source
-               "|" "xsltproc"
-               "--stringparam" "date" ?date "stylesheets/sam-article.xsl" "-"
-               "|" "xsltproc"
-               "--output" ?target "stylesheets/main.xsl" "-")
-      /)))
+     (bind ?channel
+       (tcl-open-command-channel
+        ?tcl
+        (create$ "python3"
+                 "tools/sam/samparser.py" ?source
+                 "|" "xsltproc"
+                 "--stringparam" "date" ?date "stylesheets/sam-article.xsl" "-"
+                 "|" "xsltproc"
+                 "--output" ?target "stylesheets/main.xsl" "-")
+        /))
+     (tcl-close ?tcl ?channel)))
 
 (defrule find-page-sources
  =>
