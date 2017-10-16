@@ -1,0 +1,7 @@
+article: Evince和dbus
+
+	很长一段时间都在用ArchLinux，但最近又重新拿起Lisp，学这玩意儿还是在Debian方便，所以又开始用它了。
+
+	发现在Debian中，有个evince-gtk包，真不错，不依赖于gnome，功能比epdfview要强大。最重要的是有记住最近打开文档位置的功能。但明明官方说明有这功能，但我这就是不好使。
+
+	查看错误报告，好像有几个Warning是和dbus有关的东西。google之，又好像于openbox有关，最后落到dbus-launch身上了。原来是我没有安装dbus-x11这个包。所以没有dbus-launch这个命令，进而Evince没那个功能了。将dbus-x11这包补上就可以了。 
