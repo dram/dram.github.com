@@ -1,0 +1,15 @@
+article: 什么时候用 typedef
+
+	最近 NetBSD 里将大量的`struct device *`用`device_t`代替，但没有怎么说明原因。
+
+	只记得在 Linux Kernel Coding Style 中对 typedef 还是不怎么提倡使用的，于是又重新翻了一下这份文档，发现这大概和下面这种情况比较相符：
+
+	blockquote:
+		totally opaque objects (where the typedef is actively used to _hide_ what
+		the object is). Example: "pte_t" etc. opaque objects that you can only access
+		using the proper accessor functions. NOTE! Opaqueness and "accessor functions"
+		are not good in themselves. The reason we have them for things like pte_t etc.
+		is that there really is absolutely _zero_ portably accessible information
+		there.
+
+	猜想用`device_t`代替的用意是在使用这一类型时不用关心它的成员，这也算一种合理的隐藏吧。
