@@ -1,0 +1,42 @@
+article: NetHack and Cygwin
+
+	Althouth there is a detailed {how-to}(http://planetexpress.homedns.org/nethack/compile_cygwin.txt) to help with compiling NetHack under Cygwin, I can't get a working NetHack with it. After some experiments, I managed to compile NetHack under Cygwin correctly.
+
+	The packages you need:
+
+	```
+		util-linux bison flex gcc-core
+
+	First, run setup.sh from sys/unix.
+
+	Then modify these lines:
+
+	```
+		include/config.h
+		 1) Line 288: Uncomment #define STRNCMPI
+		 2) Line 172: Comment out #define COMPRESS "/usr/bin/compress"
+		 3) Line 173: Comment out #define COMPRESS_EXTENSION ".Z"
+		 4) Line 175: Uncomment and change this line to
+				   #define COMPRESS "/usr/bin/gzip"
+		 5) Line 176: Uncomment #define COMPRESS_EXTENSION ".gz"
+
+		win/tty/termap.c
+		 1) Line 839: Comment out extern char *tparm();
+
+		src/Makefile
+		 1) Line 234: Comment out WINTTYLIB = -ltermlib
+		 2) Line 233: Uncomment # WINTTYLIB = -lncurses
+
+		util/Makefile
+		 1) Line 104: Comment out YACC=yacc
+		 2) Line 105: Comment out LEX=lex
+		 3) Line 106: Uncomment YACC=bison -y
+		 4) Line 108: Uncomment LEX=flex
+
+		Makefile
+		 1) Line 67: Change to CHOWN = YOUR WINDOWS USER NAME
+		 2) Line 68: Change to CHGRP = None
+
+	Finally, `make all` and `make install` in the root dir.
+
+	If everything goes well, execute `/usr/games/nethack` to run the game.

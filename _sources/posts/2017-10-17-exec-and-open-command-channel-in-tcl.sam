@@ -4,5 +4,5 @@ article: 关于Tcl的exec和Tcl_OpenCommandChannel
 
 	但其中存在一个非常严重的问题：特殊字符`>`、`<`、`|`等不能作为命令参数传入，具体可以查看{TIP 424}(https://core.tcl.tk/tips/doc/trunk/tip/424.md)中的说明。
 
-	因为TIP 424还没有整合，所以当前没有解决的方案。临时的处理，一是做输入检查，或者是结合{xargs}(http://pubs.opengroup.org/onlinepubs/9699919799/utilities/xargs.html)使用（xargs中使用`-0`参数比较方便，但这个参数没有标准化）。
+	因为TIP 424还没有整合，所以当前没有解决的方案。临时的处理，一是做输入检查，或者是结合{xargs}(http://pubs.opengroup.org/onlinepubs/9699919799/utilities/xargs.html)使用（xargs中使用`-0`参数比较方便，但这个参数没有标准化）。也可以调用`sh -c`将命令整体传入。
 

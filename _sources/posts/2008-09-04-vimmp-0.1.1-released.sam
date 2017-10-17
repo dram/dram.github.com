@@ -1,0 +1,13 @@
+article: vimmp 0.1.1 released
+
+	0\.1发布的时候忘了在这吼一声，现在补上，:)。
+
+	{在这}(http://www.vim.org/scripts/script.php?script_id=2369)。
+
+	vimmp是一个在Vim下的XMMS2和MPD的client。vimmp是在vimxmms2基础上整合我以前写的vimmpd而成的，所以以后vimxmms2就不再更新了。由于采用模块化分割，将两个结合在一起并不会有多大性能上的丢失。
+
+	通过整合发现XMMS2的API更加完善，而MPD则显得有些混乱。在功能上，XMMS2对ID3v2有更好的支持，播放列表功能也更加实用，另外XMMS2还有单曲重复功能，XMMS可以单独直接添加硬盘上的文件。
+
+	所以，在这给XMMS2打个广告。;)
+
+	各位如果喜欢MPD但又没尝试过XMMS2的话，建议去试试。

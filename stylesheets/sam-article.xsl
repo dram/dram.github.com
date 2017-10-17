@@ -46,15 +46,15 @@
     <xsl:value-of select="substring(., 2, string-length() - 2)"/>
   </xsl:template>
 
-  <xsl:template match="annotation[@type='bold']">
+  <xsl:template match="phrase/annotation[@type='bold']">
     <strong><xsl:apply-templates/></strong>
   </xsl:template>
 
-  <xsl:template match="annotation[@type='italic']">
+  <xsl:template match="phrase/annotation[@type='italic']">
     <em><xsl:apply-templates/></em>
   </xsl:template>
 
-  <xsl:template match="annotation[@type='link']">
+  <xsl:template match="phrase/annotation[@type='link']">
     <a>
       <xsl:attribute name="href">
         <xsl:value-of select="@specifically"/>
