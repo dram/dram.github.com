@@ -1,21 +1,13 @@
-Title: NetBSD 5.0 BETA
+article: NetBSD 5.0 BETA
 
-NetBSD 5.0已经在前段时间branch出来，脱离current之后稳定性就有基本的保证了。但当时默认情况X.org并没有开启，所以releng中的包也还是XFree86的，而pkgsrc二进制包也还没有跟上，对于我这台烂本子来说，也只能是望梅止渴了。不过随着[Ticket 64][1]被pull up，现在东西都以齐备，我也要正式开始5.0的旅程了。:)
+	NetBSD 5.0已经在前段时间branch出来，脱离current之后稳定性就有基本的保证了。但当时默认情况X.org并没有开启，所以releng中的包也还是XFree86的，而pkgsrc二进制包也还没有跟上，对于我这台烂本子来说，也只能是望梅止渴了。不过随着{Ticket 64}(http://releng.netbsd.org/cgi-bin/req-5.cgi?show=64)被pull up，现在东西都以齐备，我也要正式开始5.0的旅程了。:)
 
-下面是一些与此相关的邮件： 
+	下面是一些与此相关的邮件：
 
-1. [Plans for NetBSD 5.0][2]
-2. [native Xorg now used by default on some platforms][3]
-3. [Package binaries for NetBSD-5.0_BETA/i386 -current pkgsrc][4]
+	1. {Plans for NetBSD 5.0}(http://mail-index.netbsd.org/netbsd-announce/2008/10/30/msg000050.html)
+	2. {native Xorg now used by default on some platforms}(http://mail-index.netbsd.org/port-sparc/2008/11/10/msg000168.html)
+	3. {Package binaries for NetBSD-5.0_BETA/i386 -current pkgsrc}(http://mail-index.netbsd.org/pkgsrc-users/2008/11/07/msg008576.html)
 
-顺带提一下，如果是在已有系统下升级，可以采用[Tracking NetBSD-current][5]这篇文档的方式，当然你下载的应该是[netbsd-5][6]的包。
+	顺带提一下，如果是在已有系统下升级，可以采用{Tracking NetBSD-current}(http://www.netbsd.org/docs/current/index.html)这篇文档的方式，当然你下载的应该是{netbsd-5}(http://releng.netbsd.org/cgi-bin/builds.cgi)的包。
 
-如果是全新安装，可以采用硬盘安装的方式。基本思路是将各二进制包放在硬盘中，用grub for dos引导`netbsd-INSTALL_FLOPPY.gz`内核，进入NetBSD安装环境，到安装包时采用unmount fs方式。其他和直接用光盘安装相同。
-
-   [1]: http://releng.netbsd.org/cgi-bin/req-5.cgi?show=64
-   [2]: http://mail-index.netbsd.org/netbsd-announce/2008/10/30/msg000050.html
-   [3]: http://mail-index.netbsd.org/port-sparc/2008/11/10/msg000168.html
-   [4]: http://mail-index.netbsd.org/pkgsrc-users/2008/11/07/msg008576.html
-   [5]: http://www.netbsd.org/docs/current/index.html
-   [6]: http://releng.netbsd.org/cgi-bin/builds.cgi
-
+	如果是全新安装，可以采用硬盘安装的方式。基本思路是将各二进制包放在硬盘中，用grub for dos引导`netbsd-INSTALL_FLOPPY.gz`内核，进入NetBSD安装环境，到安装包时采用unmount fs方式。其他和直接用光盘安装相同。

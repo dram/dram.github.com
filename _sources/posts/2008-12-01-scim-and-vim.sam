@@ -1,10 +1,7 @@
-Title: scim和VIM
+article: scim和VIM
 
-可以通过设置scim的快捷键使得当按ESC从VIM输入状态退回到normal时，同时关闭scim，这在VIM中输入中文时非常有用。
+	可以通过设置scim的快捷键使得当按ESC从VIM输入状态退回到normal时，同时关闭scim，这在VIM中输入中文时非常有用。
 
-具体方法为在scim的全局设定中，将Turn off设定为Escape+KeyRelease，注意这个KeyRelease，如果不加这个，scim会将ESC完全捕捉，VIM就不会检测到ESC键了。
+	具体方法为在scim的全局设定中，将Turn off设定为Escape+KeyRelease，注意这个KeyRelease，如果不加这个，scim会将ESC完全捕捉，VIM就不会检测到ESC键了。
 
-对于这问题，我先是在google上找了很久，没什么结果，只找到lyanry博客[有篇文章][1]好像与这有关，可以打不开。后来经过多种尝试找到上面的方法。之后用google cache看了下lyanry的文章，才发现是一样的方法，哈。 
-
-   [1]: http://lyanry.is-programmer.com/posts/87.html
-
+	对于这问题，我先是在google上找了很久，没什么结果，只找到lyanry博客{有篇文章}(http://lyanry.is-programmer.com/posts/87.html)好像与这有关，可以打不开。后来经过多种尝试找到上面的方法。之后用google cache看了下lyanry的文章，才发现是一样的方法，哈。

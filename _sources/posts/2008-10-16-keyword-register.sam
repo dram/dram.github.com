@@ -1,14 +1,12 @@
-Title: register关键字
+article: register关键字
 
-register这个变量修饰符主要是用来让编译器将一个变量搬到CPU中，已达到优化速度的目的。但是现在都已经不大使用了，而且在DragonFlyBSD中更是大规模地去除了register，[看这][1]。
+	register这个变量修饰符主要是用来让编译器将一个变量搬到CPU中，已达到优化速度的目的。但是现在都已经不大使用了，而且在DragonFlyBSD中更是大规模地去除了register，{看这}(http://leaf.dragonflybsd.org/mailarchive/kernel/2003-08/msg00129.html)。
 
-这样做的主要原因是现在大部分的编译器都已经能够自行判断应该将哪些变量搬到寄存器中以优化速度，有时手动指定反而会影响速度。而且register的可移植性差，不同的平台、不同的编译器会做不同的处理。比如在MSDN中就可以看到，微软的编译器直接无视了用户指定的register变量。还有一点就是register变量不能取地址，但各种编译器对这一动作有不同的处理。所以加入register修饰反而增加了代码的复杂性，而且是否程序有所优化还未可知，还是不用为妙。:)
+	这样做的主要原因是现在大部分的编译器都已经能够自行判断应该将哪些变量搬到寄存器中以优化速度，有时手动指定反而会影响速度。而且register的可移植性差，不同的平台、不同的编译器会做不同的处理。比如在MSDN中就可以看到，微软的编译器直接无视了用户指定的register变量。还有一点就是register变量不能取地址，但各种编译器对这一动作有不同的处理。所以加入register修饰反而增加了代码的复杂性，而且是否程序有所优化还未可知，还是不用为妙。:)
 
-最后引用C99上关于register的定义： 
+	最后引用C99上关于register的定义：
 
-> A declaration of an identiﬁer for an object with storage-class speciﬁer
-register suggests that access to the object be as fast as possible. The extent
-to which such suggestions are effective is implementation-deﬁned.
-
-   [1]: http://leaf.dragonflybsd.org/mailarchive/kernel/2003-08/msg00129.html
-
+	blockquote:
+		A declaration of an identiﬁer for an object with storage-class speciﬁer
+		register suggests that access to the object be as fast as possible. The extent
+		to which such suggestions are effective is implementation-deﬁned.
