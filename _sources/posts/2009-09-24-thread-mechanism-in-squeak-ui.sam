@@ -1,0 +1,3 @@
+article: Squeak UI的线程机制
+
+	Squeak的UI Morphic是单线程，而不是多线程的。所以如果在Workspace上执行 `(Delay forSeconds: 10) wait.` 整个UI会僵死10秒，而不单单是Workspace这一个窗口。当然，整个Smalltalk系统则是多线程的，可以通过`[(Delay forSeconds: 10) wait] fork.`将一个代码放入后台执行。更为详细的信息可以看{这里}(http://wiki.squeak.org/squeak/5696)，还有{这里}(http://lists.squeakfoundation.org/pipermail/beginners/2008-October/005539.html)。
