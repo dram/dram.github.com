@@ -1,0 +1,9 @@
+article: container_of 中的 __mptr
+
+	在了解 Linux kernel 的链表实现时，看到了`container_of`，具体的功能和代码原理就不在这多说了，网上有比较多的资料，比如 {这篇}(http://www.kroah.com/log/linux/container_of.html) 就挺不错。
+
+	这是要说的是在`container_of`中`__mptr`的作用。就和 lisan 06年在 CU 上问的 {问题}(http://bbs3.chinaunix.net/thread-852201-1-1.html) 一样，我也有这个疑问，感觉`__mptr`有些多余。
+
+	经过一番搜索，我可能找到了 {答案}(http://ds9a.nl/klogbot/?year=2008&month=11&day=5&hour=10.5) 。
+
+	`__mptr`在这是作为一个类型检查，通过将 ptr 赋值给`__mptr`，如果 ptr 和`__mptr`类型不同，则会有警告信息，当然`void *`除外。
