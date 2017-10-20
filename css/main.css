@@ -162,55 +162,52 @@ div.center-nav a:visited {
 	font-size: 13px;
 }
 
-section {
+article {
 	text-align: left;
 	font-size: 15px;
-}
-
-section article {
 	margin: 2em 1.5em;
 	line-height: 1.5em;
 }
 
-section article p {
+article p {
 	margin: 1em 0;
 	text-indent: 2em;
 }
 
-section article ol p, section article ul p {
+article ol p, article ul p {
     text-indent: 0;
 }
 
-section h1 {
+article h1 {
 	font-size: 28px;
 	margin: 2em 0 1em 0;
 }
 
-section h1 a {
+article h1 a {
 	font-size: 28px;
 	text-decoration: none;
 }
 
-section h2 {
+article h2 {
 	margin: 1em 0;
 	font-size: 25px;
 }
 
-section h3 {
+article h3 {
 	font-size: 20px;
 }
 
-section time {
+article time {
 	font-size: 13px;
 	color: #888a85;
 }
 
-section article section.topic h2 {
+article section.topic h2 {
 	font-size: 15px;
 	margin: 0.5em 0;
 }
 
-section article section.topic {
+article section.topic {
 	color: #444443;
 	background: #eeeeec;
 	font-size: 13px;
@@ -218,14 +215,14 @@ section article section.topic {
 	padding: 0.5em;
 }
 
-section article p img {
+article p img {
 	display: block;
 	text-align: center;
 	max-width: 500px;
 	margin: 0px auto 15px auto;
 }
 
-section article pre {
+article pre {
 	background: #eeeeec;
 	font-family: Consolas, Monaco, monospace;
 	font-size: 12px;
@@ -234,51 +231,52 @@ section article pre {
 	margin: 1em 2em;
 }
 
-section article code, section article tt {
+article code, section article tt {
 	font-family: Consolas, Monaco, monospace;
 	font-size: 13px;
 }
 
-section article pre code {
+article pre code {
 	font-size: 12px;
 }
-section a {
+
+article a {
 	color: #3465a4;
 	text-decoration: none;
 }
 
-section ol, section ul {
+article ol, article ul {
     margin-left: 5em;
 }
 
-section dl {
+article dl {
     margin-left: 4em;
 }
 
-section dd {
+article dd {
     margin: 0 2em .5em 0;
 }
 
-section ul.article-list {
+article ul.article-list {
     margin: 0;
 	list-style-type: none;
 }
 
-section ul.article-list span {
+article ul.article-list span {
 	color: #888a85;
 	font-family: Monaco, "Courier New", monospace;
 	font-size: 80%;
 }
 
-section ul.article-list li {
+article ul.article-list li {
 	line-height: 1.5em;
 }
 
-section ul.article-list li a {
+article ul.article-list li a {
     text-decoration: none;
 }
 
-section article blockquote p {
+article blockquote p {
     text-indent: 0;
 }
 
