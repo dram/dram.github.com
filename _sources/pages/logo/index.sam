@@ -8,10 +8,10 @@ article: LOGO画板
 
 		以下教程主要介绍LOGO画板的详细功能及使用说明：
 
-		- 教程一：{安装及使用}(link "./tut-01.html")
-		- 教程二：{界面及功能介绍}(link "./tut-02.html")
-		- 教程三：{基本词汇说明}(link "./tut-03.html")
-		- 教程四：{控制区说明}(link "./tut-04.html")
-		- 教程五：{自定义词汇}(link "./tut-05.html")
-		- 教程六：{辅助功能}(link "./tut-06.html")
-		- 教程七：{实例}(link "./tut-07.html")
+		* 教程一：{安装及使用}(link "./tut-01.html")
+		* 教程二：{界面及功能介绍}(link "./tut-02.html")
+		* 教程三：{基本词汇说明}(link "./tut-03.html")
+		* 教程四：{控制区说明}(link "./tut-04.html")
+		* 教程五：{自定义词汇}(link "./tut-05.html")
+		* 教程六：{辅助功能}(link "./tut-06.html")
+		* 教程七：{实例}(link "./tut-07.html")
