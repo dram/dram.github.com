@@ -52,6 +52,10 @@
                        "!\\[([^\\[\\]]+?)\\]\\((.+)\\)"
                        ?line
                        ">>>(image \\2)(#\\1)"))
+    (bind ?line (tcl/s "regsub" "-line"
+                       "\\[([^\\[\\]]+?)\\]\\((.+)\\)"
+                       ?line
+                       "{\\1}(link \"\\2\")"))
     (printout target ?line crlf))
   (close target)
   (close source)
