@@ -1,6 +1,6 @@
 article: 教程一：安装及使用
 
-	{⇑ 首页}(link "./index.html") {界面及功能介绍 →}(link "./tut-02.html")
+	{⇑ 首页}(link "./index.html") | {界面及功能介绍 →}(link "./tut-02.html")
 
 	section: 安装
 
