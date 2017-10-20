@@ -93,7 +93,7 @@
                   "tools/sam/samparser.py" ?source
                   "|" "xsltproc"
                   "--stringparam" "date" ?date
-                  "tools/stylesheets/sam-article.xsl" "-"
+                  "tools/stylesheets/article.xsl" "-"
                   "|" "xsltproc"
                   "--output" ?target "tools/stylesheets/main.xsl" "-")))
 
@@ -120,7 +120,7 @@
      (run-process "python3"
                   "tools/sam/samparser.py" ?source
                   "|" "xsltproc"
-                  "tools/stylesheets/sam-article.xsl" "-"
+                  "tools/stylesheets/article.xsl" "-"
                   "|" "xsltproc"
                   "--output" ?target "tools/stylesheets/main.xsl" "-")))
 
