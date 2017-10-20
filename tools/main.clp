@@ -1,13 +1,40 @@
-; find all sources
-; (assert (page source output-path))
-
 (defmodule MAIN)
 
 (defglobal ?*page-directory* = "_sources/pages/")
 (defglobal ?*post-directory* = "_sources/posts/")
 (defglobal ?*output-directory* = "./")
 
-(deffunction tcl/get-modification-time (?path)
+(defglobal ?*tcl* = (tcl-create-interp))
+
+(deffunction tcl ($?arguments)
+  (bind ?argument-objs (tcl-new-obj))
+  (foreach ?argument ?arguments
+    (tcl-list-obj-append-element ?*tcl*
+                                 ?argument-objs
+                                 (tcl-new-string-obj ?argument)))
+  (if (eq (bind ?result
+            (tcl-eval-objv ?*tcl*
+                           (tcl-list-obj-get-elements ?*tcl*
+                                                      ?argument-objs)
+                           /))
+          /ok/)
+   then (tcl-get-obj-result ?*tcl*)
+   else (tcl-write-obj (tcl-get-std-channel /stderr/)
+                       (tcl-get-return-options ?*tcl* ?result))
+        FALSE))
+
+(deffunction tcl/s ($?arguments)
+  (if (bind ?result (tcl (expand$ ?arguments)))
+   then (tcl-get-string ?result)))
+
+(deffunction tcl/m ($?arguments)
+  (if (bind ?result (tcl (expand$ ?arguments)))
+   then (tcl-split-list ?*tcl* (tcl-get-string ?result))))
+
+(deffunction run-process ($?command)
+  (tcl-close ?*tcl* (tcl-open-command-channel ?*tcl* ?command /)))
+
+(deffunction get-modification-time (?path)
   (bind ?o (tcl-new-string-obj ?path))
   (bind ?stat (tcl-alloc-stat-buf))
   (tcl-incr-ref-count ?o)
@@ -17,28 +44,20 @@
    then (tcl-get-modification-time-from-stat ?stat)
    else -1))
 
-(deffunction tcl/eval (?tcl $?arguments)
-  (tcl-eval-ex ?tcl (tcl-merge ?arguments) /))
-
 (defrule create-tcl-interpeter
  =>
   (assert (tcl (tcl-create-interp))))
 
 (defrule find-post-sources
-  (tcl ?tcl)
  =>
-  (tcl/eval ?tcl "glob" "-path" ?*post-directory* "*.sam")
-
-  (foreach ?file (tcl-split-list ?tcl (tcl-get-string-result ?tcl))
+  (foreach ?file (tcl/m "glob" "-path" ?*post-directory* "*.sam")
     (bind ?date (sub-string (+ (str-length ?*post-directory*) 1)
                             (+ (str-length ?*post-directory*) 10)
                             ?file))
 
     (assert (post (str-cat ?file)
                   (str-cat "/blog/"
-                           (progn
-                             (tcl/eval ?tcl "string" "map" "- /" ?date)
-                             (tcl-get-string-result ?tcl))
+                           (tcl/s "string" "map" "- /" ?date)
                            "/"
                            (sub-string (+ (str-length ?*post-directory*) 12)
                                        (- (str-length ?file) 4)
@@ -47,26 +66,20 @@
                   creation-date ?date))))
 
 (defrule generate-post-html
-  (tcl ?tcl)
   (post ?source ?uri creation-date ?date)
  =>
   (bind ?target (str-cat ?*output-directory*
                          (sub-string 2 (str-length ?uri) ?uri)))
 
-  (if (> (tcl/get-modification-time ?source)
-         (tcl/get-modification-time ?target))
+  (if (> (get-modification-time ?source) (get-modification-time ?target))
    then
-     (bind ?channel
-       (tcl-open-command-channel
-        ?tcl
-        (create$ "python3"
-                 "tools/sam/samparser.py" ?source
-                 "|" "xsltproc"
-                 "--stringparam" "date" ?date "stylesheets/sam-article.xsl" "-"
-                 "|" "xsltproc"
-                 "--output" ?target "stylesheets/main.xsl" "-")
-        /))
-     (tcl-close ?tcl ?channel)))
+     (run-process "python3"
+                  "tools/sam/samparser.py" ?source
+                  "|" "xsltproc"
+                  "--stringparam" "date" ?date
+                  "stylesheets/sam-article.xsl" "-"
+                  "|" "xsltproc"
+                  "--output" ?target "stylesheets/main.xsl" "-")))
 
 (defrule find-page-sources
  =>
