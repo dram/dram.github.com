@@ -1,5 +1,3 @@
-(defmodule MAIN)
-
 (defglobal ?*page-directory* = "_sources/pages/")
 (defglobal ?*post-directory* = "_sources/posts/")
 (defglobal ?*output-directory* = "./")
@@ -34,6 +32,28 @@
 (deffunction run-process ($?command)
   (tcl-close ?*tcl* (tcl-open-command-channel ?*tcl* ?command /)))
 
+(deffunction call-/-process (?command ?function-call ?flags)
+  (bind ?channel (tcl-open-command-channel ?*tcl*
+                                           ?command
+                                           ?flags))
+  (bind ?result (funcall (nth$ 1 ?function-call)
+                         ?channel
+                         (expand$ (rest$ ?function-call))))
+  (tcl-close ?*tcl* ?channel)
+  ?result)
+
+(deffunction read-line (?channel)
+  (bind ?obj (tcl-new-obj))
+  (if (= -1 (tcl-gets-obj ?channel ?obj))
+   then FALSE
+   else (tcl-get-string ?obj)))
+
+(deffunction read-lines (?channel)
+  (bind ?lines (create$))
+  (while (bind ?line (read-line ?channel))
+    (bind ?lines ?lines ?line))
+  ?lines)
+
 (deffunction get-modification-time (?path)
   (bind ?o (tcl-new-string-obj ?path))
   (bind ?stat (tcl-alloc-stat-buf))
@@ -44,10 +64,6 @@
    then (tcl-get-modification-time-from-stat ?stat)
    else -1))
 
-(defrule create-tcl-interpeter
- =>
-  (assert (tcl (tcl-create-interp))))
-
 (defrule find-post-sources
  =>
   (foreach ?file (tcl/m "glob" "-path" ?*post-directory* "*.sam")
@@ -55,7 +71,7 @@
                             (+ (str-length ?*post-directory*) 10)
                             ?file))
 
-    (assert (post (str-cat ?file)
+    (assert (post ?file
                   (str-cat "/blog/"
                            (tcl/s "string" "map" "- /" ?date)
                            "/"
@@ -83,9 +99,34 @@
 
 (defrule find-page-sources
  =>
-)
+  (foreach ?file (call-/-process (create$ "find"
+                                          ?*page-directory* "-name" "*.sam")
+                                 (create$ read-lines)
+                                 /stdout/)
+    (assert (page (str-cat ?file)
+                  (str-cat (sub-string (str-length ?*page-directory*)
+                                       (- (str-length ?file) 4)
+                                       ?file)
+                           ".html")))))
+
+(defrule generate-page-html
+  (page ?source ?uri)
+ =>
+  (bind ?target (str-cat ?*output-directory*
+                         (sub-string 2 (str-length ?uri) ?uri)))
+
+  (if (> (get-modification-time ?source) (get-modification-time ?target))
+   then
+     (run-process "python3"
+                  "tools/sam/samparser.py" ?source
+                  "|" "xsltproc"
+                  "stylesheets/sam-article.xsl" "-"
+                  "|" "xsltproc"
+                  "--output" ?target "stylesheets/main.xsl" "-")))
 
 (reset)
+
+(watch facts)
 
 (run)
 
