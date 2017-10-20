@@ -126,8 +126,6 @@
 
 (reset)
 
-(watch facts)
-
 (run)
 
 (exit)

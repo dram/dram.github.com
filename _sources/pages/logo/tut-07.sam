@@ -1,0 +1,17 @@
+article: 教程七：实例
+	
+	{← 辅助功能}(link "./tut-06.html") | {⇑ 首页}(link "./index.html")
+
+	以下列举一些实例，供参考。
+	
+	section: 五角星
+	
+		>>>(image ./images/star.png)(#五角星)
+	
+	section: 空心五角星
+	
+		>>>(image ./images/hollow-star.png)(#空心五角星)
+	
+	section: 螺旋
+	
+		>>>(image ./images/spire.png)(#螺旋)
