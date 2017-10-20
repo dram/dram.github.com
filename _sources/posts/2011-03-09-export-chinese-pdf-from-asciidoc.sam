@@ -1,0 +1,36 @@
+article: asciidoc中文PDF输出
+
+	asciidoc 是一个功能比较丰富的轻量级标记语言，可以直接生成 HTML 或 DocBook 格式文档，再经由 DocBook 可以支持更多格式输出。这里主要介绍 asciidoc 的 中文PDF 输出，在 asciidoc 中 PDF 输出支持两种方式： FOP 和 dblatex ，下面将分别予以介绍。
+
+	section: FOP
+
+		FOP 输出方式是使用 Apache FOP 工具对 DocBook 文档进行转化。在 asciidoc 中，可以通过 `a2x -f pdf --fop` 调用 FOP 工具，需要注意的是，这里使用的 FOP 版本为 1.0 ， 0.95 版在字体设置上会有所不同。 FOP 本身已经支持中文输出，只需要设置合适的中文字体就可以生成中文 PDF 文档。这里主要使用这几种字体：{文鼎PL简报宋}(http://ftp.debian.org/debian/pool/main/t/ttf-arphic-gbsn00lp/ttf-arphic-gbsn00lp_2.11.orig.tar.gz)、{文鼎PL简中楷}(http://ftp.debian.org/debian/pool/main/t/ttf-arphic-gkai00mp/ttf-arphic-gkai00mp_2.11.orig.tar.gz)、{Computer Modern Unicode}(http://canopus.iacp.dvo.ru/~panov/cm-unicode/)、{Droid Sans Fallback}(http://android.git.kernel.org/?p=platform/frameworks/base.git;a=tree;f=data/fonts)。
+
+		这里要注意的是FOP无法识别从上面链接中下载的 Droid Sans Fallback 字体的格式，可以通过 fontforge 打开该字体再重新导出ttf字体。设置 FOP 的字体需要分两步进行。先是让 FOP 识别这些字体，这个通过 FOP 的配置文件完成，再是让 PDF 文档使用这些字体，这个通过 asciidoc 的 XSL 文件进行设置。详细的配置可以查看 {fop.xconf}(https://github.com/dram/docs/blob/master/configs/asciidoc/fop.xconf) 和 {fo.xsl}(https://github.com/dram/docs/blob/master/configs/asciidoc/fo.xsl)。
+
+		这两份配置文件并不复杂，这里就不再作说明。在调用 a2x 时将这两个文件传入相应参数中即可，示例如下：
+
+		```
+			a2x -f pdf --xsl-file=fo.xsl --fop --fop-opts="-c fop.xconf" file.txt
+
+	section: dblatex
+
+		dblatex 是将 DocBook 格式文件转化为 LaTeX 文本的工具，所以最终会调用 LaTeX 工具生成 PDF 文件。下面的配置主要是让 LaTeX 支持中文。这里为了使用 `xeCJK` ，需要 texlive 版本为 2010 及以上。 针对中文字体的设置可以基于`/usr/share/asciidoc/dblatex/asciidoc-dblatex.sty` 进行修改，字体相关设置如下：
+
+		```
+			\usepackage {xeCJK}
+
+			\setmainfont{Latin Modern Roman}
+			\setsansfont{Latin Modern Sans}
+			\setmonofont{Latin Modern Mono}
+
+			\setCJKmainfont[BoldFont={WenQuanYi Micro Hei}]{AR PL UMing CN}
+			\setCJKsansfont[BoldFont={WenQuanYi Micro Hei}]{AR PL UMing CN}
+			\setCJKmonofont{WenQuanYi Micro Hei Mono}
+
+		其它的一些配置可以参考 {这里}(https://github.com/dram/docs/blob/master/configs/asciidoc/dblatex.sty) 。最后通过以下方式调用 a2x 即可：
+
+		```
+			a2x -f pdf --dblatex-opts='-b xetex -s ./dblatex.sty' file.txt
+
+		如果在生成索引时出错，可以设置 `openout_any` 环境变量为 `r` 。
