@@ -35,7 +35,7 @@ article: NetBSD零碎笔记
 
 			setvar ttyE0 font sfnt
 
-		顺便推荐一下这个字体，就是s.fnt，可以在{kbd}(ftp://ftp.altlinux.org/pub/people/legion/kbd/)包中找到它。 另外terminus也是可以在console下使用的。首先去一些linux的发行版的二进制文件中抓取编译好的psf字体文件，我是从slackware中找的。然后按照{这里}(http://www.skosi.org/~lkundrak/fonts/)提示的方法对psf文件做一些转化，之后就可以在NetBSD下使用了。转化的命令摘录如下：
+		顺便推荐一下这个字体，就是s.fnt，可以在{kbd}(link "ftp://ftp.altlinux.org/pub/people/legion/kbd/")包中找到它。 另外terminus也是可以在console下使用的。首先去一些linux的发行版的二进制文件中抓取编译好的psf字体文件，我是从slackware中找的。然后按照{这里}(http://www.skosi.org/~lkundrak/fonts/)提示的方法对psf文件做一些转化，之后就可以在NetBSD下使用了。转化的命令摘录如下：
 
 		```(shell)
 			dd if=font.psf of=font.fnt bs=1 count=4096 skip=4
