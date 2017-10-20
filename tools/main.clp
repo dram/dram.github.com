@@ -93,9 +93,9 @@
                   "tools/sam/samparser.py" ?source
                   "|" "xsltproc"
                   "--stringparam" "date" ?date
-                  "stylesheets/sam-article.xsl" "-"
+                  "tools/stylesheets/sam-article.xsl" "-"
                   "|" "xsltproc"
-                  "--output" ?target "stylesheets/main.xsl" "-")))
+                  "--output" ?target "tools/stylesheets/main.xsl" "-")))
 
 (defrule find-page-sources
  =>
@@ -120,9 +120,9 @@
      (run-process "python3"
                   "tools/sam/samparser.py" ?source
                   "|" "xsltproc"
-                  "stylesheets/sam-article.xsl" "-"
+                  "tools/stylesheets/sam-article.xsl" "-"
                   "|" "xsltproc"
-                  "--output" ?target "stylesheets/main.xsl" "-")))
+                  "--output" ?target "tools/stylesheets/main.xsl" "-")))
 
 (reset)
 
