@@ -3,15 +3,19 @@
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:date="http://exslt.org/dates-and-times"
                 xmlns="http://www.w3.org/1999/xhtml">
+  <xsl:param name="date"></xsl:param>
+
   <xsl:template match="article">
     <article>
       <h1><xsl:value-of select="/article/title"/></h1>
-      <time>
-        <xsl:variable name="year" select="date:year($date)"/>
-        <xsl:variable name="month" select="date:month-abbreviation($date)"/>
-        <xsl:variable name="day" select="date:day-in-month($date)"/>
-        <xsl:value-of select="concat($day, ' ', $month, ' ', $year)"/>
-      </time>
+	  <xsl:if test="$date">
+        <time>
+          <xsl:variable name="year" select="date:year($date)"/>
+          <xsl:variable name="month" select="date:month-abbreviation($date)"/>
+          <xsl:variable name="day" select="date:day-in-month($date)"/>
+          <xsl:value-of select="concat($day, ' ', $month, ' ', $year)"/>
+        </time>
+	  </xsl:if>
       <xsl:apply-templates/>
     </article>
   </xsl:template>
