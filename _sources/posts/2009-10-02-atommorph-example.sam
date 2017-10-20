@@ -1,0 +1,20 @@
+article: AtomMorph example
+
+	有了之前的基础，现在总算是可以理解`AtomMorph class>>example`了。代码很简单，先把它全贴出来。
+
+	```
+		AtomMorph class>>example
+			|a|
+			a := AtomMorph new openInWorld.
+			a color: Color random.
+			[
+				1000 timesRepeat: [
+					a bounceIn: World bounds.
+					(Delay forMilliseconds: 50) wait.
+				].
+				a delete.
+			] fork.
+
+	其它也没什么好说的，主要是来看看它是如何来实现移动的。这是通过timesRepeat:和bounceIn:这两个相结合实现的。
+
+	bounceIn:利用position和position:方法将点移动velocity距离，主要的代码都用于判断边界情况。也就是一个反弹操作。反弹时除了要对坐标进行特殊计算外，还需要对速度重新设置它的正负。
