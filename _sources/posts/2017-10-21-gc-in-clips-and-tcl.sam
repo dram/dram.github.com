@@ -1,0 +1,9 @@
+article: CLIPS和Tcl的GC问题
+
+	在将Tcl整合到CLIPS时，遇到了两者的GC问题。由于当前是Tcl作为CLIPS的扩展整合，所以CLIPS自身的内存基本上依然由语言层面自动处理。例如对于UDF的内存，输入参数和输出值应该交由CLIPS自行处理，在编写UDF时只需要自行处理函数内部用到的临时内存即可（待确认）。
+
+	但Tcl的内存则部分需要手动维护。Tcl的内存管理是基于引用计数的，所以在使用Tcl资源时，需要通过`tcl-incr-ref-count`和`tcl-decr-ref-count`维护。如果`tcl-decr-ref-count`调用时引用计数小于等于1，则会触发回收，具体可以阅读`Tcl_DecrRefCount`的代码。
+
+	Tcl大部分的C接口返回值refcount是0，虽然在使用中，一般不需要incr引用索引（FS中的接口例外），但不再需要使用时，还是需要手动decr的。所以可以统一在创建好对象之后incr，之后对应地decr。
+
+	对于list之类值，在添加成员时会对成员incr，而在自身回收时，也会连带decr成员refcount，由此可能触发成员资源的回收。具体可以查看各类型`TypePtr`中的`freeIntRepProc`代码。例如列表值对应的函数在`generic/tclListObj.c`中定义。
