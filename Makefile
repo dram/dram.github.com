@@ -18,4 +18,4 @@ publish:
 	git co sources
 
 clean:
-	rm -r index.html blog/ logo/*.html
+	rm -rf index.html blog/ logo/*.html
