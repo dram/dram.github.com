@@ -9,7 +9,7 @@
   (foreach ?argument ?arguments
     (tcl-list-obj-append-element ?*tcl*
                                  ?argument-objs
-                                 (tcl-new-string-obj ?argument)))
+                                 (tcl-new-string-obj ?argument -1)))
   (if (eq (bind ?result
             (tcl-eval-objv ?*tcl*
                            (tcl-list-obj-get-elements ?*tcl*
@@ -55,7 +55,7 @@
   ?lines)
 
 (deffunction get-modification-time (?path)
-  (bind ?o (tcl-new-string-obj ?path))
+  (bind ?o (tcl-new-string-obj ?path -1))
   (bind ?stat (tcl-alloc-stat-buf))
   (tcl-incr-ref-count ?o)
   (bind ?r (tcl-fs-stat ?o ?stat))
