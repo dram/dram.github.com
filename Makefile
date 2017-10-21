@@ -1,16 +1,9 @@
-#
-# Makefile
-#
+default: generate
 
-default: pelican
+.PHONY: generate serve publish clean
 
-.PHONY: pelican sphinx serve clean tools
-
-pelican:
-	pelican -s pelicanconf.py
-
-reload:
-	pelican -r -s pelicanconf.py
+generate:
+	clips-tcl -f2 tools/main.clp
 
 serve:
 	python3 -m http.server
@@ -24,13 +17,5 @@ publish:
 	git push -f origin master
 	git co sources
 
-generate:
-	clips-tcl -f2 tools/main.clp
-
-tools:
-	make PLATFORM=Linux -C tools/clips libclips.a main.o
-	make PLATFORM=Linux -C tools unnamed
-
 clean:
-	make -C tools/clips clean
-	make -C tools clean-unnamed
+	rm -r index.html blog/ logo/*.html
