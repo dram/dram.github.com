@@ -1,9 +1,0 @@
-{% extends "base.html" %}
-{% block title %}{{ article.title }}{% endblock %}
-{% block content %}
-<article>
-    <h1>{{ article.title }}</h1>
-    <time>{{ article.date.strftime("%B %d, %Y") }}</time>
-    {{ article.content }}
-</article>
-{% endblock %}
