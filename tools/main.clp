@@ -2,6 +2,10 @@
 (defglobal ?*post-directory* = "_sources/posts/")
 (defglobal ?*output-directory* = "./")
 
+;;;
+;;; BEGIN OF HELPER FUNCTION DEFINIATIONS
+;;;
+
 (defglobal ?*tcl* = (tcl-create-interp))
 
 (deffunction tcl ($?arguments)
@@ -68,15 +72,41 @@
     (bind ?lines ?lines ?line))
   ?lines)
 
+(deffunction format-out (?channel ?format $?arguments)
+  (tcl-write-raw ?channel (format nil ?format (expand$ ?arguments)) -1))
+
+(deffunction format-string (?format $?arguments)
+  (format nil ?format (expand$ ?arguments)))
+
 (deffunction get-modification-time (?path)
   (bind ?o (tcl-new-string-obj ?path -1))
-  (bind ?stat (tcl-alloc-stat-buf))
   (tcl-incr-ref-count ?o)
-  (bind ?r (tcl-fs-stat ?o ?stat))
+  (bind ?stat (tcl-alloc-stat-buf))
+  (bind ?result
+    (if (= (tcl-fs-stat ?o ?stat) 0)
+     then (tcl-get-modification-time-from-stat ?stat)
+     else -1))
+  (tcl-free ?stat)
   (tcl-decr-ref-count ?o)
-  (if (= ?r 0)
-   then (tcl-get-modification-time-from-stat ?stat)
-   else -1))
+  ?result)
+
+;;; END OF HELPER FUNCTIONS
+
+;;;
+;;; BEGIN OF DATA TEMPLATE DEFINIATIONS
+;;;
+
+(deftemplate post
+  (slot title (type STRING))
+  (slot source (type STRING))
+  (slot uri (type STRING))
+  (slot creation-date (type STRING)))
+
+;;; END OF DATA TEMPLATES
+
+;;;
+;;; BEGIN OF RULE DEFINIATIONS
+;;;
 
 (defrule find-post-sources
  =>
@@ -85,18 +115,27 @@
                             (+ (str-length ?*post-directory*) 10)
                             ?file))
 
-    (assert (post ?file
-                  (str-cat "/blog/"
-                           (tcl/s "string" "map" "- /" ?date)
-                           "/"
-                           (sub-string (+ (str-length ?*post-directory*) 12)
-                                       (- (str-length ?file) 4)
-                                       ?file)
-                           ".html")
-                  creation-date ?date))))
+    (bind ?title
+      (progn
+        (open ?file file "r")
+        (bind ?line (readline file))
+        (close file)
+        (sub-string (+ (str-length "article: ") 1) (str-length ?line) ?line)))
+
+    (assert (post (title ?title)
+                  (source ?file)
+                  (uri (str-cat "/blog/"
+                                (tcl/s "string" "map" "- /" ?date)
+                                "/"
+                                (sub-string (+ (str-length ?*post-directory*)
+                                               12)
+                                            (- (str-length ?file) 4)
+                                            ?file)
+                                ".html"))
+                  (creation-date ?date)))))
 
 (defrule generate-post-html
-  (post ?source ?uri creation-date ?date)
+  (post (source ?source) (uri ?uri) (creation-date ?date))
  =>
   (bind ?target (str-cat ?*output-directory*
                          (sub-string 2 (str-length ?uri) ?uri)))
@@ -110,6 +149,79 @@
                   "tools/stylesheets/article.xsl" "-"
                   "|" "xsltproc"
                   "--output" ?target "tools/stylesheets/main.xsl" "-")))
+
+(deffunction compare-post (?a ?b)
+  (<= (str-compare (fact-slot-value ?a uri)
+                   (fact-slot-value ?b uri))
+      0))
+
+(defrule collect-posts
+  (exists (post))
+ =>
+  (bind ?posts (find-all-facts ((?f post)) TRUE))
+  (assert (posts (sort compare-post ?posts))))
+
+(defrule generate-archive-html
+  (posts $?posts)
+ =>
+  (bind ?xml (tcl-new-string-obj "<posts>" -1))
+  (foreach ?post ?posts
+    (tcl-append-to-obj ?xml
+                       (format-string "<post>
+  <title>%s</title>
+  <creation-date>%s</creation-date>
+  <uri>%s</uri>
+</post>
+"
+                                      (tcl/s "regsub"
+                                             "-all"
+                                             "&"
+                                             (fact-slot-value ?post title)
+                                             "&amp;")
+                                      (fact-slot-value ?post creation-date)
+                                      (fact-slot-value ?post uri))
+                       -1))
+  (tcl-append-to-obj ?xml "</posts>" -1)
+  (with-process (create$ "xsltproc"
+                         "tools/stylesheets/archive.xsl" "-"
+                         "|" "xsltproc"
+                         "--output" (str-cat ?*output-directory*
+                                             "blog/archive.html")
+                         "--stringparam" "title" "Archive"
+                         "tools/stylesheets/main.xsl" "-")
+                (create$ format-out (tcl-get-string ?xml))
+                /stdin/))
+
+(defrule generate-home-html
+  (posts $?posts)
+ =>
+  (bind ?xml (tcl-new-string-obj "<posts>" -1))
+  (foreach ?post (subseq$ ?posts 1 10)
+    (tcl-append-to-obj ?xml
+                       (format-string "<post>
+  <title>%s</title>
+  <creation-date>%s</creation-date>
+  <uri>%s</uri>
+</post>
+"
+                                      (tcl/s "regsub"
+                                             "-all"
+                                             "&"
+                                             (fact-slot-value ?post title)
+                                             "&amp;")
+                                      (fact-slot-value ?post creation-date)
+                                      (fact-slot-value ?post uri))
+                       -1))
+  (tcl-append-to-obj ?xml "</posts>" -1)
+  (with-process (create$ "xsltproc"
+                         "tools/stylesheets/home.xsl" "-"
+                         "|" "xsltproc"
+                         "--output" (str-cat ?*output-directory*
+                                             "index.html")
+                         "--stringparam" "title" "dram.me"
+                         "tools/stylesheets/main.xsl" "-")
+                (create$ format-out (tcl-get-string ?xml))
+                /stdin/))
 
 (defrule find-page-sources
  =>
@@ -137,6 +249,8 @@
                   "tools/stylesheets/article.xsl" "-"
                   "|" "xsltproc"
                   "--output" ?target "tools/stylesheets/main.xsl" "-")))
+
+;;; END OF RULES
 
 (reset)
 

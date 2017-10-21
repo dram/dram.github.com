@@ -13,7 +13,7 @@
           <xsl:variable name="year" select="date:year($date)"/>
           <xsl:variable name="month" select="date:month-abbreviation($date)"/>
           <xsl:variable name="day" select="date:day-in-month($date)"/>
-          <xsl:value-of select="concat($day, ' ', $month, ' ', $year)"/>
+          <xsl:value-of select="concat(format-number($day, '00'), ' ', $month, ' ', $year)"/>
         </time>
 	  </xsl:if>
       <xsl:apply-templates/>

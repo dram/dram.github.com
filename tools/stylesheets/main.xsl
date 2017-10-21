@@ -5,7 +5,7 @@
                 xmlns:html="http://www.w3.org/1999/xhtml"
                 xmlns="http://www.w3.org/1999/xhtml">
 
-  <xsl:variable name="title" select="/html:article/html:h1"/>
+  <xsl:param name="title" select="/html:article/html:h1"/>
 
   <xsl:template match="/">
     <html>

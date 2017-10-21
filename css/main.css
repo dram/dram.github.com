@@ -150,16 +150,14 @@ div.center-nav a:visited {
 }
 
 #more {
-	text-align: center;
-	margin: 20px auto;
+	text-indent: 0;
+	margin: 1em auto;
 }
 
 #more a {
-	margin: 0px 20px;
 	color: #888a85;
 	font-weight: bold;
 	text-decoration: none;
-	font-size: 13px;
 }
 
 article {
@@ -246,19 +244,19 @@ article a {
 }
 
 article ol, article ul {
-    margin-left: 5em;
+	margin-left: 5em;
 }
 
 article dl {
-    margin-left: 4em;
+	margin-left: 4em;
 }
 
 article dd {
-    margin: 0 2em .5em 0;
+	margin: 0 2em .5em 0;
 }
 
 article ul.article-list {
-    margin: 0;
+	margin: 0;
 	list-style-type: none;
 }
 
@@ -273,11 +271,11 @@ article ul.article-list li {
 }
 
 article ul.article-list li a {
-    text-decoration: none;
+	text-decoration: none;
 }
 
 article blockquote p {
-    text-indent: 0;
+	text-indent: 0;
 }
 
 blockquote {
@@ -287,13 +285,9 @@ blockquote {
 	padding: 0.25em 40px;
 } 
 
-#disqus_thread {
-    margin-top: 1em;
-}
-
 section #about {
 	line-height: 1.5em;
-    margin: 2em 1.5em;
+	margin: 2em 1.5em;
 }
 
 #avatar {
@@ -301,27 +295,20 @@ section #about {
 }
 
 #about p {
-    margin-left: 200px;
+	margin-left: 200px;
 }
 
 #about p.email {
-    margin: 20px 0px;
+	margin: 20px 0px;
 }
 
 #posts, #projects, #archives {
-    margin: 2em 1.5em;
+	margin: 2em 1.5em;
 }
 
 #posts h1, #projects h1 {
-    font-size: 15px;
-    font-weight: bold;
-}
-
-#more {
-	color: #888a85;
+	font-size: 15px;
 	font-weight: bold;
-	text-decoration: none;
-	font-size: 14px;
 }
 
 footer {
@@ -331,5 +318,5 @@ footer {
 	padding-top: 10px;
 	padding-bottom: 25px;
 	border-top: 1px dotted #d3d7cf;
-    margin: 0 1.5em;
+	margin: 0 1.5em;
 }
