@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="tut-01">
+  <title>教程一：安装及使用</title>
+  <body>
+    <section>
+      <p><xref href="./index.html" scope="peer">⇑ 首页</xref> | <xref href="./tut-02.html" scope="peer">界面及功能介绍 →</xref></p>
+    </section>
+    <section>
+      <title>安装</title>
+      <p>LOGO画板是一个WEB应用程序，所以无需安装。只需要点击 <xref href="./logo/index.html" scope="peer">这里</xref> 就可以立即开始使用。</p>
+      <p>注意：程序需要Firefox 9及以上或是IE 9及以上支持。建议使用Firefox，最新版本的Firefox可以从<xref href="http://www.mozilla.org/firefox/" scope="external">这里</xref>下载。</p>
+    </section>
+    <section>
+      <title>本地运行</title>
+      <p>LOGO画板也可以下载到本地运行。首先从<xref href="https://github.com/dram/logo.js/zipball/master" scope="external">这里</xref>下载最新版本的LOGO画板程序压缩包，解压缩后在浏览器中打开其中的 index.html 文件即可。</p>
+    </section>
+    <section>
+      <title>更新</title>
+      <p>由于程序还处于开发初期，并没有实现更新提醒及自动更新功能。</p>
+      <p>可以从<xref href="https://github.com/dram/logo.js" scope="external">这里</xref>跟踪LOGO画板的最新开发动态。</p>
+    </section>
+    <section>
+      <title>建议</title>
+      <p>如果您对LOGO画板有任何的建议，可以在<xref href="https://github.com/dram/logo.js/issues" scope="external">这里</xref>提交。或是直接发送到下面的邮箱：</p>
+      <image href="/images/mail.png" scope="peer"/>
+    </section>
+  </body>
+</topic>

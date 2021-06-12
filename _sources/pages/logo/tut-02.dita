@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="tut-02">
+  <title>教程二：界面及功能介绍</title>
+  <body>
+    <p><xref href="./tut-01.html" scope="peer">← 安装及使用</xref> | <xref href="./index.html" scope="peer">⇑ 首页</xref> | <xref href="./tut-03.html" scope="peer">界面及功能介绍 →</xref></p>
+    <p>LOGO画板的界面如下图所示：</p>
+    <image href="./images/interface.png" scope="peer" alt="界面"/>
+    <p>以下对界面中的各主要部分进行详细说明：</p>
+    <dl>
+      <dlentry>
+        <dt>基本词汇区❶</dt>
+        <dd>在基本词汇区❶中包含有LOGO画板预先定义的词汇，比如<codeph>前进</codeph>和<codeph>右转</codeph>用于移动画笔，<codeph>抬笔</codeph>和<codeph>下笔</codeph>用于控制画笔是否在屏幕上绘图，其它词汇还包括四则运算符及流程控制等。将这些词汇拖放到动作区❹可以用来指定画笔的动作。</dd>
+      </dlentry>
+      <dlentry>
+        <dt>定义按钮❷</dt>
+        <dd>在LOGO画板中可以通过基本词汇的组合使用来自定义新的词汇，该功能通过定义按钮❷完成。对于新词汇具体动作的描述是在动作区❹指定。</dd>
+      </dlentry>
+      <dlentry>
+        <dt>自定义词汇区❸</dt>
+        <dd>所有自定义的词汇在自定义词汇区❸显示，这些词汇也可以被拖放到动作区❹。</dd>
+      </dlentry>
+      <dlentry>
+        <dt>动作区❹</dt>
+        <dd>动作区❹用于规划设计画笔的动作及自定义词汇的具体定义。</dd>
+      </dlentry>
+      <dlentry>
+        <dt>控制区❺</dt>
+        <dd>在动作区❹完成画笔动作的设计之后，可以通过控制区❺的按钮让程序执行这些动作，画笔将会在绘图区❻绘制图形。</dd>
+      </dlentry>
+      <dlentry>
+        <dt>绘图区❻</dt>
+        <dd>画笔的绘图区。</dd>
+      </dlentry>
+    </dl>
+  </body>
+</topic>

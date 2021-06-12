@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="index">
+  <title>LOGO画板</title>
+  <body>
+    <section>
+      <p>LOGO画板是基于<xref href="http://zh.wikipedia.org/zh/Logo%E8%AF%AD%E8%A8%80" scope="external">LOGO语言</xref>设计的用于培养儿童逻辑思维能力的程序。儿童可以通过组合一些基本动作来控制画笔的移动，从而绘制各种图形。</p>
+      <p>点击<xref href="./logo/index.html" scope="peer">这里</xref>直接打开LOGO画板，或是先阅读下面的相关教程。</p>
+    </section>
+    <section>
+      <title>教程</title>
+      <p>以下教程主要介绍LOGO画板的详细功能及使用说明：</p>
+      <ul>
+        <li>教程一：<xref href="./tut-01.html" scope="peer">安装及使用</xref></li>
+        <li>教程二：<xref href="./tut-02.html" scope="peer">界面及功能介绍</xref></li>
+        <li>教程三：<xref href="./tut-03.html" scope="peer">基本词汇说明</xref></li>
+        <li>教程四：<xref href="./tut-04.html" scope="peer">控制区说明</xref></li>
+        <li>教程五：<xref href="./tut-05.html" scope="peer">自定义词汇</xref></li>
+        <li>教程六：<xref href="./tut-06.html" scope="peer">辅助功能</xref></li>
+        <li>教程七：<xref href="./tut-07.html" scope="peer">实例</xref></li>
+      </ul>
+    </section>
+  </body>
+</topic>

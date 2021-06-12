@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="post">
+  <title>程序化使用Ant系统</title>
+  <body>
+    <section>
+      <p><xref href="http://ant.apache.org/" scope="external">Ant</xref>作为早期的Java编译管理系统，一般是以命令行结合XML描述文件（<term>build.xml</term>）的方式使用。实际上Ant有提供一套丰富的<xref href="https://ant.apache.org/manual/api/" scope="external">API接口</xref>，可以实现程序化调用。</p>
+      <p>本文主要介绍Ant中较为核心的几个接口，作为入门指引。</p>
+    </section>
+    <section>
+      <title>项目（project）</title>
+      <p>Ant以项目为单位进行编译任务的组织，一个<term>project</term>对应于一份<term>build.xml</term>描述文件。和项目相关的接口，重要的包括：</p>
+      <ul>
+        <li><codeph>Project.addBuildListener</codeph> - 结合<codeph>org.apache.tools.ant.DefaultLogger</codeph>实现日志记录（<codeph>DefaultLogger</codeph>的<codeph>setOutputPrintStream</codeph>和<codeph>setErrorPrintStream</codeph>接口配置日志输出流，<codeph>setMessageOutputLevel</codeph>接口调整日志输出等级）；</li>
+        <li><codeph>ProjectHelper.configureProject</codeph> - 加载<term>build.xml</term>文件；</li>
+        <li><codeph>Project.setProperty</codeph> - 设置项目编译运行时属性；</li>
+      </ul>
+      <p>至于其他接口，可以查看<xref href="https://ant.apache.org/manual/api/org/apache/tools/ant/Project.html" scope="external">这里</xref>详细的说明。</p>
+    </section>
+    <section>
+      <title>任务（task）</title>
+      <p>在完成<term>project</term>初始化后，就可以使用<codeph>Project.executeTarget</codeph>或<codeph>Project.executeTargets</codeph>接口执行其中的一个或多个特定任务了。</p>
+    </section>
+    <section>
+      <title>参考</title>
+      <p>以下是一些应用了Ant的API接口的项目，可以作为参考：</p>
+      <ul>
+        <li><xref href="https://github.com/dita-ot/dita-ot" scope="external">DITA-OT</xref> - <xref href="https://github.com/dita-ot/dita-ot/blob/3.6.1/src/main/java/org/dita/dost/Processor.java" scope="external"><codeph>org.dita.dost.Processor</codeph></xref>基于Ant做了<cmdname>dita</cmdname>命令行的功能封装。</li>
+      </ul>
+    </section>
+  </body>
+</topic>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="tut-04">
+  <title>教程四：控制区说明</title>
+  <body>
+    <p><xref href="./tut-03.html" scope="peer">← 基本词汇说明</xref> | <xref href="./index.html" scope="peer">⇑ 首页</xref> | <xref href="./tut-05.html" scope="peer">自定义词汇 →</xref></p>
+    <p>控制区初始状态如下图所示：</p>
+    <image href="./images/controller-1.png" scope="peer" alt="控制区1"/>
+    <p>其中包括速度设置，以及“开始”和“单步”按钮。</p>
+    <p>点击开始按钮后程序将会自动执行动作区指定的动作，此时控制区如下所示：</p>
+    <image href="./images/controller-2.png" scope="peer" alt="控制区2"/>
+    <p>单步按钮则会在执行其中的一个动作之后暂停，在点击单步按钮后控制区如下图所示：</p>
+    <image href="./images/controller-3.png" scope="peer" alt="控制区3"/>
+    <p>在自动执行时也可以点击控制区的“暂停”按钮转为单步执行。</p>
+  </body>
+</topic>

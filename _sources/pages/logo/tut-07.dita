@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="tut-07">
+  <title>教程七：实例</title>
+  <body>
+    <p><xref href="./tut-06.html" scope="peer">← 辅助功能</xref> | <xref href="./index.html" scope="peer">⇑ 首页</xref></p>
+    <p>以下列举一些实例，供参考。</p>
+    <section>
+      <title>五角星</title>
+      <image href="./images/star.png" scope="peer" alt="五角星"/>
+    </section>
+    <section>
+      <title>空心五角星</title>
+      <image href="./images/hollow-star.png" scope="peer" alt="空心五角星"/>
+    </section>
+    <section>
+      <title>螺旋</title>
+      <image href="./images/spire.png" scope="peer" alt="螺旋"/>
+    </section>
+  </body>
+</topic>

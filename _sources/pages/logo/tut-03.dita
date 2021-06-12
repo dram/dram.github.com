@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="tut-03">
+  <title>教程三：基本词汇说明</title>
+  <body>
+    <section>
+      <p><xref href="./tut-02.html" scope="peer">← 界面及功能介绍</xref> | <xref href="./index.html" scope="peer">⇑ 首页</xref> | <xref href="./tut-04.html" scope="peer">控制区说明 →</xref></p>
+      <p>LOGO画板中的基本词汇包括：前进、右转、抬笔、下笔、重复、是否以及四则运算。四则运算不用多做介绍，<codeph>是否</codeph>将在随后的教程中再做介绍，下面主要说明其它几个基本词汇的使用。</p>
+    </section>
+    <section>
+      <title>前进和右转</title>
+      <p>在LOGO画板中，最为基本的两个绘图动作是<codeph>前进</codeph>和<codeph>右转</codeph> 。其它动作可以通过对这两个动作进行组合来实现。比如<codeph>左转</codeph>动作就可以用如下方式定义：</p>
+      <codeblock>定义 左转 :角度
+  右转 360 - :角度
+结束</codeblock>
+      <p>再比如后退动作可以定义为：</p>
+      <codeblock>定义 后退 :距离
+  右转 180
+  前进 :距离
+  右转 180
+结束</codeblock>
+      <p>另外<codeph>右转</codeph>和<codeph>前进</codeph>动作的参数可以为负数，所以<codeph>左转</codeph>和<codeph>后退</codeph>可以以更为简洁的方式定义，比如<codeph>右转 -90</codeph>就表示向左转90度，而比如<codeph>前进 -10</codeph>表示后退10个像素。</p>
+      <p>下面我们利用这两个动作在LOGO画板中绘制一个等边三角形。将界面右侧的“前进”和“右转”拖放到动作区的蓝框中。单击其中的数字，可以设定具体的参数。比如先前进100像素，再右转120度，再重复上面的动作。最终如下图所示：</p>
+      <image href="./images/forward-and-right.png" scope="peer" alt="前进和右转"/>
+      <p>单击控制区中的“开始”按钮，画笔将在绘图区绘制一个等边三角形。</p>
+    </section>
+    <section>
+      <title>抬笔和下笔</title>
+      <p>在默认情况下，<codeph>前进</codeph>动作会在界面中绘制线条，但如果只是想移动画笔，这时就需要结合使用<codeph>抬笔</codeph>和<codeph>下笔</codeph>这两个动作了。<codeph>抬笔</codeph>将使得画笔被收起，之后所有的<codeph>前进</codeph>动作都不会在界面中绘制，而<codeph>下笔</codeph>则是执行相反的动作。下面是一个示例，绘制两条平行线。</p>
+      <image href="./images/penup-and-pendown.png" scope="peer" alt="抬笔和下笔"/>
+    </section>
+    <section>
+      <title>重复动作</title>
+      <p><codeph>重复</codeph>很容易理解，就是用来重复执行一个或多个动作。将其拖放到控制区之后，需要对其设置两个参数，一是需要重复的动作，二是重复的次数。如下示例就是通过它绘制一个圆：</p>
+      <image href="./images/repeat.png" scope="peer" alt="重复动作"/>
+      <p>结合<codeph>抬笔</codeph>和<codeph>下笔</codeph>，还可以绘制更为复杂的图形，如下图所示：</p>
+      <image href="./images/repeat-2.png" scope="peer" alt="重复动作"/>
+    </section>
+  </body>
+</topic>
