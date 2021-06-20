@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>DITA-OT中PDF输出的中文支持</title>
+  <body>
+    <p>DITA-OT本身对国际化已经有较好的支持，所以在输出PDF时，只需要不多的调整，就可以支持中文。</p>
+    <section>
+      <title>源文件语言</title>
+      <p>为使DITA-OT在输出PDF时确定使用的字体，首先需要为DITA源文件指定语言，可以基于<codeph>xml:lang</codeph>属性实现，例如：</p>
+      <codeblock><![CDATA[<topic id="topic" xml:lang="zh-cn">...</topic>]]></codeblock>
+    </section>
+    <section>
+      <title>中文编码范围</title>
+      <p>DITA-OT（3.6.1版本）在框定中文编码范围时，未包含全角符号，同时又多框定了部分非中文的符号，导致部分符号无法显示，可以在<filepath>plugins/org.dita.pdf2/cfg/fo/i18n/zh_CN.xml</filepath>文件中，将<codeph>0100</codeph>-<codeph>ff00</codeph>这段字符范围调整为如下范围：</p>
+      <codeblock><![CDATA[<character-range>
+  <start include="yes">&#x3000;</start>
+  <end include="yes">&#x303f;</end>
+</character-range>
+<character-range>
+  <start include="yes">&#xff00;</start>
+  <end include="yes">&#xffef;</end>
+</character-range>]]></codeblock>
+    </section>
+    <section>
+      <title>中文字体映射</title>
+      <p>中文字体的映射可以通过调整<filepath>plugins/org.dita.pdf2/cfg/fo/font-mappings.xml</filepath>文件实现，示例如下（其中使用的字体在Ubuntu环境中可以通过<codeph>fonts-cmu</codeph>、<codeph>fonts-wqy-microhei</codeph>、<codeph>fonts-arphic-gbsn00lp</codeph>和<codeph>fonts-arphic-gkai00mp</codeph>包安装）：</p>
+      <codeblock><![CDATA[<font-mappings>
+  <font-table>
+    <logical-font name="sans-serif">
+      <physical-font char-set="default"><font-face>CMU Sans Serif</font-face></physical-font>
+      <physical-font char-set="Simplified Chinese"><font-face>WenQuanYi Micro Hei</font-face></physical-font>
+    </logical-font>
+    <logical-font name="serif">
+      <physical-font char-set="default"><font-face>CMU Serif</font-face></physical-font>
+      <physical-font char-set="Simplified Chinese"><font-face>AR PL SungtiL GB</font-face></physical-font>
+    </logical-font>
+    <logical-font name="monospace">
+      <physical-font char-set="default"><font-face>CMU Typewriter Text</font-face></physical-font>
+      <physical-font char-set="Simplified Chinese"><font-face>AR PL KaitiM GB</font-face></physical-font>
+    </logical-font>
+  </font-table>
+</font-mappings>]]></codeblock>
+    </section>
+  </body>
+</topic>

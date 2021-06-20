@@ -1,0 +1,23 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>DITA-OT中PDF输出的中文支持</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">DITA-OT中PDF输出的中文支持</h1><time>20 Jun 2021</time><div><p>DITA-OT本身对国际化已经有较好的支持，所以在输出PDF时，只需要不多的调整，就可以支持中文。</p><div class="section"><h2 class="sectiontitle">源文件语言</h2><p>为使DITA-OT在输出PDF时确定使用的字体，首先需要为DITA源文件指定语言，可以基于<code>xml:lang</code>属性实现，例如：</p><pre><code>&lt;topic id="topic" xml:lang="zh-cn"&gt;...&lt;/topic&gt;</code></pre></div><div class="section"><h2 class="sectiontitle">中文编码范围</h2><p>DITA-OT（3.6.1版本）在框定中文编码范围时，未包含全角符号，同时又多框定了部分非中文的符号，导致部分符号无法显示，可以在<span class="filepath">plugins/org.dita.pdf2/cfg/fo/i18n/zh_CN.xml</span>文件中，将<code>0100</code>-<code>ff00</code>这段字符范围调整为如下范围：</p><pre><code>&lt;character-range&gt;
+  &lt;start include="yes"&gt;&amp;#x3000;&lt;/start&gt;
+  &lt;end include="yes"&gt;&amp;#x303f;&lt;/end&gt;
+&lt;/character-range&gt;
+&lt;character-range&gt;
+  &lt;start include="yes"&gt;&amp;#xff00;&lt;/start&gt;
+  &lt;end include="yes"&gt;&amp;#xffef;&lt;/end&gt;
+&lt;/character-range&gt;</code></pre></div><div class="section"><h2 class="sectiontitle">中文字体映射</h2><p>中文字体的映射可以通过调整<span class="filepath">plugins/org.dita.pdf2/cfg/fo/font-mappings.xml</span>文件实现，示例如下（其中使用的字体在Ubuntu环境中可以通过<code>fonts-cmu</code>、<code>fonts-wqy-microhei</code>、<code>fonts-arphic-gbsn00lp</code>和<code>fonts-arphic-gkai00mp</code>包安装）：</p><pre><code>&lt;font-mappings&gt;
+  &lt;font-table&gt;
+    &lt;logical-font name="sans-serif"&gt;
+      &lt;physical-font char-set="default"&gt;&lt;font-face&gt;CMU Sans Serif&lt;/font-face&gt;&lt;/physical-font&gt;
+      &lt;physical-font char-set="Simplified Chinese"&gt;&lt;font-face&gt;WenQuanYi Micro Hei&lt;/font-face&gt;&lt;/physical-font&gt;
+    &lt;/logical-font&gt;
+    &lt;logical-font name="serif"&gt;
+      &lt;physical-font char-set="default"&gt;&lt;font-face&gt;CMU Serif&lt;/font-face&gt;&lt;/physical-font&gt;
+      &lt;physical-font char-set="Simplified Chinese"&gt;&lt;font-face&gt;AR PL SungtiL GB&lt;/font-face&gt;&lt;/physical-font&gt;
+    &lt;/logical-font&gt;
+    &lt;logical-font name="monospace"&gt;
+      &lt;physical-font char-set="default"&gt;&lt;font-face&gt;CMU Typewriter Text&lt;/font-face&gt;&lt;/physical-font&gt;
+      &lt;physical-font char-set="Simplified Chinese"&gt;&lt;font-face&gt;AR PL KaitiM GB&lt;/font-face&gt;&lt;/physical-font&gt;
+    &lt;/logical-font&gt;
+  &lt;/font-table&gt;
+&lt;/font-mappings&gt;</code></pre></div></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>
