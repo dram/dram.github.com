@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
-<topic id="post">
+<topic id="post" xml:lang="zh-cn">
   <title>Frappe和ERPNext安装部署</title>
   <body>
     <p>本文主要整理说明安装ERPNext v13的主要流程，以Ubuntu 20.04基础系统为例。</p>

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
-<topic id="tut-02">
+<topic id="tut-02" xml:lang="zh-cn">
   <title>教程二：界面及功能介绍</title>
   <body>
     <p><xref href="./tut-01.html" scope="peer">← 安装及使用</xref> | <xref href="./index.html" scope="peer">⇑ 首页</xref> | <xref href="./tut-03.html" scope="peer">界面及功能介绍 →</xref></p>

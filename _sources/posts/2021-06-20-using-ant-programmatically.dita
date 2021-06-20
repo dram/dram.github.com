@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
-<topic id="post">
+<topic id="post" xml:lang="zh-cn">
   <title>程序化使用Ant系统</title>
   <body>
     <section>
