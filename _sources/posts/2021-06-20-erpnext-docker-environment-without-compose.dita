@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>手动搭建ERPNext Docker环境</title>
+  <body>
+    <p>本文介绍在Windows下基于<xref href="https://www.docker.com/products/docker-desktop" scope="external">Docker Desktop</xref>手动搭建ERPNext测试环境的简要流程（未使用Docker Compose）。</p>
+    <section>
+      <title>获取镜像</title>
+      <p>首先获取ERPNext以及相关依赖服务的Docker镜像，为后续启动服务做准备。</p>
+      <codeblock>docker pull mariadb:10.3
+docker pull redis:6.2-alpine
+docker pull frappe/erpnext-worker:v13
+docker pull frappe/frappe-socketio:v13
+docker pull frappe/erpnext-nginx:v13</codeblock>
+    </section>
+    <section>
+      <title>启动服务</title>
+      <p>依序启动以下各服务，其中涉及的IP可通过<cmdname>docker inspect</cmdname>命令查询，以MariaDB为例：</p>
+      <codeblock>docker inspect mariadb | select-string -pattern "IPAddress"</codeblock>
+      <ol>
+        <li>
+          <p>启动数据库：</p>
+          <codeblock>docker run -d --name mariadb -e MARIADB_ROOT_PASSWORD=erpnext mariadb:10.3 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci</codeblock>
+        </li>
+        <li>
+          <p>启动Redis：</p>
+          <codeblock>docker run -d --name redis redis:6.2-alpine</codeblock>
+        </li>
+        <li>
+          <p>启动ERPNext：</p>
+          <codeblock>docker run -d --name erpnext-worker -v c:/erpnext-sites:/home/frappe/frappe-bench/sites -e "MARIADB_HOST=172.17.0.2" -e "REDIS_CACHE=172.17.0.3" -e "REDIS_QUEUE=172.17.0.3" -e "REDIS_SOCKETIO=172.17.0.3" -e "SOCKETIO_PORT=9000" frappe/erpnext-worker:v13</codeblock>
+        </li>
+        <li>
+          <p>启动SocketIO：</p>
+          <codeblock>docker run -d --name erpnext-socketio -v c:/erpnext-sites:/home/frappe/frappe-bench/sites frappe/frappe-socketio:v13</codeblock>
+        </li>
+        <li>
+          <p>启动NGINX：</p>
+          <codeblock>docker run -d --name erpnext-nginx -p 8000:80 -v c:/erpnext-sites:/var/www/html/sites -e "FRAPPE_PY=172.17.0.4" -e "FRAPPE_SOCKETIO=172.17.0.5" frappe/erpnext-nginx:v13</codeblock>
+        </li>
+      </ol>
+    </section>
+    <section>
+      <title>创建站点</title>
+      <codeblock>docker exec -it erpnext-worker bench new-site localhost
+docker exec -it erpnext-worker bench --site localhost install-app erpnext</codeblock>
+    </section>
+    <section>
+      <title>同步静态文件（耗时较长）</title>
+      <codeblock>docker exec erpnext-nginx rsync -a --delete /var/www/html/assets /var/www/html/sites</codeblock>
+    </section>
+    <section>
+      <title>整合镜像（非官方）</title>
+      <p>另外，有非官方的整合镜像，如果只是用于测试或演示环境的话，相对要简化许多。</p>
+      <codeblock>docker pull pipech/erpnext-docker-debian:13-F5.0_E5.0-py3
+docker run -d -p 8000:8000 -p 9000:9000 --add-host secure.gravatar.com:127.0.0.1 pipech/erpnext-docker-debian:13-F5.0_E5.0-py3</codeblock>
+    </section>
+  </body>
+</topic>
