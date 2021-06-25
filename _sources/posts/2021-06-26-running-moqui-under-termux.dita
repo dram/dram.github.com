@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>Termux环境运行Moqui</title>
+  <body>
+    <p>本文介绍Termux环境下安装运行Moqui的流程，主要参考<xref href="https://github.com/termux/termux-packages/issues/324" scope="external">这里</xref>安装OpenJDK环境，采用的是Ubuntu虚拟子系统，其他流程基本上和Linux环境的安装无异。</p>
+    <section>
+      <title>Ubuntu环境</title>
+      <p>基于以下命令在Termux环境中安装并切换到Ubuntu：</p>
+      <screen>pkg install proot-distro
+proot-distro install ubuntu-20.04
+proot-distro login ubuntu-20.04
+apt update
+apt upgrade</screen>
+    </section>
+    <section>
+      <title>OpenJDK环境</title>
+      <p>安装openjdk-8-jdk-headless以及其他安装Moqui时需要的依赖包：</p>
+      <screen>apt install --no-install-recommends git openjdk-8-jdk-headless</screen>
+    </section>
+    <section>
+      <title>Moqui环境</title>
+      <p>创建moqui用户，并基于官方流程下载和启动Moqui：</p>
+      <screen>useradd -m moqui
+su - moqui
+git clone https://github.com/moqui/moqui-framework.git moqui
+cd moqui
+./gradlew getRuntime
+./gradlew downloadElasticSearch
+./gradlew load
+java -jar moqui.war</screen>
+    </section>
+    <section>
+      <title>运行</title>
+      <p>在完成上述安装后，后续运行可以通过如下命令操作：</p>
+      <screen>proot-distro login --user moqui ubuntu-20.04
+cd moqui
+java -jar moqui.war</screen>
+    <p>总体安装上没有大的问题，ElasticSearch在启动时有无法读取<filepath>/proc/sys/vm/max_map_count</filepath>的错误提示，但目前看不影响使用。</p>
+    </section>
+  </body>
+</topic>

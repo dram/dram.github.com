@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>Moqui系统安装配置说明</title>
+  <body>
+    <p>Moqui虽然是高度模块化的系统，但整体安装并不复杂，参考官方文档即可。本文主要对过程中的一些细节做简要说明。</p>
+    <section>
+      <title>系统安装</title>
+      <ol>
+        <li>
+          <p>准备框架</p>
+          <p>Moqui的运行依赖于<term>moqui-framework</term>，所以第一步是获取其源码：</p>
+          <screen>git clone https://github.com/moqui/moqui-framework.git moqui</screen>
+          <p>随后的命令都在<filepath>moqui</filepath>目录中执行。</p>
+        </li>
+        <li>
+          <p>获取组件</p>
+          <p>Moqui使用组件化的方式管理各模块，安装时需要根据需要获取，以下以<term>HiveMind</term>为例：</p>
+          <screen>./gradlew getComponent -Pcomponent=HiveMind</screen>
+        </li>
+        <li>
+          <p>获取ElasticSearch</p>
+          <p>Moqui和ElasticSearch有较深的整合，Moqui可以连接外部的ElasticSearch服务，也可以由其启动，后者需要通过以下命令获取相关包：</p>
+          <screen>./gradlew downloadElasticSearch</screen>
+        </li>
+        <li>
+          <p>编译</p>
+          <p>执行以下命令，以生成<filepath>moqui.war</filepath>文件：</p>
+          <screen>./gradlew build</screen>
+          <p><strong>说明</strong>：官方文档里建议是用<cmdname>./gradlew load</cmdname>命令单步完成编译和数据库初始化操作，但个人感觉分开操作逻辑更为清晰，所以这里分两步执行。但实际上这个是将 ./gradlew build 和 java -jar moqui.war load types=seed,seed-initial 整合，感觉还是分开比较清晰。</p>
+        </li>
+        <li>
+          <p>解压</p>
+          <p>上一步编译生成的<filepath>moqui.war</filepath>是直接执行的，但每次执行都需要解压到临时目录<filepath>./execwartmp</filepath>，并在程序结束时清理。</p>
+          <p>如果想要省去这一步操作，可以通过以下命令先解压，之后直接通过<cmdname>java -cp ROOT MoquiStart</cmdname>命令执行：</p>
+          <screen>unzip -d ROOT moqui.war</screen>
+        </li>
+      </ol>
+    </section>
+    <section>
+      <title>数据初始化</title>
+      <p>执行以下命令完成数据初始化：</p>
+      <screen>java -cp ROOT MoquiStart load types=seed,seed-initial</screen>
+      <p><strong>注意</strong>：如果不手动执行数据初始化操作而直接运行服务，Moqui默认加载所有数据，包括<term>demo</term>数据。</p>
+    </section>
+    <section>
+      <title>运行</title>
+      <p>通过以下命令启动服务：</p>
+      <screen>java -cp ROOT MoquiStart</screen>
+      <p><strong>说明</strong>：如果使用内建ElasticSearch服务，Moqui会在启动过程中检测并拉起，无需手动启动。</p>
+    </section>
+    <section>
+      <title>系统设置</title>
+      <ul>
+        <li>
+          <p>时区设置</p>
+          <p>在<filepath>runtime/conf/MoquiDevConf.xml</filepath>中添加如下配置：</p>
+          <codeblock><![CDATA[<default-property name="default_time_zone" value="Asia/Shanghai"/>]]></codeblock>
+        </li>
+      </ul>
+    </section>
+  </body>
+</topic>

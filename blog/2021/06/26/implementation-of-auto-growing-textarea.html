@@ -1,0 +1,11 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>textarea高度自适应机制实现</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">textarea高度自适应机制实现</h1><time>26 Jun 2021</time><div><p>本文描述如何在多个系统中实现textarea高度自适应。</p><div class="section"><h2 class="sectiontitle">OFBiz实现</h2><p>在OFBiz中，可以通过将以下代码写入<span class="filepath">themes/rainbowstone/webapp/rainbowstone/js/rainbowstone.js</span>实现高度自适应：</p><pre><code>document.addEventListener("DOMContentLoaded", (event) =&gt; {
+    Array.from(document.getElementsByTagName("textarea")).forEach(textarea =&gt; {
+        textarea.style.overflowY = "hidden";
+        textarea.style.height = textarea.scrollHeight + "px";
+
+        textarea.addEventListener("input", () =&gt; {
+            textarea.style.height = "auto";
+            textarea.style.height = textarea.scrollHeight + "px";
+        });
+    });
+});</code></pre></div><div class="section"><h2 class="sectiontitle">Moqui实现</h2><p>Moqui基于Quasar构建浏览器端UI控件，所以对textarea的调整也基于Quasar提供的控件属性配置。具体实现是调整<span class="filepath">runtime/template/screen-macro/DefaultScreenMacros.qvt.ftl</span>文件中的<code>text-area</code>宏，为<code>q-input</code>添加<code>autogrow</code>属性。</p><p>但这个方案的一个问题是，一旦添加<code>autogrow</code>属性，控件高度调整为一行，用户无法区分多行和单行输入，但两者对于回车键的交互是不同的。</p></div></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>

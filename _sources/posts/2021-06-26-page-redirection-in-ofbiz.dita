@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>OFBiz中的页面重定向机制</title>
+  <body>
+    <p>OFBiz有一个有趣的机制，在访问特定页面后，会将该页面设置为HOME页，而其他页面的某些操作，会指定在成功后跳转到HOME页。总体感觉这个机制是容易困扰用户的，因为用户无法事先知道哪些页面在访问后会被设定为HOME。</p>
+    <p>这个HOME信息被存放在session的<codeph>HOME_VIEW_NAME</codeph>变量中。</p>
+    <p>以下举一个例子说明这一机制。</p>
+    <p>在<filepath>workeffort/WEB-INF/controller.xml</filepath>的<codeph>updateWorkEffort</codeph>定义中，<codeph>response</codeph>的类型被定义为<codeph>view-home</codeph>。（这里有一个细节，为什么已经定义了<codeph>view-home</codeph>，还需要指定<codeph>value</codeph>是<codeph>EditWorkEffort</codeph>？）</p>
+    <p>而同样在<filepath>workeffort/WEB-INF/controller.xml</filepath>的<codeph>calendar</codeph>的定义中，启用了<codeph>save-home-view</codeph>。</p>
+    <p>两者结合，就会产生这样的交互效果：用户在点击日历后，再去执行工作记录更新等操作，在成功提交后会重定向到日历页。</p>
+  </body>
+</topic>

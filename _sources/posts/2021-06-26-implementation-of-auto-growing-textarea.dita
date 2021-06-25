@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>textarea高度自适应机制实现</title>
+  <body>
+    <p>本文描述如何在多个系统中实现textarea高度自适应。</p>
+    <section>
+      <title>OFBiz实现</title>
+      <p>在OFBiz中，可以通过将以下代码写入<filepath>themes/rainbowstone/webapp/rainbowstone/js/rainbowstone.js</filepath>实现高度自适应：</p>
+      <codeblock><![CDATA[document.addEventListener("DOMContentLoaded", (event) => {
+    Array.from(document.getElementsByTagName("textarea")).forEach(textarea => {
+        textarea.style.overflowY = "hidden";
+        textarea.style.height = textarea.scrollHeight + "px";
+
+        textarea.addEventListener("input", () => {
+            textarea.style.height = "auto";
+            textarea.style.height = textarea.scrollHeight + "px";
+        });
+    });
+});]]></codeblock>
+    </section>
+    <section>
+      <title>Moqui实现</title>
+      <p>Moqui基于Quasar构建浏览器端UI控件，所以对textarea的调整也基于Quasar提供的控件属性配置。具体实现是调整<filepath>runtime/template/screen-macro/DefaultScreenMacros.qvt.ftl</filepath>文件中的<codeph>text-area</codeph>宏，为<codeph>q-input</codeph>添加<codeph>autogrow</codeph>属性。</p>
+      <p>但这个方案的一个问题是，一旦添加<codeph>autogrow</codeph>属性，控件高度调整为一行，用户无法区分多行和单行输入，但两者对于回车键的交互是不同的。</p>
+    </section>
+  </body>
+</topic>

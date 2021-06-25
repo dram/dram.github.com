@@ -1,0 +1,16 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>搭建Odoo Docker环境</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">搭建Odoo Docker环境</h1><time>26 Jun 2021</time><div><p>Odoo的Docker环境启用主要包括三步，数据库启动、Odoo启动以及配置调整。</p><div class="section"><h2 class="sectiontitle">数据库</h2><p>PostgreSQL数据库实例的启动只需要指定超级用户的账号密码，以及默认创建的数据库名称即可：</p><pre class="screen">docker run -d --name db -e POSTGRES_USER=odoo -e POSTGRES_PASSWORD=odoo -e POSTGRES_DB=postgres postgres:13.3-alpine</pre></div><div class="section"><h2 class="sectiontitle">Odoo</h2><p>启动Odoo实例时需要考虑以下几点：</p><ul class="simple"><li>Web端口映射；</li><li>数据库关联；</li><li>扩展目录指定；</li><li>限制外网访问服务；</li><li>启用日志。</li></ul><pre class="screen">docker run -d \
+    --name odoo \
+    --volume /path/to/odoo-addons:/mnt/extra-addons \
+    --add-host db:172.17.0.2 \
+    --add-host iap-services.odoo.com:127.0.0.1 \
+    --add-host partner-autocomplete.odoo.com:127.0.0.1 \
+    --add-host services.openerp.com:127.0.0.1 \
+    odoo:14.0 \
+    -- \
+    --logfile /var/log/odoo/odoo-server.log</pre></div><div class="section"><h2 class="sectiontitle">配置</h2><ul><li><p>静态文件存储路径</p><p>Odoo默认将网页静态文件、附件等存放在文件系统中，也就是对应于Odoo的Docker实例的磁盘，备份数据时需要留意。如果需要把所有数据存储在数据库中，可以在启动Odoo实例后，执行以下命令：</p><pre class="screen">sed -i "s|'ir_attachment.location', 'file'|'ir_attachment.location', 'db'|" /usr/lib/python3/dist-packages/odoo/addons/base/models/ir_attachment.py</pre><p>如果系统已经运行一段时间，文件系统中已经存在部分静态文件，可以在Odoo的Python命令行中执行以下代码（测试发现迁移的数据不完整，待查）：</p><pre class="screen">env['ir.config_parameter'].set_param('ir_attachment.location', 'db')
+env.cr.commit()
+env['ir.attachment'].force_storage()</pre></li><li><p>HTML编辑器配置</p><p>默认Odoo的HTML编辑器在非调式模式下不可以基于源码编辑，可通过执行以下命令调整：</p><pre class="screen">sed -i "s|config.isDebug()|true|" /usr/lib/python3/dist-packages/odoo/addons/web_editor/static/src/js/backend/field_html.js</pre></li><li><p>优化笔记UI</p><p>隐藏左侧的“完成”和右侧的“计划”按钮，以及左侧的tags标签（暂不清楚什么条件下会显示，当前影响排版）：</p><pre class="screen">sed -i \
+    -e "/oe_kanban_global_click_edit/{n;N;d}" \
+    -e "/oe_kanban_colorpicker/{n;n;n;N;N;N;d}" \
+    -e "/oe_kanban_content/{n;n;n;N;N;d}" \
+    /usr/lib/python3/dist-packages/odoo/addons/note/views/note_views.xml</pre><p>清空笔记初始stage：</p><pre class="screen">echo "&lt;odoo&gt;&lt;data&gt;&lt;/data&gt;&lt;/odoo&gt;" &gt;/usr/lib/python3/dist-packages/odoo/addons/note/data/note_data.xml</pre></li><li><p>设置用户登录起始页</p><p>基于12469ef这一提交，可以通过调整sequence号将notes菜单提前，以作为起始页：</p><pre class="screen">sed -i 's/sequence="15"/sequence="0"/' /usr/lib/python3/dist-packages/odoo/addons/note/views/note_views.xml</pre></li><li><p>设置文本样式</p><pre class="screen">sed -i -e 's/margin-bottom: 1rem/margin-bottom: 0/' -e 's/$headings-margin-bottom/0/' /usr/lib/python3/dist-packages/odoo/addons/web/static/lib/bootstrap/scss/_reboot.scss</pre></li></ul></div></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>

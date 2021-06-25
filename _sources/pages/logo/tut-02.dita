@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
 <topic id="tut-02" xml:lang="zh-cn">
   <title>教程二：界面及功能介绍</title>
   <body>
     <p><xref href="./tut-01.html" scope="peer">← 安装及使用</xref> | <xref href="./index.html" scope="peer">⇑ 首页</xref> | <xref href="./tut-03.html" scope="peer">界面及功能介绍 →</xref></p>
     <p>LOGO画板的界面如下图所示：</p>
-    <image href="./images/interface.png" scope="peer" alt="界面"/>
+    <image href="./images/interface.png" scope="peer"><alt>界面</alt></image>
     <p>以下对界面中的各主要部分进行详细说明：</p>
     <dl>
       <dlentry>

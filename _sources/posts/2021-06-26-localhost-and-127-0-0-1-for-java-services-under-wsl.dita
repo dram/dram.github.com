@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>WSL中Java服务对127.0.1和localhost的不同处理</title>
+  <body>
+    <p>问题起因是发现OFBiz在WSL环境中无法以127.0.0.1地址访问，但使用localhost访问是正常的。后来进一步排查发现Tomcat的服务存在一样的问题，再进而发现直接以<codeph>com.sun.net.httpserver.HttpServer</codeph>启动的服务也是如此。</p>
+    <p>经过排查，更深层的原因是IPv4和IPv6的问题，运行于WSL中的未指定监听地址的Java服务，只接受IPv6的请求。比如在浏览器中请求<codeph>http://[::1]:8000/</codeph>是可以访问的。</p>
+    <p>这涉及到<xref href="https://docs.oracle.com/javase/8/docs/technotes/guides/net/ipv6_guide/" scope="external">Java对IPv4和IPv6的处理</xref>，以及Windows的协议栈实现，以及WSL对Linux内核接口的实现。</p>
+    <p><xref href="https://stackoverflow.com/questions/10378471/how-to-support-both-ipv4-ipv6-on-java" scope="external">这里</xref>有对Java的相关讨论，以及这里对<xref href="https://www.williamjbowman.com/blog/2020/04/25/running-a-public-server-from-wsl-2/" scope="external">WSL</xref>的讨论，可以作为参考。</p>
+    <p>问题的根因还需要进一步深入分析，另外操作系统在解析localhost域名时，如何选择IPv4还是IPv6呢？这也是一个待分析的问题。</p>
+  </body>
+</topic>

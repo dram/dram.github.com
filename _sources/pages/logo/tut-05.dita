@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
 <topic id="tut-05" xml:lang="zh-cn">
   <title>教程五：自定义词汇</title>
   <body>
@@ -9,13 +9,13 @@
       <p>前面介绍的都是LOGO画板中自带的动作，在LOGO画板中还可以通过“定义”功能定义新的动作，比如前面提到的<codeph>左转</codeph> 、<codeph>后退</codeph>等。</p>
       <p>回想一下前面对等边三角形的绘制，我们可以定义一个<codeph>等边三角形</codeph>动作，通过它可以绘制任意边长的等边三角形。</p>
       <p>首先点击界面中的“定义”，在对话框中输入<codeph>等边三角形 边长</codeph> ，表示需要定义一个<codeph>等边三角形</codeph>动作，它有一个参数，参数名为<codeph>边长</codeph> ，再点击确定。界面中将出现一个等边三角形的空定义。之后就可以将动作拖放到它的动作区来定义具体的动作。其中参数可以通过拖动定义中的参数名获得。最终形式如下图所示：</p>
-      <image href="./images/to.png" scope="peer" alt="定义动作"/>
+      <image href="./images/to.png" scope="peer"><alt>定义动作</alt></image>
     </section>
     <section>
       <title>判断</title>
       <p>接下来介绍最后一个基本动作<codeph>是否</codeph>，<codeph>是否</codeph>动作有三个参数，包括：判断语句、在判断语句为真执行的动作、判断语句为假时执行的动作。</p>
       <p>如下图所示例子，只有在边长小于100时才会继续执行<codeph>三角形排列</codeph>动作。</p>
-      <image href="./images/ifelse.png" scope="peer" alt="是否动作"/>
+      <image href="./images/ifelse.png" scope="peer"><alt>是否动作</alt></image>
     </section>
   </body>
 </topic>

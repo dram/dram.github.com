@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>搭建Odoo Docker环境</title>
+  <body>
+    <p>Odoo的Docker环境启用主要包括三步，数据库启动、Odoo启动以及配置调整。</p>
+    <section>
+      <title>数据库</title>
+      <p>PostgreSQL数据库实例的启动只需要指定超级用户的账号密码，以及默认创建的数据库名称即可：</p>
+      <screen>docker run -d --name db -e POSTGRES_USER=odoo -e POSTGRES_PASSWORD=odoo -e POSTGRES_DB=postgres postgres:13.3-alpine</screen>
+    </section>
+    <section>
+      <title>Odoo</title>
+      <p>启动Odoo实例时需要考虑以下几点：</p>
+      <sl>
+        <sli>Web端口映射；</sli>
+        <sli>数据库关联；</sli>
+        <sli>扩展目录指定；</sli>
+        <sli>限制外网访问服务；</sli>
+        <sli>启用日志。</sli>
+      </sl>
+      <screen>docker run -d \
+    --name odoo \
+    --volume /path/to/odoo-addons:/mnt/extra-addons \
+    --add-host db:172.17.0.2 \
+    --add-host iap-services.odoo.com:127.0.0.1 \
+    --add-host partner-autocomplete.odoo.com:127.0.0.1 \
+    --add-host services.openerp.com:127.0.0.1 \
+    odoo:14.0 \
+    -- \
+    --logfile /var/log/odoo/odoo-server.log</screen>
+    </section>
+    <section>
+      <title>配置</title>
+      <ul>
+        <li>
+          <p>静态文件存储路径</p>
+          <p>Odoo默认将网页静态文件、附件等存放在文件系统中，也就是对应于Odoo的Docker实例的磁盘，备份数据时需要留意。如果需要把所有数据存储在数据库中，可以在启动Odoo实例后，执行以下命令：</p>
+          <screen>sed -i "s|'ir_attachment.location', 'file'|'ir_attachment.location', 'db'|" /usr/lib/python3/dist-packages/odoo/addons/base/models/ir_attachment.py</screen>
+          <p>如果系统已经运行一段时间，文件系统中已经存在部分静态文件，可以在Odoo的Python命令行中执行以下代码（测试发现迁移的数据不完整，待查）：</p>
+          <screen>env['ir.config_parameter'].set_param('ir_attachment.location', 'db')
+env.cr.commit()
+env['ir.attachment'].force_storage()</screen>
+        </li>
+        <li>
+          <p>HTML编辑器配置</p>
+          <p>默认Odoo的HTML编辑器在非调式模式下不可以基于源码编辑，可通过执行以下命令调整：</p>
+          <screen>sed -i "s|config.isDebug()|true|" /usr/lib/python3/dist-packages/odoo/addons/web_editor/static/src/js/backend/field_html.js</screen>
+        </li>
+        <li>
+          <p>优化笔记UI</p>
+          <p>隐藏左侧的“完成”和右侧的“计划”按钮，以及左侧的tags标签（暂不清楚什么条件下会显示，当前影响排版）：</p>
+          <screen>sed -i \
+    -e "/oe_kanban_global_click_edit/{n;N;d}" \
+    -e "/oe_kanban_colorpicker/{n;n;n;N;N;N;d}" \
+    -e "/oe_kanban_content/{n;n;n;N;N;d}" \
+    /usr/lib/python3/dist-packages/odoo/addons/note/views/note_views.xml</screen>
+          <p>清空笔记初始stage：</p>
+          <screen><![CDATA[echo "<odoo><data></data></odoo>" >/usr/lib/python3/dist-packages/odoo/addons/note/data/note_data.xml]]></screen>
+        </li>
+        <li>
+          <p>设置用户登录起始页</p>
+          <p>基于12469ef这一提交，可以通过调整sequence号将notes菜单提前，以作为起始页：</p>
+          <screen>sed -i 's/sequence="15"/sequence="0"/' /usr/lib/python3/dist-packages/odoo/addons/note/views/note_views.xml</screen>
+        </li>
+        <li>
+          <p>设置文本样式</p>
+          <screen>sed -i -e 's/margin-bottom: 1rem/margin-bottom: 0/' -e 's/$headings-margin-bottom/0/' /usr/lib/python3/dist-packages/odoo/addons/web/static/lib/bootstrap/scss/_reboot.scss</screen>
+        </li>
+      </ul>
+    </section>
+  </body>
+</topic>

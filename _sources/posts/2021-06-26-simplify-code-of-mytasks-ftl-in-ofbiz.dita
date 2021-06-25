@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>简化OFBiz中MyTasks.ftl模板代码</title>
+  <body>
+    <p>OFBiz有很长的发展历史，所以有些代码会显得有些陈旧，这里以<filepath>MyTasks.ftl</filepath>为例，说明可以调整的点：</p>
+    <ol>
+      <li>使用<codeph>is_even_item</codeph>简化隔行着色的处理；</li>
+      <li>使用<codeph>workEffort.currentStatusId</codeph>替代<codeph>workEffort.getString("currentStatusId")</codeph>；</li>
+      <li>使用<codeph>{"statusId": workEffort.currentStatusId}</codeph>替代<codeph>Static["org.apache.ofbiz.base.util.UtilMisc"].toMap("statusId", workEffort.currentStatusId)</codeph>；</li>
+      <li>status项不可能为空，不需要追加<codeph>!</codeph>。</li>
+    </ol>
+    <p>以下为完整的diff：</p>
+    <codeblock><![CDATA[-- a/applications/workeffort/template/task/MyTasks.ftl
++++ b/applications/workeffort/template/task/MyTasks.ftl
+@@ -29,15 +29,13 @@ under the License.
+       <td>${uiLabelMap.WorkEffortPriority}</td>
+       <td>${uiLabelMap.WorkEffortStatus}</td>
+     </tr>
+-    <#assign alt_row = false>
+     <#list tasks as workEffort>
+-      <tr<#if alt_row> class="alternate-row"</#if>>
+-        <td>${(workEffort.estimatedStartDate)!}</td>
++      <tr<#if workEffort?is_even_item> class="alternate-row"</#if>>
++        <td>${workEffort.estimatedStartDate!}</td>
+         <td><a href="<@ofbizUrl>WorkEffortSummary?workEffortId=${workEffort.workEffortId}</@ofbizUrl>">${workEffort.workEffortName}</a></td>
+         <td>${workEffort.priority!}</td>
+-        <td>${(delegator.findOne("StatusItem", Static["org.apache.ofbiz.base.util.UtilMisc"].toMap("statusId", workEffort.getString("currentStatusId")), true).get("description",locale))!}</td>
++        <td>${delegator.findOne("StatusItem", {"statusId": workEffort.currentStatusId}, true).get("description", locale)}</td>
+       </tr>
+-      <#assign alt_row = !alt_row>
+     </#list>
+   </table>
+   <#if (activities.size() > 0)>
+]]></codeblock>
+  </body>
+</topic>

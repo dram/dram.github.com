@@ -1,0 +1,22 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>简化OFBiz中MyTasks.ftl模板代码</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">简化OFBiz中MyTasks.ftl模板代码</h1><time>26 Jun 2021</time><div><p>OFBiz有很长的发展历史，所以有些代码会显得有些陈旧，这里以<span class="filepath">MyTasks.ftl</span>为例，说明可以调整的点：</p><ol><li>使用<code>is_even_item</code>简化隔行着色的处理；</li><li>使用<code>workEffort.currentStatusId</code>替代<code>workEffort.getString("currentStatusId")</code>；</li><li>使用<code>{"statusId": workEffort.currentStatusId}</code>替代<code>Static["org.apache.ofbiz.base.util.UtilMisc"].toMap("statusId", workEffort.currentStatusId)</code>；</li><li>status项不可能为空，不需要追加<code>!</code>。</li></ol><p>以下为完整的diff：</p><pre><code>-- a/applications/workeffort/template/task/MyTasks.ftl
++++ b/applications/workeffort/template/task/MyTasks.ftl
+@@ -29,15 +29,13 @@ under the License.
+       &lt;td&gt;${uiLabelMap.WorkEffortPriority}&lt;/td&gt;
+       &lt;td&gt;${uiLabelMap.WorkEffortStatus}&lt;/td&gt;
+     &lt;/tr&gt;
+-    &lt;#assign alt_row = false&gt;
+     &lt;#list tasks as workEffort&gt;
+-      &lt;tr&lt;#if alt_row&gt; class="alternate-row"&lt;/#if&gt;&gt;
+-        &lt;td&gt;${(workEffort.estimatedStartDate)!}&lt;/td&gt;
++      &lt;tr&lt;#if workEffort?is_even_item&gt; class="alternate-row"&lt;/#if&gt;&gt;
++        &lt;td&gt;${workEffort.estimatedStartDate!}&lt;/td&gt;
+         &lt;td&gt;&lt;a href="&lt;@ofbizUrl&gt;WorkEffortSummary?workEffortId=${workEffort.workEffortId}&lt;/@ofbizUrl&gt;"&gt;${workEffort.workEffortName}&lt;/a&gt;&lt;/td&gt;
+         &lt;td&gt;${workEffort.priority!}&lt;/td&gt;
+-        &lt;td&gt;${(delegator.findOne("StatusItem", Static["org.apache.ofbiz.base.util.UtilMisc"].toMap("statusId", workEffort.getString("currentStatusId")), true).get("description",locale))!}&lt;/td&gt;
++        &lt;td&gt;${delegator.findOne("StatusItem", {"statusId": workEffort.currentStatusId}, true).get("description", locale)}&lt;/td&gt;
+       &lt;/tr&gt;
+-      &lt;#assign alt_row = !alt_row&gt;
+     &lt;/#list&gt;
+   &lt;/table&gt;
+   &lt;#if (activities.size() &gt; 0)&gt;
+</code></pre></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>

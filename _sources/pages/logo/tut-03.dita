@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
 <topic id="tut-03" xml:lang="zh-cn">
   <title>教程三：基本词汇说明</title>
   <body>
@@ -21,20 +21,20 @@
 结束</codeblock>
       <p>另外<codeph>右转</codeph>和<codeph>前进</codeph>动作的参数可以为负数，所以<codeph>左转</codeph>和<codeph>后退</codeph>可以以更为简洁的方式定义，比如<codeph>右转 -90</codeph>就表示向左转90度，而比如<codeph>前进 -10</codeph>表示后退10个像素。</p>
       <p>下面我们利用这两个动作在LOGO画板中绘制一个等边三角形。将界面右侧的“前进”和“右转”拖放到动作区的蓝框中。单击其中的数字，可以设定具体的参数。比如先前进100像素，再右转120度，再重复上面的动作。最终如下图所示：</p>
-      <image href="./images/forward-and-right.png" scope="peer" alt="前进和右转"/>
+      <image href="./images/forward-and-right.png" scope="peer"><alt>前进和右转</alt></image>
       <p>单击控制区中的“开始”按钮，画笔将在绘图区绘制一个等边三角形。</p>
     </section>
     <section>
       <title>抬笔和下笔</title>
       <p>在默认情况下，<codeph>前进</codeph>动作会在界面中绘制线条，但如果只是想移动画笔，这时就需要结合使用<codeph>抬笔</codeph>和<codeph>下笔</codeph>这两个动作了。<codeph>抬笔</codeph>将使得画笔被收起，之后所有的<codeph>前进</codeph>动作都不会在界面中绘制，而<codeph>下笔</codeph>则是执行相反的动作。下面是一个示例，绘制两条平行线。</p>
-      <image href="./images/penup-and-pendown.png" scope="peer" alt="抬笔和下笔"/>
+      <image href="./images/penup-and-pendown.png" scope="peer"><alt>抬笔和下笔</alt></image>
     </section>
     <section>
       <title>重复动作</title>
       <p><codeph>重复</codeph>很容易理解，就是用来重复执行一个或多个动作。将其拖放到控制区之后，需要对其设置两个参数，一是需要重复的动作，二是重复的次数。如下示例就是通过它绘制一个圆：</p>
-      <image href="./images/repeat.png" scope="peer" alt="重复动作"/>
+      <image href="./images/repeat.png" scope="peer"><alt>重复动作</alt></image>
       <p>结合<codeph>抬笔</codeph>和<codeph>下笔</codeph>，还可以绘制更为复杂的图形，如下图所示：</p>
-      <image href="./images/repeat-2.png" scope="peer" alt="重复动作"/>
+      <image href="./images/repeat-2.png" scope="peer"><alt>重复动作</alt></image>
     </section>
   </body>
 </topic>

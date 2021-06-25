@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>OFBiz模块数据迁移（WorkEffort为例）</title>
+  <body>
+    <section>
+      <p>在OFBiz系统重新部署时，有时会涉及到数据迁移问题，以下以<term>WorkEffort</term>模块为例，介绍数据迁移的流程。</p>
+    </section>
+    <section>
+      <title>系统初始化</title>
+      <p>在数据迁移前，需要在初始安装系统中导入部分必要的数据，以支持后续导入数据与之关联。主要包括：</p>
+      <ul>
+        <li><codeph>Party</codeph> - 当事人定义；</li>
+        <li><codeph>PartyRole</codeph> - 当事人角色定义，包含日历权限<codeph>CAL_OWNER</codeph>；</li>
+        <li><codeph>UserLogin</codeph> - 用户登录定义，包含登录信息，以及和<codeph>Party</codeph>的关联信息；</li>
+        <li><codeph>UserLoginSecurityGroup</codeph> - 用户登录安全组定义。</li>
+      </ul>
+      <p>以下是基于<term>entity-engine-xml</term>定义的详细数据：</p>
+      <codeblock><![CDATA[<entity-engine-xml>
+  <Party partyId="admin" partyTypeId="PERSON" statusId="PARTY_ENABLED"/>
+  <PartyRole partyId="admin" roleTypeId="CAL_OWNER"/>
+  <UserLogin userLoginId="admin" partyId="admin" currentPassword="{SHA}47ca69ebb4bdc9ae0adec130880165d2cc05db1a" requirePasswordChange="N"/>
+  <UserLoginSecurityGroup groupId="SUPER" userLoginId="admin" fromDate="2001-01-01 12:00:00.0"/>
+</entity-engine-xml>]]></codeblock>
+      <p>该数据可使用如下命令在系统数据初始化时导入：</p>
+      <codeblock>./gradlew "ofbiz -l readers=seed -l file=data.xml"</codeblock>
+    </section>
+    <section>
+      <title>数据迁移</title>
+      <p>在完成系统初始化后，可开始数据库表数据的迁移工作：</p>
+      <ul>
+        <li><codeph>work_effort</codeph> - 工作计划主数据；</li>
+        <li><codeph>work_effort_party_assignment</codeph> - 工作计划当事人分派；</li>
+        <li><codeph>note_data</codeph> - 注释主数据；</li>
+        <li><codeph>work_effort_note</codeph> - 工作计划和注释关联；</li>
+        <li><codeph>sequence_value_item</codeph> - 自增ID偏移。</li>
+      </ul>
+    </section>
+  </body>
+</topic>

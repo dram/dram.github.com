@@ -1,0 +1,14 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>Termux环境运行Moqui</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">Termux环境运行Moqui</h1><time>26 Jun 2021</time><div><p>本文介绍Termux环境下安装运行Moqui的流程，主要参考<a href="https://github.com/termux/termux-packages/issues/324" target="_blank">这里</a>安装OpenJDK环境，采用的是Ubuntu虚拟子系统，其他流程基本上和Linux环境的安装无异。</p><div class="section"><h2 class="sectiontitle">Ubuntu环境</h2><p>基于以下命令在Termux环境中安装并切换到Ubuntu：</p><pre class="screen">pkg install proot-distro
+proot-distro install ubuntu-20.04
+proot-distro login ubuntu-20.04
+apt update
+apt upgrade</pre></div><div class="section"><h2 class="sectiontitle">OpenJDK环境</h2><p>安装openjdk-8-jdk-headless以及其他安装Moqui时需要的依赖包：</p><pre class="screen">apt install --no-install-recommends git openjdk-8-jdk-headless</pre></div><div class="section"><h2 class="sectiontitle">Moqui环境</h2><p>创建moqui用户，并基于官方流程下载和启动Moqui：</p><pre class="screen">useradd -m moqui
+su - moqui
+git clone https://github.com/moqui/moqui-framework.git moqui
+cd moqui
+./gradlew getRuntime
+./gradlew downloadElasticSearch
+./gradlew load
+java -jar moqui.war</pre></div><div class="section"><h2 class="sectiontitle">运行</h2><p>在完成上述安装后，后续运行可以通过如下命令操作：</p><pre class="screen">proot-distro login --user moqui ubuntu-20.04
+cd moqui
+java -jar moqui.war</pre><p>总体安装上没有大的问题，ElasticSearch在启动时有无法读取<span class="filepath">/proc/sys/vm/max_map_count</span>的错误提示，但目前看不影响使用。</p></div></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>

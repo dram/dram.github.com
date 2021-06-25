@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>OFBiz系统安装配置</title>
+  <body>
+    <p>OFBiz的安装相对简单，这里做简要说明。</p>
+    <section>
+      <title>配置数据库</title>
+      <p>OFBiz内置有Derby数据库，可作为开发测试用，如果要生产使用，首先需要配置数据库。具体配置文件在<filepath>framework/entity/config/entityengine.xml</filepath>，以下以PostgreSQL为例。</p>
+      <ol>
+        <li>创建ofbiz数据库；</li>
+        <li>创建ofbiz用户，密码设置为ofbiz；</li>
+        <li>将ofbiz所有者调整为ofbiz；</li>
+        <li>从<xref href="https://jdbc.postgresql.org/" scope="external">这里</xref>下载PostgreSQL JDBC插件，存放到<filepath>ofbiz-framework/lib</filepath>目录；</li>
+        <li>调整<filepath>entityengine.xml</filepath>中name属性为default的delegator，将<codeph>localderby</codeph>调整为<codeph>localpostgres</codeph>；</li>
+      </ol>
+    </section>
+    <section>
+      <title>编译和初始化</title>
+      <p>在完成数据库配置后，执行以下命令完成初始化：</p>
+      <screen>./gradlew "ofbiz --load-data readers=seed,seed-initial" loadAdminUserLogin -PuserLoginId=admin</screen>
+    </section>
+    <section>
+      <title>运行</title>
+      <p>完成上述配置后，执行以下命令启动服务：</p>
+      <screen>./gradlew ofbiz</screen>
+      <p>服务启动后，可以通过<codeph>http://localhost:8080/webtools</codeph>访问。至于其他的命令参数，可以通过<cmdname>./gradlew "ofbiz --help"</cmdname>查询。</p>
+    </section>
+    <section>
+      <title>配置</title>
+      <ul>
+        <li>
+          <p>允许HTTP访问</p>
+          <p>OFBiz默认禁止HTTP访问，调整<filepath>framework/webapp/config/url.properties</filepath>中的<codeph>no.http</codeph>和<codeph>port.https.enabled</codeph>属性可以启用。</p>
+        </li>
+        <li>
+          <p>禁用输入检查</p>
+          <p>OFBiz默认对用户输入有严格的检查，通过调整<filepath>framework/base/config/owasp.properties</filepath>中的<codeph>sanitizer.enable</codeph>属性可以放宽限制。</p>
+        </li>
+        <li>
+          <p>服务Host域名</p>
+          <p>OFBiz默认对服务域名有限制，可以通过<filepath>framework/security/config/security.properties</filepath>中的<codeph>host-headers-allowed</codeph>属性调整。</p>
+        </li>
+        <li>
+          <p>禁用externalLoginKey</p>
+          <p>OFBiz默认在应用之间切换时保持会话，通过URL中追加<codeph>externalLoginKey</codeph>参数实现。可以通过<filepath>framework/security/config/security.properties</filepath>中的<codeph>security.login.tomcat.sso</codeph>和<codeph>security.login.externalLoginKey.enabled</codeph>调整为Tomcat的SSO机制。</p>
+        </li>
+      </ul>
+    </section>
+  </body>
+</topic>

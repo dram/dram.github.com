@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>用DITA作为静态网站的内容管理系统</title>
+  <body>
+    <section>
+      <p><xref href="https://github.com/oasis-tcs/dita" scope="external">DITA</xref>作为文档管理系统，基于<term>topic</term>的片段化机制，非常适用于技术性写作。也正是由于其碎片化的特点，也可以借用来管理静态网站的内容。当然，面向文档和面向网站还是有些许差异，所以在具体工具使用上，还是需要做一些适当的调整。</p>
+      <p>本文主要说明如何使用<xref href="https://www.dita-ot.org/" scope="external">DITA Open Toolkit</xref>工具生成静态网站。</p>
+    </section>
+    <section>
+      <title>DITA-OT说明</title>
+      <p>DITA-OT包含多套编译管理系统，包括Ant、命令行和Java API等。其中核心系统是基于Ant实现的，其他只是作为Ant的外层封装。</p>
+    </section>
+    <section>
+      <title>框架思路</title>
+      <p>总体的思路是结合XSL和DITA，对以下四部分内容做支持：</p>
+      <sl>
+        <sli>博客类文章；</sli>
+        <sli>通用类文章；</sli>
+        <sli>文章汇总页面；</sli>
+        <sli>通用页眉页脚。</sli>
+      </sl>
+    </section>
+    <section>
+      <title>代码实现</title>
+      <p>具体的代码实现可以查看<xref href="https://github.com/dram/dram.github.com/blob/master/tools/Build.java">这里</xref>。</p>
+    </section>
+  </body>
+</topic>
