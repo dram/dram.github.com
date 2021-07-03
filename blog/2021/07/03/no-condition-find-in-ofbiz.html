@@ -1,0 +1,20 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>OFBiz中的noConditionFind</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">OFBiz中的noConditionFind</h1><time>03 Jul 2021</time><div><p>在OFBiz中，有一个交互设计非常不友好，就是打开大部分页面，表格默认不会显示数据，需要手动点击查询才能够看到结果。</p><p>但有几个页面是例外，例如<span class="filepath">/partymgr/control/findVisits</span>的访问日志页面，点击之后直接就显示结果了。那是怎么实现的呢？是在screen定义中添加了<code>noConditionFind</code>参数。</p><p>具体的代码实现如下：</p><pre><code>&lt;screen name="FindVisits"&gt;
+    &lt;section&gt;
+        &lt;actions&gt;
+            &lt;set field="headerItem" value="visits"/&gt;
+            &lt;set field="titleProperty" value="PageTitleVisitList"/&gt;
+            &lt;set field="noConditionFind" value="Y"/&gt;
+        &lt;/actions&gt;
+    &lt;/section&gt;
+&lt;/screen&gt;</code></pre><p><code>noConditionFind</code>的作用是在渲染页面的时候，如果没有向数据服务提供任何查询条件，数据服务会作为无查询条件处理来返回数据。而如果不指定这一参数，OFBiz会直接不做查询。</p><p>这是<code>noConditionFind</code>第一个应用的地方。</p><p>而另一用处，可以在controller的定义中，重定向页面时作为参数，跳转到查询页面时，使其显示左右查询结果，如：</p><pre><code>&lt;request-map uri="createWorkEffort"&gt;
+    &lt;security https="true" auth="true"/&gt;
+    &lt;event type="service" invoke="createWorkEffort"/&gt;
+    &lt;response name="success" type="request-redirect" value="FindWorkEffort"&gt;
+      &lt;redirect-parameter name="noConditionFind"/&gt;
+    &lt;/response&gt;
+    &lt;response name="error" type="view" value="EditWorkEffort"/&gt;
+&lt;/request-map&gt;</code></pre><p>有一个细节，由于重定向前表单中已经包含了noConditionFind变量，所以这里就不需要指定值了。</p><p>再一用处，可以在菜单项中，直接追加<code>noConditionFind</code>参数，例如：</p><pre><code>&lt;menu-item name="workeffort" title="${uiLabelMap.WorkEffortWorkEffort}"&gt;
+  &lt;link target="FindWorkEffort"&gt;
+    &lt;parameter param-name="noConditionFind" value="Y"/&gt;
+  &lt;/link&gt;
+&lt;/menu-item&gt;</code></pre></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>OFBiz中的noConditionFind</title>
+  <body>
+    <p>在OFBiz中，有一个交互设计非常不友好，就是打开大部分页面，表格默认不会显示数据，需要手动点击查询才能够看到结果。</p>
+    <p>但有几个页面是例外，例如<filepath>/partymgr/control/findVisits</filepath>的访问日志页面，点击之后直接就显示结果了。那是怎么实现的呢？是在screen定义中添加了<codeph>noConditionFind</codeph>参数。</p>
+    <p>具体的代码实现如下：</p>
+    <codeblock><![CDATA[<screen name="FindVisits">
+    <section>
+        <actions>
+            <set field="headerItem" value="visits"/>
+            <set field="titleProperty" value="PageTitleVisitList"/>
+            <set field="noConditionFind" value="Y"/>
+        </actions>
+    </section>
+</screen>]]></codeblock>
+    <p><codeph>noConditionFind</codeph>的作用是在渲染页面的时候，如果没有向数据服务提供任何查询条件，数据服务会作为无查询条件处理来返回数据。而如果不指定这一参数，OFBiz会直接不做查询。</p>
+    
+    <p>这是<codeph>noConditionFind</codeph>第一个应用的地方。</p>
+
+    <p>而另一用处，可以在controller的定义中，重定向页面时作为参数，跳转到查询页面时，使其显示左右查询结果，如：</p>
+
+    <codeblock><![CDATA[<request-map uri="createWorkEffort">
+    <security https="true" auth="true"/>
+    <event type="service" invoke="createWorkEffort"/>
+    <response name="success" type="request-redirect" value="FindWorkEffort">
+      <redirect-parameter name="noConditionFind"/>
+    </response>
+    <response name="error" type="view" value="EditWorkEffort"/>
+</request-map>]]></codeblock>
+
+    <p>有一个细节，由于重定向前表单中已经包含了noConditionFind变量，所以这里就不需要指定值了。</p>
+
+    <p>再一用处，可以在菜单项中，直接追加<codeph>noConditionFind</codeph>参数，例如：</p>
+
+    <codeblock><![CDATA[<menu-item name="workeffort" title="${uiLabelMap.WorkEffortWorkEffort}">
+  <link target="FindWorkEffort">
+    <parameter param-name="noConditionFind" value="Y"/>
+  </link>
+</menu-item>]]></codeblock>
+  </body>
+</topic>

@@ -1,0 +1,9 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>基于build.gradle生成pom.xml</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">基于build.gradle生成pom.xml</h1><time>03 Jul 2021</time><div><p>通过在<span class="filepath">build.gradle</span>中追加如下task，可以实现基于Gradle描述生成用于Maven的<span class="filepath">pom.xml</span>文件：</p><pre><code>apply plugin: "maven"
+
+task createPom {
+    pom {
+        project {
+            groupId "unspecified"
+        }
+    }.writeTo("pom.xml")
+}</code></pre><p>之后就可以基于maven的插件做一些处理，例如输出classpath路径，为jshell所用：</p><p>mvn dependency:build-classpath -Dmdep.includeScope=compile -Dmdep.outputFile=cp.lst</p></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>

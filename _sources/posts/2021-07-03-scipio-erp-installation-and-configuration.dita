@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>Scipio ERP安装配置</title>
+  <body>
+    <p><xref href="https://www.scipioerp.com/" scope="external">Scipio ERP</xref>是OFBiz的一个分支，相较于OFBiz，Scipio ERP对部分模块做了简化，而在网上商城部分做了增强。</p>
+    <p>本文简要介绍其安装配置流程。</p>
+    <section>
+      <title>下载源码</title>
+      <p>可直接从GitHub获取源码：</p>
+      <screen>git clone https://github.com/ilscipio/scipio-erp.git</screen>
+    </section>
+    <section>
+      <title>配置数据库</title>
+      <p>Scipio内置有Derby数据库，可作为开发测试用，生产环境建议配置外部数据库。具体配置文件在<filepath>framework/entity/config/entityengine.xml</filepath>，以下以PostgreSQL为例。</p>
+      <ol>
+        <li>创建ofbiz数据库；</li>
+        <li>创建ofbiz用户，密码设置为ofbiz；</li>
+        <li>将ofbiz所有者调整为ofbiz；</li>
+        <li>执行命令<cmdname>./ant download-jdbc-postgresql</cmdname>以下载PostgreSQL的JDBC驱动；</li>
+        <li>调整<filepath>entityengine.xml</filepath>中<codeph>name="default"</codeph>的delegator，将<codeph>localderby</codeph>调整为<codeph>localpostgres</codeph>；</li>
+      </ol>
+    </section>
+    <section>
+      <title>编译系统</title>
+      <p>基于以下命令编译（Scipio的编译管理系统基于Ant和Ivy构建，速度较慢）：</p>
+      <screen>./ant build</screen>
+      <p>在完成初次编译之后，因为Ivy缓存构建完成，可以开启<filepath>build.xml</filepath>中的<codeph>lib.update.bypass</codeph>，以在后续编译时跳过Ivy缓存更新检测。</p>
+    </section>
+    <section>
+      <title>数据初始化</title>
+      <p>首先创建<filepath>initial.xml</filepath>文件，内容如下：</p>
+      <codeblock><![CDATA[<entity-engine-xml>
+  <Party partyId="admin" partyTypeId="PERSON" statusId="PARTY_ENABLED"/>
+  <PartyRole partyId="admin" roleTypeId="CAL_OWNER"/>
+  <UserLogin userLoginId="admin" partyId="admin" currentPassword="{SHA}47ca69ebb4bdc9ae0adec130880165d2cc05db1a" lastLocale="en"/>
+  <UserLoginSecurityGroup groupId="SUPER" userLoginId="admin" fromDate="2001-01-01 12:00:00.0"/>
+</entity-engine-xml>]]></codeblock>
+      <p>之后执行以下命令完成初始化：</p>
+      <screen>java -jar ofbiz.jar load-data readers=seed file=initial.xml</screen>
+      <p><cmdname>load-seed</cmdname>只是做了核心数据的初始化，<filepath>initial.xml</filepath>文件中包含了额外需要的配置。</p>
+    </section>
+    <section>
+      <title>启动服务</title>
+      <p>通过<cmdname>java -jar ofbiz.jar</cmdname>启动服务。</p>
+    </section>
+    <section>
+      <title>配置</title>
+      <ul>
+        <li>
+          <p>禁用Solr</p>
+          <p>Scipio集成了Solr，主要用于<filepath>/shop</filepath>网站，如果不需要使用，可以在<filepath>applications/solr/config/solrconfig.properties</filepath>中禁用，同时在<filepath>applications/solr/scipio-component.xml</filepath>对ofbiz-component标签添加<codeph>enabled="false"</codeph>属性以禁用<filepath>/solr</filepath>页面。</p>
+        </li>
+        <li>
+          <p>禁用externalLoginKey</p>
+          <p>为支持在应用之间切换时保持会话，Scipio默认通过在URL中追加<codeph>externalLoginKey</codeph>参数实现。可以通过<filepath>framework/security/config/security.properties</filepath>中的<codeph>security.login.tomcat.sso</codeph>和<codeph>security.login.externalLoginKey.enabled</codeph>调整为Tomcat的SSO机制。</p>
+        </li>
+        <li>
+          <p>允许HTTP访问</p>
+          <p>Scipio默认只支持HTTPS访问，调整以下两项配置，可以允许HTTP访问：</p>
+          <ol>
+            <li>禁用<filepath>framework/webapp/config/url.properties</filepath>中的<codeph>port.https.enabled</codeph>属性；</li>
+            <li>设置<filepath>framework/webapp/config/requestHandler.properties</filepath>中的<codeph>secure-redirect-url-format</codeph>属性值为<codeph>ofbiz-url</codeph>；</li>
+          </ol>
+        </li>
+        <li>
+          <p>优化页面渲染</p>
+          <p>删除<filepath>framework/common/webcommon/includes/commonHeadScripts.ftl</filepath>中<codeph>scipioStyles</codeph>一行。</p>
+          <p>这一数据的功能是传递样式到浏览器端，用于JavaScript对样式的处理。猜测主要用于另外几款收费的样式，因为自带样式中引用其中变量的地方并不多。</p>
+          <p>但这一数据渲染后的JSON字典数据大小为37KB，这个体积对服务端页面生成、网络传输、浏览器端页面渲染都有一定影响了，所以可以考虑去除。</p>
+          <screen>sed -i '/scipioStyles/d' framework/common/webcommon/includes/commonHeadScripts.ftl</screen>
+        </li>
+      </ul>
+    </section>
+  </body>
+</topic>

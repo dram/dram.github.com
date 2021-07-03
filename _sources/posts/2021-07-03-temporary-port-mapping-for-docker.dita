@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>Docker临时端口映射</title>
+  <body>
+    <p>有两个方案可以在Docker环境中实现临时端口映射，一是基于NGINX或者HAProxy的TCP代理，二是基于OpenSSH的端口转发，相对来说，前者安全性更高。</p>
+    <section>
+      <title>NGINX</title>
+      <p>通过以下命令启用NGINX以实现端口映射，其中映射了<codeph>5432</codeph>和<codeph>8069</codeph>端口：</p>
+      <codeblock><![CDATA[docker run -d --name nginx --publish 5432:5432 --publish 8069:8069 nginx:1.20-alpine
+docker exec nginx sh -c "echo 'events {} stream { server { listen 5432; proxy_pass 172.17.0.2:5432; } server { listen 8069; proxy_pass 172.17.0.3:8069; } }' > /etc/nginx/nginx.conf"
+docker restart nginx]]></codeblock>
+    </section>
+    <section>
+      <title>OpenSSH</title>
+      <p>OpenSSH方案如下，先基于以下命令启用Docker实例：</p>
+      <codeblock><![CDATA[docker run -d --name=openssh -p 2222:2222 -e DOCKER_MODS=linuxserver/mods:openssh-server-ssh-tunnel -e PASSWORD_ACCESS=true -e USER_PASSWORD=admin -e USER_NAME=admin linuxserver/openssh-server]]></codeblock>
+      <p>之后通过以下命令打开ssh通道：</p>
+      <codeblock>ssh -N -p2222 -L5430:172.17.0.2:5432 admin@127.0.0.1</codeblock>
+    </section>
+  </body>
+</topic>
