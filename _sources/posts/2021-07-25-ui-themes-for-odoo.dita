@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>Odoo UI界面皮肤样式</title>
+  <body>
+      <p>Odoo的皮肤可以在Odoo<xref href="https://apps.odoo.com/apps/themes" scope="external">官网</xref>检索和下载，具体安装和其他插件安装相同，下载量比较大的一个样式是：<xref href="https://apps.odoo.com/apps/themes/14.0/backend_theme_v14/" scope="external">Material Backend</xref>，另外有对应的<xref href="https://github.com/Openworx/backend_theme" scope="external">Git仓库</xref>。</p>
+      <p>需要注意的一点是，如果在安装皮肤之前已经安装了其他app，那么需要手动更新图标数据，方法参考<xref href="https://www.odoo.com/forum/help-1/how-to-make-odoo-enterprise-regenerate-web-icon-data-for-all-menuitems-without-upgrading-all-modules-180521" scope="external">这里</xref>的讨论，在Odoo的Python命令行中执行如下代码：</p>
+      <codeblock>for menu_id in env['ir.ui.menu'].search([('web_icon', '!=', False)]):
+    menu_id.web_icon_data = menu_id._compute_web_icon_data(menu_id.web_icon)</codeblock>
+  </body>
+</topic>

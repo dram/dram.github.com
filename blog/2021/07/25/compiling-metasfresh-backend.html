@@ -1,0 +1,17 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>metasfresh后端编译</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">metasfresh后端编译</h1><time>25 Jul 2021</time><div><p>本文介绍如果编译metasfresh后端代码，主要参考<a href="https://forum.metasfresh.org/t/development-environment-guide-with-intellij-and-docker-compose/1531" target="_blank">这篇</a>文章。</p><div class="section"><h2 class="sectiontitle">依赖包</h2><p>部分metasfresh依赖包并没有包含在Maven的官方仓库中，可以设置metasfresh的源，或者手动下载导入，命令如下：</p><pre class="screen">wget https://repo.metasfresh.com/repository/mvn-3rdparty/com/lowagie/itext/2.1.7.js6/itext-2.1.7.js6.jar
+wget https://repo.metasfresh.com/repository/mvn-3rdparty/io/github/json-snapshot/json-snapshot-PR/1.0.22/json-snapshot-PR-1.0.22.jar
+wget https://repo.metasfresh.com/repository/mvn-3rdparty/jp/osdn/ocra/jp.osdn.ocra/0.2/jp.osdn.ocra-0.2.jar
+wget https://repo.metasfresh.com/repository/mvn-3rdparty/jp/osdn/ocrb/jp.osdn.ocrb/0.2.1/jp.osdn.ocrb-0.2.1.jar
+wget https://repo.metasfresh.com/repository/mvn-3rdparty/net/dev/java/pdf-renderer/0.9.0/pdf-renderer-0.9.0.jar
+wget https://repo.metasfresh.com/repository/mvn-3rdparty/net/sf/jasperreports/jasperreports-functions/6.7.0/jasperreports-functions-6.7.0.jar
+wget https://repo.metasfresh.com/repository/mvn-3rdparty/org/jpedal/jpedal/1.0/jpedal-1.0.jar
+
+mvn install:install-file -Dfile=itext-2.1.7.js6.jar -DgroupId=com.lowagie -DartifactId=itext -Dversion=2.1.7.js6 -Dpackaging=jar
+mvn install:install-file -Dfile=jasperreports-functions-6.7.0.jar -DgroupId=net.sf.jasperreports -DartifactId=jasperreports-functions -Dversion=6.7.0 -Dpackaging=jar
+mvn install:install-file -Dfile=jpedal-1.0.jar -DgroupId=org.jpedal -DartifactId=jpedal -Dversion=1.0 -Dpackaging=jar
+mvn install:install-file -Dfile=jp.osdn.ocra-0.2.jar -DgroupId=jp.osdn.ocra -DartifactId=jp.osdn.ocra -Dversion=0.2 -Dpackaging=jar
+mvn install:install-file -Dfile=jp.osdn.ocrb-0.2.1.jar -DgroupId=jp.osdn.ocrb -DartifactId=jp.osdn.ocrb -Dversion=0.2.1 -Dpackaging=jar
+mvn install:install-file -Dfile=json-snapshot-PR-1.0.22.jar -DgroupId=io.github.json-snapshot -DartifactId=json-snapshot-PR -Dversion=1.0.22 -Dpackaging=jar
+mvn install:install-file -Dfile=pdf-renderer-0.9.0.jar -DgroupId=net.dev.java -DartifactId=pdf-renderer -Dversion=0.9.0 -Dpackaging=jar</pre></div><div class="section"><h2 class="sectiontitle">编译</h2><p>首先，通过以下命令获取metasfresh源码：</p><pre class="screen">git clone https://github.com/metasfresh/metasfresh.git</pre><p>再编辑<span class="filepath">backend/metasfresh-dist/pom.xml</span>，删除<code>dist</code>模块。</p><p>再使用以下命令编译：</p><pre class="screen">( cd misc/parent-pom &amp;&amp; JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 mvn install -DskipTests )
+( cd misc/de-metas-common &amp;&amp; JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 mvn install -DskipTests )
+( cd backend &amp;&amp; JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 mvn install -DskipTests )</pre><p>编译过程中，为了防止git-commit-id-plugin卡顿，可以临时在<span class="filepath">/etc/hosts</span>中加入：</p><pre><code>127.0.0.1 github.com</code></pre></div></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>OFBiz中的ID自增机制</title>
+  <body>
+    <p>由于考虑多数据库的支持，OFBiz在ID自增处理上，没有依赖数据库特性，而是程序逻辑实现。</p>
+
+    <p>数据库中有一个表用于存放ID序列信息：<codeph>sequence_value_item</codeph>，在<codeph>getNextSeqIdLong</codeph>中有涉及对该表的操作，相关代码还包括<codeph>getNextSeqId</codeph>、<codeph>setNextSubSeqId</codeph>和<codeph>make-next-seq-id</codeph>。</p>
+    <p><codeph>EntityAutoEngine</codeph>中的<codeph>invokeCreate</codeph>中也有涉及相关操作。</p>
+    <p>大概的逻辑（部分猜测）：</p>
+    <p>sequence_value_item存放的是大的序列块，因为涉及到性能问题，所以又引入了SequenceBank作为缓存。需要新ID时，先从bank取，如果bank中已经空了，bank从sequence_value_item申请一块新的。</p>
+    <p>按照这样的分析，在导出数据的时候，只需要再导出sequence_value_item表即可。</p>
+    <p>序列号中间可能中断，也是因为bank作为内存中的缓存，如果服务强制退出，这部分缓存的序列号就会丢失，下次重新启动时，又是从sequence_value_item获取新的起始值。</p>
+  </body>
+</topic>

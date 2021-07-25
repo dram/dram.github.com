@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>iDempiere安装配置</title>
+  <body>
+    <p>本文简要描述在Ubuntu 20.04中安装iDempiere的基本流程。</p>
+    <p>注意：iDempiere当前版本需要Java 11支持，以下默认系统已经安装相应版本软件包（如openjdk-11-jdk-headless）。</p>
+    <section>
+      <title>数据库配置</title>
+      <p>为简化过程，以下数据库账号设置和iDempiere中的默认值一致，生产环境需要调整。</p>
+      <screen>% initdb -D data -U postgres -A password -W
+% pg_ctl -D data -l data/data.log start
+% psql postgres postgres
+# create role adempiere with login password 'adempiere' ;
+# create database idempiere with owner adempiere ;
+# \c idempiere adempiere ;
+# CREATE EXTENSION "uuid-ossp";</screen>
+    </section>
+    <section>
+      <title>下载编译</title>
+      <ol>
+        <li><cmdname>git clone https://github.com/idempiere/idempiere.git</cmdname></li>
+        <li>编辑<filepath>org.idempiere.parent/pom.xml</filepath>文件，删除win32和macosx两个目标环境；</li>
+        <li>执行命令<codeph>mvn package</codeph>，如果网络环境不稳定，可以调整<filepath>$HOME/.m2/settings.xml</filepath>添加如下配置：<codeblock><![CDATA[<settings>
+  <mirrors>
+    <mirror>
+      <id>repo1</id>
+      <url>https://repo1.maven.org/maven2</url>
+      <mirrorOf>central</mirrorOf>
+    </mirror>
+  </mirrors>
+</settings>]]></codeblock>
+        </li>
+      </ol>
+    </section>
+    <section>
+      <title>数据初始化</title>
+      <p>以上步骤成功执行后，生成的目标文件在<filepath>org.idempiere.p2/target/products/org.adempiere.server.product/linux/gtk/x86_64</filepath>目录。</p>
+      <p>在切换到上述目录后，继续执行以下命令：</p>
+      <ol>
+        <li>执行<cmdname>sh console-setup.sh</cmdname>，基本可一路回车，只在DB设置中，Database System User Password一项需要输入数据库超级用户密码；</li>
+        <li>执行<cmdname><![CDATA[cd utils && sh RUN_ImportIdempiere.sh]]></cmdname></li>
+      </ol>
+    </section>
+    <section>
+      <title>启动服务</title>
+      <p>执行<cmdname>sh idempiere-server.sh</cmdname>启动服务。</p>
+      <p>iDempiere默认包含四个账号，具体信息可以查看<xref href="https://adempiere.gitbook.io/docs/introduction/getting-started/logging-in" scope="external">这里</xref>。</p>
+    </section>
+  </body>
+</topic>

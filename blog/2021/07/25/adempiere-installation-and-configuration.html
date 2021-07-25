@@ -1,0 +1,23 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>ADempiere安装配置</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">ADempiere安装配置</h1><time>25 Jul 2021</time><div><p>本文简要描述在Ubuntu 20.04中安装IDempiere的基本流程。</p><p>注意：ADempiere当前版本需要Java 11支持，以下默认系统已经安装相应版本软件包（如openjdk-11-jdk-headless）。</p><div class="section"><h2 class="sectiontitle">数据库配置</h2><pre class="screen">% initdb -D data -U postgres -A password -W
+% pg_ctl -D data -l data/data.log start
+% psql postgres postgres
+# create role adempiere with login password 'adempiere' ;
+# create database adempiere with owner adempiere ;</pre></div><div class="section"><h2 class="sectiontitle">下载编译</h2><pre class="screen">git clone https://github.com/adempiere/adempiere.git
+cd adempiere
+TZ=UTC sh tools/lib/ant/apache-ant-1.10.10/bin/ant -f utils_dev/build.xml jar</pre></div><div class="section"><h2 class="sectiontitle">配置文件</h2><p>执行以下命令，创建<span class="filepath">Adempiere.properties</span>，其中<code>Connection</code>的格式参考<code>CConnection.toStringLong</code>的实现：</p><pre class="screen">cat &gt;Adempiere.properties &lt;&lt;EOF
+CDate=1
+Connection=name=,AppsHost=,AppsPort=,type=PostgreSQL,DBhost=localhost,DBport=5432,DBname=adempiere,BQ=,FW=,FWhost=,FWport=,UID=adempiere,PWD=adempiere
+EOF</pre></div><div class="section"><h2 class="sectiontitle">数据初始化</h2><p>执行以下命令导入初始数据：</p><pre class="screen">unzip -p data/seed/Adempiere_pg.jar Adempiere_pg.dmp | psql -d adempiere -U adempiere</pre><p>执行以下命令迁移数据到最新版本：</p><pre class="screen">java -cp "lib/*" -DADEMPIERE_HOME=$PWD org.adempiere.process.MigrationLoader</pre></div><div class="section"><h2 class="sectiontitle">启动服务</h2><p>本文基于Tomcat启动ADempiere服务，具体流程如下。</p><p>首先执行以下命令，将Adempiere程序库导入Tomcat环境：</p><pre class="screen">ln lib/webui.war tomcat/webapps
+
+ln base/Base.jar tomcat/lib
+ln lib/Adempiere.jar tomcat/lib
+ln lib/CompiereJasperReqs.jar tomcat/lib
+ln lib/CSTools.jar tomcat/lib
+ln lib/oracle.jar tomcat/lib
+ln lib/postgresql.jar tomcat/lib
+ln org.adempiere.asset/dist/lib/FixedAssetManagement.jar tomcat/lib
+ln org.eevolution.freight/dist/lib/FreightManagement.jar tomcat/lib
+ln org.eevolution.manufacturing/dist/lib/ManufacturingManagement.jar tomcat/lib
+ln org.eevolution.warehouse/dist/lib/WarehouseManagement.jar tomcat/lib</pre><p>再执行以下命令，创建<span class="filepath">tomcat/bin/setenv.sh</span>文件：</p><pre class="screen">cat &gt;tomcat/bin/setenv.sh &lt;&lt;EOF
+JAVA_OPTS="-DADEMPIERE_HOME=$PWD"
+EOF</pre><p>完成以上配置后，就可以基于<span class="filepath">tomcat/bin/startup.sh</span>和<span class="filepath">tomcat/bin/shutdown.sh</span>启动和关闭Adempiere服务了。</p><p>启动之后，通过地址<span class="filepath">http://localhost:8080/webui</span>访问。</p></div></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>

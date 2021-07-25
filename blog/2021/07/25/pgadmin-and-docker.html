@@ -1,0 +1,8 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>pgAdmin Docker环境</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">pgAdmin Docker环境</h1><time>25 Jul 2021</time><div><p>以下为pgAdmin的Docker环境安装部署的简单流程：</p><pre class="screen">docker pull dpage/pgadmin4:5.2
+
+docker run -d --name pgadmin -p 8080:80 -e PGADMIN_DEFAULT_EMAIL=admin@example.com -e PGADMIN_DEFAULT_PASSWORD=admin dpage/pgadmin4:5.2
+
+docker exec -u root pgadmin sh -c "echo 'SHOW_GRAVATAR_IMAGE = False' &gt;&gt; /pgadmin4/config_local.py"
+docker exec -u root pgadmin sh -c "echo 'UPGRADE_CHECK_ENABLED = False' &gt;&gt; /pgadmin4/config_local.py"
+
+docker restart pgadmin</pre></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>

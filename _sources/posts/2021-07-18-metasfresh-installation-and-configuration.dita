@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>metasfresh安装配置</title>
+  <body>
+    <p>本文简要描述在Ubuntu 20.04中安装metasfresh的基本流程。</p>
+    <p>注意：metasfresh当前版本只支持Java 8，不支持更高版本，以下默认系统已经安装相应版本软件包（openjdk-8-jdk-headless）。</p>
+    <section>
+      <title>数据库配置</title>
+      <p>执行以下命令创建并配置PostgreSQL数据库：</p>
+      <screen>% initdb -D data -U postgres -A password -W
+% pg_ctl -D data -l data/data.log start
+% psql postgres postgres
+# create role metasfresh with login password 'metasfresh' ;
+# create database metasfresh with owner metasfresh ;</screen>
+      <p>从<filepath>https://github.com/metasfresh/metasfresh/blob/master/Jenkinsfile</filepath>中找到数据库初始数据的链接并下载，如：</p>
+      <screen>wget https://metasfresh.com/wp-content/releases/db_seeds/metasfresh_latest.pgdump</screen>
+      <p>再执行以下命令导入初始数据：</p>
+      <screen>pg_restore -U metasfresh -d metasfresh metasfresh_latest.pgdump</screen>
+    </section>
+    <section>
+      <title>RabbitMQ</title>
+      <p>RabbitMQ不需要额外配置，只要安装<codeph>rabbitmq-server</codeph>包，然后启动服务即可：</p>
+      <screen>service rabbitmq-server start</screen>
+    </section>
+    <section>
+      <title>ElasticSearch（可选）</title>
+      <p>首先获取ElasticSearch软件包：</p>
+      <screen>wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-7.10.2-no-jdk-linux-x86_64.tar.gz</screen>
+      <p>解压后运行：</p>
+      <screen>JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64 elasticsearch-7.10.2/bin/elasticsearch</screen>
+      <p>ElasticSearch是可选服务，如果需要使用，可在后续启动app和webapi服务时指定Java参数：<codeph>-Dmetasfresh.elasticsearch.host=localhost:9200</codeph>。</p>
+    </section>
+    <section>
+      <title>Web API服务</title>
+      <p>首先获取metasfresh-docker仓库代码，其中包含有最新发布的版本信息，以及配置和浏览器端包：</p>
+      <screen>git clone https://github.com/metasfresh/metasfresh-docker.git</screen>
+      <p>基于以下命令创建服务配置文件：</p>
+      <screen><![CDATA[sed -e "s/FOO_APP/localhost/g" -e "s/FOO_DBMS/localhost/g" metasfresh-docker/app/sources/configs/metasfresh.properties >metasfresh.properties]]></screen>
+      <p>从<filepath>metasfresh-docker/docker-src/app/Dockerfile</filepath>文件找到最新的发布版本，再据以下命令获取webapi服务包并运行：</p>
+      <screen>export VERSION=5.170.2-349
+curl -o webapi.jar https://repo.metasfresh.com/repository/mvn-release/de/metas/ui/web/metasfresh-webui-api/$VERSION+release/metasfresh-webui-api-$VERSION+release.jar
+/usr/lib/jvm/java-1.8.0-openjdk-amd64/bin/java -Xmx1G -DPropertyFile=metasfresh.properties -Dserver.port=8181 -Dwebui.frontend.url=http://localhost:8080 -jar webapi.jar</screen>
+    </section>
+    <section>
+      <title>App服务（可选）</title>
+      <p>App服务主要是为Swing客户端使用，如果需要，执行以下命令启用：</p>
+      <screen>export VERSION=5.170.2-349
+curl -o app.jar https://repo.metasfresh.com/repository/mvn-release-releases/de/metas/dist/metasfresh-dist-serverRoot/$VERSION+release/metasfresh-dist-serverRoot-$VERSION+release.jar
+/usr/lib/jvm/java-1.8.0-openjdk-amd64/bin/java -Xmx1G -DPropertyFile=metasfresh.properties -Dserver.port=8282 -jar app.jar</screen>
+      <p>在完成App服务部署后，除了访问<filepath>http://localhost:8282/</filepath>基础页面，另外还可以访问系统服务监控页面，路径为<filepath>http://localhost:8282/serverMonitor</filepath>，通过账号/密码<codeph>metasfresh/metasfresh</codeph>登录。</p>
+    </section>
+    <section>
+      <title>Web UI服务</title>
+      <p>Web UI相关代码可以从metasfresh-docker仓库获取，如：</p>
+      <screen>cp -r metasfresh-docker/docker-src/webui/sources/dist webui
+cp -r metasfresh-docker/docker-src/webui/sources/configs/config.js webui</screen>
+      <p>调整config.js配置：</p>
+      <screen>sed -i 's|http://MYDOCKERHOST:PORT||g' webui/config.js</screen>
+      <p>虽然通过在启动Web API命令中追加<codeph>-Dspring.resources.static-locations=file:webui</codeph>参数的方式，可以直接让metasfresh-webui-api.jar服务静态文件，但是由于sockjs模拟websocket的问题，需要借助Apache的代理功能。</p>
+      <p>Apache代码配置如下：</p>
+      <screen>cp metasfresh-docker/webui/sources/configs/metasfresh_webui.conf webui.conf
+
+sed -i -e /ErrorLog /d -e /CustomLog /d -e /Order /d -e /Allow /d webui.conf
+sed -i -e 's|${APACHE_LOG_DIR}/||' webui.conf
+sed -i -e "s|/opt/metasfresh-webui-frontend/dist/|$PWD/webui/|" webui.conf
+sed -i -e 's|*:80|*:8080|' webui.conf
+sed -i -e s/webapi:8080/localhost:8181/ webui.conf
+
+apache2 -f $PWD/webui.conf</screen>
+      <p>之后，在webui.conf文件开始部分添加：</p>
+      <screen>LoadModule authn_core_module /usr/lib/apache2/modules/mod_authn_core.so
+LoadModule authz_core_module /usr/lib/apache2/modules/mod_authz_core.so
+
+LoadModule dir_module /usr/lib/apache2/modules/mod_dir.so
+
+LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
+
+LoadModule mpm_event_module /usr/lib/apache2/modules/mod_mpm_event.so
+
+LoadModule proxy_module /usr/lib/apache2/modules/mod_proxy.so
+LoadModule proxy_http_module /usr/lib/apache2/modules/mod_proxy_http.so
+LoadModule proxy_wstunnel_module /usr/lib/apache2/modules/mod_proxy_wstunnel.so
+
+LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
+
+DirectoryIndex index.html
+
+ErrorLog /dev/shm/webui_error.log
+
+PidFile /dev/shm/webui.pid</screen>
+      <p>完成上述配置文件调整后，通过以下命令启动Apache服务：</p>
+      <screen>apache2 -f $PWD/webui.conf -k restart</screen>
+    </section>
+    <section>
+      <title>更新</title>
+      <ul>
+        <li>
+          <p>2021-07-25</p>
+          <ol>
+            <li>更新版本到5.170；</li>
+            <li>调整app和webapi服务jar包获取方式；</li>
+            <li>调整metasfresh.properties文件获取方式；</li>
+            <li>调整文件路径组织；</li>
+            <li>调整app服务为可选；</li>
+            <li>调整app和webapi服务的端口号。</li>
+          </ol>
+        </li>
+      </ul>
+    </section>
+  </body>
+</topic>

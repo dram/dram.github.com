@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>开发版本Odoo试用</title>
+  <body>
+    <section>
+      <p>Odoo官方在https://runbot.odoo.com提供了开发版本试用的环境，还包含企业版。</p>
+      <p>也可以通过在Odoo官方Docker镜像的基础上，升级安装Odoo Nightly builds中的master分支deb包测试开发版本。</p>
+      <p>以下脚本是第二种方式的示例。</p>
+
+      <codeblock><![CDATA[#!/bin/sh
+
+set -x
+
+NAME=odoo-14.4
+
+docker stop $NAME
+
+docker rm $NAME
+
+docker run -d \
+    --name $NAME \
+    --volume /mnt/c/docker-volumes/odoo:/mnt/extra-addons \
+    --add-host db:172.17.0.2 \
+    --add-host iap-services.odoo.com:127.0.0.1 \
+    --add-host partner-autocomplete.odoo.com:127.0.0.1 \
+    --add-host services.openerp.com:127.0.0.1 odoo:14.0 \
+    -- \
+    --logfile /var/log/odoo/odoo-server.log
+
+cat <<'EOF' | docker exec -i -uroot $NAME sh
+    apt-get -y install --no-install-recommends /mnt/extra-addons/odoo_14.4alpha1.20210520_all.deb
+
+    sed -i "s|'ir_attachment.location', 'file'|'ir_attachment.location', 'db'|" \
+        /usr/lib/python3/dist-packages/odoo/addons/base/models/ir_attachment.py
+
+    sed -i \
+        -e '/oe_kanban_global_click_edit/{n;N;d}' \
+        -e '/oe_kanban_colorpicker/{n;n;n;N;N;N;d}' \
+        -e '/oe_kanban_content/{n;n;n;N;N;d}' \
+        /usr/lib/python3/dist-packages/odoo/addons/note/views/note_views.xml
+
+    sed -i 's/sequence="15"/sequence="0"/' /usr/lib/python3/dist-packages/odoo/addons/note/views/note_views.xml
+
+    echo '<odoo><data></data></odoo>' >/usr/lib/python3/dist-packages/odoo/addons/note/data/note_data.xml
+
+    sed -i \
+        -e 's/margin-bottom: 1rem/margin-bottom: 0/' \
+        -e 's/$headings-margin-bottom/0/' \
+        /usr/lib/python3/dist-packages/odoo/addons/web/static/lib/bootstrap/scss/_reboot.scss
+EOF
+
+docker restart $NAME]]></codeblock>
+
+    </section>
+  </body>
+</topic>

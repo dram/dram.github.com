@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>Odoo笔记模块数据迁移</title>
+  <body>
+    <p>本文介绍Odoo笔记模块数据从14.0迁移到14.4（15.0开发版）的流程，基于psql命令实现。</p>
+    <p>首先进入数据库容器的shell命令行环境，所有psql命令在此环境中执行：</p>
+    <screen>docker exec -it postgres sh</screen>
+    <p>第一步，复制stage数据：</p>
+    <screen>psql odoo-14.0 odoo -c "copy note_stage to stdout" | psql odoo-14.4 odoo -c "copy note_stage from stdin"</screen>
+    <p>第二步，复制attachment数据：</p>
+    <screen>psql odoo-14.0 odoo -c "copy (select * from ir_attachment where res_model = 'note.note') to stdout" | psql odoo-14.4 odoo -c "copy ir_attachment from stdin"</screen>
+    <p>第三步，复制note数据：</p>
+    <screen>psql odoo-14.0 odoo -c "copy note_note to stdout" | psql odoo-14.4 odoo -c "copy note_note from stdin"</screen>
+    <p>第四步，复制note和stage的关联数据：</p>
+    <screen>psql odoo-14.0 odoo -c "copy note_stage_rel to stdout" | psql odoo-14.4 odoo -c "copy note_stage_rel from stdin"</screen>
+    <p>另外，还需要迁移对应的sequence的值。</p>
+  </body>
+</topic>

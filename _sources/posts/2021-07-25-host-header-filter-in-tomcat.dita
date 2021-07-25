@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>Tomcat过滤Host头</title>
+  <body>
+    <p>OFBiz在e0f0d52中添加了host-headers-allowed配置项，用于限制访问的Host头。但灵活度不高，觉得这个配置的功能应该在tomcat层面可以处理。如Tomcat支持对请求信息<xref href="https://tomcat.apache.org/tomcat-9.0-doc/config/context.html#Request_Filters" scope="external">过滤</xref>。</p>
+    <p>在Tomcat中，同时存在Filter和Valve两种机制，两者的区别可以参考这里的<xref href="https://stackoverflow.com/questions/5537467/difference-between-a-valve-and-a-filter" scope="external">讨论</xref>。可以基于<xref href="https://tomcat.apache.org/tomcat-9.0-doc/api/org/apache/catalina/valves/RequestFilterValve.html" scope="external">RequestFilterValve</xref>实现，定义基于Host的过滤，设置<codeph>setAllow</codeph>值。</p>
+    <p>另一个思路是基于<xref href="https://tomcat.apache.org/tomcat-9.0-doc/virtual-hosting-howto.html" scope="external">虚拟主机</xref>处理，将defaultHost设置<codeph>RemoteAddrValve</codeph>为拒绝任何访问。</p>
+    <p>一些Web框架有类似的功能，例如Django用ALLOWED_HOSTS。</p>
+  </body>
+</topic>

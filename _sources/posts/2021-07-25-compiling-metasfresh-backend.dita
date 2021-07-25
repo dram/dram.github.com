@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>metasfresh后端编译</title>
+  <body>
+    <p>本文介绍如果编译metasfresh后端代码，主要参考<xref href="https://forum.metasfresh.org/t/development-environment-guide-with-intellij-and-docker-compose/1531" scope="external">这篇</xref>文章。</p>
+    <section>
+      <title>依赖包</title>
+      <p>部分metasfresh依赖包并没有包含在Maven的官方仓库中，可以设置metasfresh的源，或者手动下载导入，命令如下：</p>
+      <screen>wget https://repo.metasfresh.com/repository/mvn-3rdparty/com/lowagie/itext/2.1.7.js6/itext-2.1.7.js6.jar
+wget https://repo.metasfresh.com/repository/mvn-3rdparty/io/github/json-snapshot/json-snapshot-PR/1.0.22/json-snapshot-PR-1.0.22.jar
+wget https://repo.metasfresh.com/repository/mvn-3rdparty/jp/osdn/ocra/jp.osdn.ocra/0.2/jp.osdn.ocra-0.2.jar
+wget https://repo.metasfresh.com/repository/mvn-3rdparty/jp/osdn/ocrb/jp.osdn.ocrb/0.2.1/jp.osdn.ocrb-0.2.1.jar
+wget https://repo.metasfresh.com/repository/mvn-3rdparty/net/dev/java/pdf-renderer/0.9.0/pdf-renderer-0.9.0.jar
+wget https://repo.metasfresh.com/repository/mvn-3rdparty/net/sf/jasperreports/jasperreports-functions/6.7.0/jasperreports-functions-6.7.0.jar
+wget https://repo.metasfresh.com/repository/mvn-3rdparty/org/jpedal/jpedal/1.0/jpedal-1.0.jar
+
+mvn install:install-file -Dfile=itext-2.1.7.js6.jar -DgroupId=com.lowagie -DartifactId=itext -Dversion=2.1.7.js6 -Dpackaging=jar
+mvn install:install-file -Dfile=jasperreports-functions-6.7.0.jar -DgroupId=net.sf.jasperreports -DartifactId=jasperreports-functions -Dversion=6.7.0 -Dpackaging=jar
+mvn install:install-file -Dfile=jpedal-1.0.jar -DgroupId=org.jpedal -DartifactId=jpedal -Dversion=1.0 -Dpackaging=jar
+mvn install:install-file -Dfile=jp.osdn.ocra-0.2.jar -DgroupId=jp.osdn.ocra -DartifactId=jp.osdn.ocra -Dversion=0.2 -Dpackaging=jar
+mvn install:install-file -Dfile=jp.osdn.ocrb-0.2.1.jar -DgroupId=jp.osdn.ocrb -DartifactId=jp.osdn.ocrb -Dversion=0.2.1 -Dpackaging=jar
+mvn install:install-file -Dfile=json-snapshot-PR-1.0.22.jar -DgroupId=io.github.json-snapshot -DartifactId=json-snapshot-PR -Dversion=1.0.22 -Dpackaging=jar
+mvn install:install-file -Dfile=pdf-renderer-0.9.0.jar -DgroupId=net.dev.java -DartifactId=pdf-renderer -Dversion=0.9.0 -Dpackaging=jar</screen>
+    </section>
+    <section>
+      <title>编译</title>
+      <p>首先，通过以下命令获取metasfresh源码：</p>
+      <screen>git clone https://github.com/metasfresh/metasfresh.git</screen>
+      <p>再编辑<filepath>backend/metasfresh-dist/pom.xml</filepath>，删除<codeph>dist</codeph>模块。</p>
+      <p>再使用以下命令编译：</p>
+      <screen><![CDATA[( cd misc/parent-pom && JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 mvn install -DskipTests )
+( cd misc/de-metas-common && JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 mvn install -DskipTests )
+( cd backend && JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 mvn install -DskipTests )]]></screen>
+      <p>编译过程中，为了防止git-commit-id-plugin卡顿，可以临时在<filepath>/etc/hosts</filepath>中加入：</p>
+      <codeblock>127.0.0.1 github.com</codeblock>
+    </section>
+  </body>
+</topic>
