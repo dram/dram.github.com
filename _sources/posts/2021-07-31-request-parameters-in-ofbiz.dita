@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>OFBiz页面跳转时的请求参数</title>
+  <body>
+    <p>OFBiz在页面跳转时，由于处理机制问题，有些情况下，会将上一请求的POST参数导入到跳转页面，以下补丁尝试部分解决这一问题（未验证）：</p>
+    <codeblock><![CDATA[diff --git a/framework/webapp/src/main/java/org/apache/ofbiz/webapp/control/RequestHandler.java b/framework/webapp/src/main/java/org/apache/ofbiz/webapp/control/RequestHandler.java
+index 05fa98a84e..00f61da5fa 100644
+--- a/framework/webapp/src/main/java/org/apache/ofbiz/webapp/control/RequestHandler.java
++++ b/framework/webapp/src/main/java/org/apache/ofbiz/webapp/control/RequestHandler.java
+@@ -835,12 +835,12 @@ public final class RequestHandler {
+         // if the request has the save-last-view attribute set, save it now before the view can be rendered or other chain done so that the _LAST*
+         // session attributes will represent the previous request
+         if (nextRequestResponse.isSaveLastView()) {
+-            // Debug.logInfo("======save last view: " + session.getAttribute("_LAST_VIEW_NAME_"));
+             String lastViewName = (String) session.getAttribute("_LAST_VIEW_NAME_");
+             // Do not save the view if the last view is the same as the current view and saveCurrentView is false
+             if (!(!nextRequestResponse.isSaveCurrentView() && "view".equals(nextRequestResponse.getType()) && nextRequestResponse.getValue()
+                     .equals(lastViewName))) {
+-                session.setAttribute("_SAVED_VIEW_NAME_", session.getAttribute("_LAST_VIEW_NAME_"));
++                Debug.logInfo("Saving last view: " + lastViewName, MODULE);
++                session.setAttribute("_SAVED_VIEW_NAME_", lastViewName);
+                 session.setAttribute("_SAVED_VIEW_PARAMS_", session.getAttribute("_LAST_VIEW_PARAMS_"));
+             }
+         }
+@@ -954,6 +954,11 @@ public final class RequestHandler {
+                     viewName = nextRequestResponse.getValue();
+                 }
+                 if (urlParams != null) {
++                    // Before overriding by urlParams, override all parameters as empty attributes.
++                    for (Enumeration<String> name = request.getParameterNames(); name.hasMoreElements();) {
++                        request.setAttribute(name.nextElement(), "");
++                    }
++
+                     for (Map.Entry<String, Object> urlParamEntry : urlParams.entrySet()) {
+                         String key = urlParamEntry.getKey();
+                         // Don't overwrite messages coming from the current event
+@@ -1122,13 +1127,13 @@ public final class RequestHandler {
+         req.getSession().setAttribute("_LAST_VIEW_PARAMS_", paramMap);
+ 
+         if ("SAVED".equals(saveName)) {
+-            //Debug.logInfo("======save current view: " + view);
++            Debug.logInfo("Saving current view: " + view, MODULE);
+             req.getSession().setAttribute("_SAVED_VIEW_NAME_", view);
+             req.getSession().setAttribute("_SAVED_VIEW_PARAMS_", paramMap);
+         }
+ 
+         if ("HOME".equals(saveName)) {
+-            //Debug.logInfo("======save home view: " + view);
++            Debug.logInfo("Saving home view: " + view, MODULE);
+             req.getSession().setAttribute("_HOME_VIEW_NAME_", view);
+             req.getSession().setAttribute("_HOME_VIEW_PARAMS_", paramMap);
+             // clear other saved views]]></codeblock>
+  </body>
+</topic>

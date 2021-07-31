@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>搭建iDempiere开发环境</title>
+  <body>
+    <p>本文描述iDempiere基于Eclipse的开发环境搭建流程，如果只是试用，可以参考<xref href="/blog/2021/07/18/idempiere-installation-and-configuration.html" scope="peer">这里</xref>。</p>
+    <ol>
+      <li><p>自https://www.microsoft.com/openjdk下载安装OpenJDK 11；</p></li>
+      <li><p>自https://www.eclipse.org/downloads/packages下载解压Eclipse 2021‑06 R（IDE for Enterprise Java and Web Developers）；</p></li>
+      <li><p>打开Eclipse，指定工作环境目录，如：C:/workspace/idempiere；</p></li>
+      <li><p>在Eclipse欢迎页面，点击Checkout projects from Git，选择Clone URI，指定URI为https://github.com/idempiere/idempiere.git，点击Next，目标目录指定为：C:/git/idempiere，再点击Next，完成仓库克隆；</p></li>
+      <li><p>点击Eclipse菜单Project > Build Automatically，禁用自动编译；</p></li>
+      <li><p>点击Eclipse菜单Window > Preferences，选择General > Workspace，设置Text file encoding为UTF-8，New text file line delimiter为Unix；</p></li>
+      <li><p>点击Eclipse菜单Window > Preferences，选择Java > Compiler，设置Compiler compliance level为11；</p></li>
+      <li><p>点击Eclipse菜单Window > Preferences，选择Java > Installed JREs，点击Add...，Standard VM，选择OpenJDK路径，如：C:/Program Files/Microsoft/jdk-11.0.11.9-hotspot，完成添加后在列表中选中该项；</p></li>
+      <li><p>点击Eclipse菜单File > Import...，再选择Maven > Existing Maven Projects，点击Next，选择Root Directory，如：C:/git/idempiere，导入所有项目；</p></li>
+      <li><p>在Project Explorer中，选择打开org.idempiere.p2.targetplatform > org.idempiere.p2.targetplatform.target，点击Set as Active Target Platform，这一步需要较长时间等待（注：过程中会提示安装未经验证的插件，暂不确定原因，需要点击继续安装，非则无法成功安装）；</p></li>
+      <li><p>在Project Explorer中，右键点击根项目org.idempiere.main，点击菜单项 Run As > 2 Maven build...，在Goals中输入verify，再点击Run，这一步需要较长时间等待；</p></li>
+      <li><p>在Project Explorer中，右键点击根项目org.idempiere.main，点击菜单项 Maven > Update Project...。</p></li>
+      <li>
+        <p>搭建数据库，本文选择在WSL环境中搭建，PostgreSQL服务的安装过程从略，安装完成后，执行以下命令：</p>
+        <screen><![CDATA[% psql postgres postgres
+# create role adempiere with login password 'adempiere' ;
+# create database idempiere with owner adempiere ;
+% cd /mnt/c/git/idempiere
+% unzip -p org.adempiere.server-feature/data/seed/Adempiere_pg.jar Adempiere_pg.dmp | psql -d idempiere -U adempiere]]></screen>
+      </li>
+      <li><p>点击Eclipse菜单Run > Run Configurations...，选择Eclipse Application > install.app，点击Run，勾选DB Already Exists，点击测试并保存；</p></li>
+      <li>
+        <p>在WSL环境中，执行以下命令，更新数据库：</p>
+        <screen>% cd /mnt/c/git/idempiere
+% bash RUN_SyncDBDev.sh</screen>
+      </li>
+      <li> <p>点击Eclipse菜单Run > Run Configurations...，选择Eclipse Application > server.product，点击Run，启动服务。</p></li>
+    </ol>
+  </body>
+</topic>

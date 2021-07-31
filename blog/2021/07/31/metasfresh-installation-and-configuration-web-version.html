@@ -1,0 +1,23 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>metasfresh安装配置（Web版）</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">metasfresh安装配置（Web版）</h1><time>31 Jul 2021</time><div><p>本文简要描述在Ubuntu 20.04中安装metasfresh的Web端的基本流程，如果需要使用Swing客户端，可以参考<a href="/blog/2021/07/18/metasfresh-installation-and-configuration.html">这里</a>。相较于之前的安装说明，本文中没有引入Aapche HTTP服务。</p><p>注意：metasfresh当前版本只支持Java 8，不支持更高版本，以下默认系统已经安装相应版本软件包（openjdk-8-jdk-headless）。</p><div class="section"><h2 class="sectiontitle">获取代码</h2><p>首先获取metasfresh-docker仓库代码，后续步骤中多有用及：</p><pre class="screen">git clone https://github.com/metasfresh/metasfresh-docker.git</pre></div><div class="section"><h2 class="sectiontitle">数据库配置</h2><p>执行以下命令创建并配置PostgreSQL数据库：</p><pre class="screen">% initdb -D data -U postgres -A password -W
+% pg_ctl -D data -l data/data.log start
+% psql postgres postgres
+# create role metasfresh with login password 'metasfresh' ;
+# create database metasfresh with owner metasfresh ;</pre><p>从<span class="filepath">https://github.com/metasfresh/metasfresh/blob/master/Jenkinsfile</span>中找到数据库初始数据的链接并下载，如：</p><pre class="screen">wget https://metasfresh.com/wp-content/releases/db_seeds/metasfresh_latest.pgdump</pre><p>再执行以下命令导入初始数据：</p><pre class="screen">pg_restore -j 8 -U metasfresh -d metasfresh metasfresh_latest.pgdump</pre><p>基于以下命令下载数据迁移工具：</p><pre class="screen">wget $(grep 'RUN curl' metasfresh-docker/docker-src/app/Dockerfile | cut -d' ' -f3 | sed -e 's/-dist.tar.gz/-sql-only.tar.gz/')</pre><p>解压后，执行如下命令：</p><pre class="screen">
+cd dist/install
+cat &gt;settings.properties &lt;&lt;EOF
+METASFRESH_DB_SERVER=localhost
+METASFRESH_DB_PORT=5432
+METASFRESH_DB_NAME=metasfresh
+METASFRESH_DB_USER=metasfresh
+METASFRESH_DB_PASSWORD=metasfresh
+EOF
+java -jar lib/de.metas.migration.cli.jar -s settings.properties
+</pre></div><div class="section"><h2 class="sectiontitle">RabbitMQ</h2><p>安装<code>rabbitmq-server</code>包，然后启动服务：</p><pre class="screen">service rabbitmq-server start</pre></div><div class="section"><h2 class="sectiontitle">Web UI服务</h2><p>拷贝相关文件：</p><pre class="screen">cp -r metasfresh-docker/docker-src/webui/sources/dist webui
+cp metasfresh-docker/docker-src/webui/sources/configs/config.js webui
+cp metasfresh/frontend/favicon.png webui</pre><p>调整config.js配置：</p><pre class="screen">sed -i 's|http://MYDOCKERHOST:PORT||g' webui/config.js</pre><p>设置404页面内容，以支持React页面跳转：</p><pre class="screen">mkdir webui/error
+ln webui/index.html webui/error/404.html</pre></div><div class="section"><h2 class="sectiontitle">Web API服务</h2><p>基于以下命令创建服务配置文件：</p><pre class="screen">sed -e "s/FOO_APP/localhost/g" -e "s/FOO_DBMS/localhost/g" metasfresh-docker/webapi/sources/configs/metasfresh.properties &gt;metasfresh.properties</pre><p>再据以下命令获取webapi服务包（基于<span class="filepath">metasfresh-docker/docker-src/webapi/Dockerfile</span>文件中的地址）：</p><pre class="screen">curl -o webapi.jar $(grep 'RUN curl' metasfresh-docker/docker-src/webapi/Dockerfile | cut -d' ' -f3)</pre><p>创建<span class="filepath">application.properties</span>，内容如下：</p><pre><code>PropertyFile=metasfresh.properties
+spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.elasticsearch.ReactiveElasticsearchRestClientAutoConfiguration
+spring.data.elasticsearch.repositories.enabled=false
+spring.resources.static-locations=file:webui
+spring.session.timeout=7200
+webui.frontend.allow-cross-site-usage=true</code></pre><p>运行服务：</p><pre class="screen">/usr/lib/jvm/java-1.8.0-openjdk-amd64/bin/java -Xmx1G -jar webapi.jar</pre></div></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>

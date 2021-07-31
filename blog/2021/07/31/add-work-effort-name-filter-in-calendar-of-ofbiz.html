@@ -1,0 +1,313 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>OFBiz中calendar页面添加工作计划名称筛选</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">OFBiz中calendar页面添加工作计划名称筛选</h1><time>31 Jul 2021</time><div><p>页面这块相对比较简单，服务端的处理在org.apache.ofbiz.workeffort.workeffort.WorkEffortServices的getWorkEffortEventsByPeriod中。</p><p>当前基于FindServices.createConditionList，直接在applications/workeffort/groovyScripts/workeffort/calendar/Week.groovy追加了筛选条件，支持大小写判断、不同的比较符等text-find界面所具备的功能。</p><p>另一个相关问题是，OFBiz的日历页面在This Week等链接跳转时WorkEffort_op数据丢失的问题。这个涉及到view-home这个表单成功后的操作，按逻辑应该是不将当前表单的数据带到home页面的。</p><p>需要处理view-home这种响应方式，这种方式不应该将参数带到home页面。</p><pre><code>--- a/applications/workeffort/groovyScripts/workeffort/calendar/Days.groovy
++++ b/applications/workeffort/groovyScripts/workeffort/calendar/Days.groovy
+@@ -19,9 +19,7 @@
+ 
+ import java.sql.Timestamp
+ import org.apache.ofbiz.base.util.UtilDateTime
+-import org.apache.ofbiz.base.util.UtilMisc
+-import org.apache.ofbiz.base.util.UtilValidate
+-import org.apache.ofbiz.service.ModelService
++import org.apache.ofbiz.common.FindServices
+ 
+ String startParam = parameters.startTime
+ Timestamp start = null
+@@ -37,12 +35,20 @@ Timestamp prev = UtilDateTime.getDayStart(start, -1, timeZone, locale)
+ context.prevMillis = new Long(prev.getTime()).toString()
+ Timestamp next = UtilDateTime.getDayStart(start, 1, timeZone, locale)
+ context.nextMillis = new Long(next.getTime()).toString()
+-Map serviceCtx = dispatcher.getDispatchContext().makeValidContext("getWorkEffortEventsByPeriod", ModelService.IN_PARAM, parameters)
+-serviceCtx.putAll(UtilMisc.toMap("userLogin", userLogin, "start", start, "numPeriods", 24, "periodType", Calendar.HOUR, "locale", locale, "timeZone", timeZone))
+-if (context.entityExprList) {
+-    serviceCtx.entityExprList = entityExprList
+-}
+-Map result = runService('getWorkEffortEventsByPeriod', serviceCtx)
++Map result = runService('getWorkEffortEventsByPeriod', [
++    userLogin: userLogin,
++    start: start,
++    numPeriods: 24,
++    periodType: Calendar.HOUR,
++    locale: locale,
++    timeZone: timeZone,
++    entityExprList: FindServices.createConditionList(
++        parameters,
++        delegator.getModelEntity("WorkEffort").getFieldsUnmodifiable(),
++        [:],
++        delegator,
++        context)
++])
+ context.put("periods", result.get("periods"))
+ context.put("maxConcurrentEntries", result.get("maxConcurrentEntries"))
+ context.put("start", start)
+diff --git a/applications/workeffort/groovyScripts/workeffort/calendar/Month.groovy b/applications/workeffort/groovyScripts/workeffort/calendar/Month.groovy
+index f4825eb970..5e77f5bec2 100644
+--- a/applications/workeffort/groovyScripts/workeffort/calendar/Month.groovy
++++ b/applications/workeffort/groovyScripts/workeffort/calendar/Month.groovy
+@@ -19,9 +19,7 @@
+ 
+ import java.sql.Timestamp
+ import org.apache.ofbiz.base.util.UtilDateTime
+-import org.apache.ofbiz.base.util.UtilMisc
+-import org.apache.ofbiz.base.util.UtilValidate
+-import org.apache.ofbiz.service.ModelService
++import org.apache.ofbiz.common.FindServices
+ 
+ String startParam = parameters.startTime
+ Timestamp start = null
+@@ -59,12 +57,21 @@ if (followingMonthDays &lt; 0) {
+     followingMonthDays += 7
+ }
+ numDays += followingMonthDays
+-Map serviceCtx = dispatcher.getDispatchContext().makeValidContext("getWorkEffortEventsByPeriod", ModelService.IN_PARAM, parameters)
+-serviceCtx.putAll(UtilMisc.toMap("userLogin", userLogin, "start", getFrom, "calendarType", "VOID", "numPeriods", numDays, "periodType", Calendar.DATE, "locale", locale, "timeZone", timeZone))
+-if (context.entityExprList) {
+-    serviceCtx.entityExprList = entityExprList
+-}
+-result = runService('getWorkEffortEventsByPeriod', serviceCtx)
++result = runService('getWorkEffortEventsByPeriod', [
++    userLogin: userLogin,
++    start: getFrom,
++    calendarType: "VOID",
++    numPeriods: numDays,
++    periodType: Calendar.DATE,
++    locale: locale,
++    timeZone: timeZone,
++    entityExprList: FindServices.createConditionList(
++        parameters,
++        delegator.getModelEntity("WorkEffort").getFieldsUnmodifiable(),
++        [:],
++        delegator,
++        context)
++])
+ context.put("periods",result.get("periods"))
+ context.put("maxConcurrentEntries", result.get("maxConcurrentEntries"))
+ context.put("start", start)
+diff --git a/applications/workeffort/groovyScripts/workeffort/calendar/Upcoming.groovy b/applications/workeffort/groovyScripts/workeffort/calendar/Upcoming.groovy
+index b9be45aae5..92d0cf2d05 100644
+--- a/applications/workeffort/groovyScripts/workeffort/calendar/Upcoming.groovy
++++ b/applications/workeffort/groovyScripts/workeffort/calendar/Upcoming.groovy
+@@ -17,7 +17,7 @@
+  * under the License.
+  */
+ 
+-import org.apache.ofbiz.base.util.UtilMisc
++import org.apache.ofbiz.common.FindServices
+ 
+ facilityId = parameters.get("facilityId")
+ fixedAssetId = parameters.get("fixedAssetId")
+@@ -39,9 +39,25 @@ if (workEffortTypeId != null) {
+     eventsParam = "workEffortTypeId=" + workEffortTypeId
+ }
+ 
+-Map serviceCtx = UtilMisc.toMap("userLogin", userLogin, "start", start, "numPeriods", 7, "periodType", Calendar.DATE)
+-serviceCtx.putAll(UtilMisc.toMap("partyId", partyId, "facilityId", facilityId, "fixedAssetId", fixedAssetId, "workEffortTypeId", workEffortTypeId, "calendarType", calendarType, "locale", locale, "timeZone", timeZone))
+-
++Map serviceCtx = [
++    userLogin: userLogin,
++    start: start,
++    numPeriods: 7,
++    periodType: Calendar.DATE,
++    partyId: partyId,
++    facilityId: facilityId,
++    fixedAssetId: fixedAssetId,
++    workEffortTypeId: workEffortTypeId,
++    calendarType: calendarType,
++    locale: locale,
++    timeZone: timeZone,
++    entityExprList: FindServices.createConditionList(
++        parameters,
++        delegator.getModelEntity("WorkEffort").getFieldsUnmodifiable(),
++        [:],
++        delegator,
++        context)
++]
+ Map result = runService('getWorkEffortEventsByPeriod',serviceCtx)
+ context.put("days", result.get("periods"))
+ context.put("start", start)
+diff --git a/applications/workeffort/groovyScripts/workeffort/calendar/Week.groovy b/applications/workeffort/groovyScripts/workeffort/calendar/Week.groovy
+index 75994b54b2..76252912f3 100644
+--- a/applications/workeffort/groovyScripts/workeffort/calendar/Week.groovy
++++ b/applications/workeffort/groovyScripts/workeffort/calendar/Week.groovy
+@@ -19,9 +19,7 @@
+ 
+ import java.sql.Timestamp
+ import org.apache.ofbiz.base.util.UtilDateTime
+-import org.apache.ofbiz.base.util.UtilMisc
+-import org.apache.ofbiz.base.util.UtilValidate
+-import org.apache.ofbiz.service.ModelService
++import org.apache.ofbiz.common.FindServices
+ 
+ String startParam = parameters.startTime
+ Timestamp start = null
+@@ -38,12 +36,20 @@ context.prevMillis = new Long(prev.getTime()).toString()
+ Timestamp next = UtilDateTime.getDayStart(start, 7, timeZone, locale)
+ context.nextMillis = new Long(next.getTime()).toString()
+ Timestamp end = UtilDateTime.getDayStart(start, 6, timeZone, locale)
+-Map serviceCtx = dispatcher.getDispatchContext().makeValidContext("getWorkEffortEventsByPeriod", ModelService.IN_PARAM, parameters)
+-serviceCtx.putAll(UtilMisc.toMap("userLogin", userLogin, "start", start, "numPeriods", 7, "periodType", Calendar.DATE, "locale", locale, "timeZone", timeZone))
+-if (context.entityExprList) {
+-    serviceCtx.entityExprList = entityExprList
+-}
+-Map result = runService('getWorkEffortEventsByPeriod',serviceCtx)
++Map result = runService('getWorkEffortEventsByPeriod', [
++    userLogin: userLogin,
++    start: start,
++    numPeriods: 7,
++    periodType: Calendar.DATE,
++    locale: locale,
++    timeZone: timeZone,
++    entityExprList: FindServices.createConditionList(
++        parameters,
++        delegator.getModelEntity("WorkEffort").getFieldsUnmodifiable(),
++        [:],
++        delegator,
++        context)
++])
+ context.put("periods",result.get("periods"))
+ context.put("maxConcurrentEntries",result.get("maxConcurrentEntries"))
+ context.put("start",start)
+diff --git a/applications/workeffort/widget/CalendarForms.xml b/applications/workeffort/widget/CalendarForms.xml
+index f018617372..3746552e10 100644
+--- a/applications/workeffort/widget/CalendarForms.xml
++++ b/applications/workeffort/widget/CalendarForms.xml
+@@ -40,6 +40,7 @@ under the License.
+                 &lt;/entity-options&gt;
+             &lt;/drop-down&gt;
+         &lt;/field&gt;
++        &lt;field name="workEffortName"&gt;&lt;text-find/&gt;&lt;/field&gt;
+         &lt;field name="facilityId" title="${uiLabelMap.Facility}"&gt;
+             &lt;drop-down allow-empty="true"&gt;
+                 &lt;entity-options entity-name="Facility" description="${facilityName}"&gt;
+diff --git a/applications/workeffort/widget/WorkEffortMenus.xml b/applications/workeffort/widget/WorkEffortMenus.xml
+index ac3b3237ea..5548ac03eb 100644
+--- a/applications/workeffort/widget/WorkEffortMenus.xml
++++ b/applications/workeffort/widget/WorkEffortMenus.xml
+@@ -165,6 +165,9 @@ under the License.
+                 &lt;parameter param-name="partyId" from-field="parameters.partyId"/&gt;
+                 &lt;parameter param-name="fixedAssetId" from-field="parameters.fixedAssetId"/&gt;
+                 &lt;parameter param-name="workEffortTypeId" from-field="parameters.workEffortTypeId"/&gt;
++                &lt;parameter param-name="workEffortName_op" from-field="parameters.workEffortName_op"/&gt;
++                &lt;parameter param-name="workEffortName" from-field="parameters.workEffortName"/&gt;
++                &lt;parameter param-name="workEffortName_ic" from-field="parameters.workEffortName_ic"/&gt;
+                 &lt;parameter param-name="calendarType" from-field="parameters.calendarType"/&gt;
+                 &lt;parameter param-name="facilityId" from-field="parameters.facilityId"/&gt;
+                 &lt;parameter param-name="hideEvents" from-field="parameters.hideEvents"/&gt;
+@@ -176,6 +179,9 @@ under the License.
+                 &lt;parameter param-name="partyId" from-field="parameters.partyId"/&gt;
+                 &lt;parameter param-name="fixedAssetId" from-field="parameters.fixedAssetId"/&gt;
+                 &lt;parameter param-name="workEffortTypeId" from-field="parameters.workEffortTypeId"/&gt;
++                &lt;parameter param-name="workEffortName_op" from-field="parameters.workEffortName_op"/&gt;
++                &lt;parameter param-name="workEffortName" from-field="parameters.workEffortName"/&gt;
++                &lt;parameter param-name="workEffortName_ic" from-field="parameters.workEffortName_ic"/&gt;
+                 &lt;parameter param-name="calendarType" from-field="parameters.calendarType"/&gt;
+                 &lt;parameter param-name="facilityId" from-field="parameters.facilityId"/&gt;
+                 &lt;parameter param-name="hideEvents" from-field="parameters.hideEvents"/&gt;
+@@ -188,6 +194,9 @@ under the License.
+                 &lt;parameter param-name="partyId" from-field="parameters.partyId"/&gt;
+                 &lt;parameter param-name="fixedAssetId" from-field="parameters.fixedAssetId"/&gt;
+                 &lt;parameter param-name="workEffortTypeId" from-field="parameters.workEffortTypeId"/&gt;
++                &lt;parameter param-name="workEffortName_op" from-field="parameters.workEffortName_op"/&gt;
++                &lt;parameter param-name="workEffortName" from-field="parameters.workEffortName"/&gt;
++                &lt;parameter param-name="workEffortName_ic" from-field="parameters.workEffortName_ic"/&gt;
+                 &lt;parameter param-name="calendarType" from-field="parameters.calendarType"/&gt;
+                 &lt;parameter param-name="facilityId" from-field="parameters.facilityId"/&gt;
+                 &lt;parameter param-name="hideEvents" from-field="parameters.hideEvents"/&gt;
+@@ -202,6 +211,9 @@ under the License.
+                 &lt;parameter param-name="partyId" from-field="parameters.partyId"/&gt;
+                 &lt;parameter param-name="fixedAssetId" from-field="parameters.fixedAssetId"/&gt;
+                 &lt;parameter param-name="workEffortTypeId" from-field="parameters.workEffortTypeId"/&gt;
++                &lt;parameter param-name="workEffortName_op" from-field="parameters.workEffortName_op"/&gt;
++                &lt;parameter param-name="workEffortName" from-field="parameters.workEffortName"/&gt;
++                &lt;parameter param-name="workEffortName_ic" from-field="parameters.workEffortName_ic"/&gt;
+                 &lt;parameter param-name="calendarType" from-field="parameters.calendarType"/&gt;
+                 &lt;parameter param-name="facilityId" from-field="parameters.facilityId"/&gt;
+                 &lt;parameter param-name="hideEvents" from-field="parameters.hideEvents"/&gt;
+@@ -213,6 +225,9 @@ under the License.
+                 &lt;parameter param-name="partyId" from-field="parameters.partyId"/&gt;
+                 &lt;parameter param-name="fixedAssetId" from-field="parameters.fixedAssetId"/&gt;
+                 &lt;parameter param-name="workEffortTypeId" from-field="parameters.workEffortTypeId"/&gt;
++                &lt;parameter param-name="workEffortName_op" from-field="parameters.workEffortName_op"/&gt;
++                &lt;parameter param-name="workEffortName" from-field="parameters.workEffortName"/&gt;
++                &lt;parameter param-name="workEffortName_ic" from-field="parameters.workEffortName_ic"/&gt;
+                 &lt;parameter param-name="calendarType" from-field="parameters.calendarType"/&gt;
+                 &lt;parameter param-name="facilityId" from-field="parameters.facilityId"/&gt;
+                 &lt;parameter param-name="hideEvents" from-field="parameters.hideEvents"/&gt;
+@@ -225,6 +240,9 @@ under the License.
+                 &lt;parameter param-name="partyId" from-field="parameters.partyId"/&gt;
+                 &lt;parameter param-name="fixedAssetId" from-field="parameters.fixedAssetId"/&gt;
+                 &lt;parameter param-name="workEffortTypeId" from-field="parameters.workEffortTypeId"/&gt;
++                &lt;parameter param-name="workEffortName_op" from-field="parameters.workEffortName_op"/&gt;
++                &lt;parameter param-name="workEffortName" from-field="parameters.workEffortName"/&gt;
++                &lt;parameter param-name="workEffortName_ic" from-field="parameters.workEffortName_ic"/&gt;
+                 &lt;parameter param-name="calendarType" from-field="parameters.calendarType"/&gt;
+                 &lt;parameter param-name="facilityId" from-field="parameters.facilityId"/&gt;
+                 &lt;parameter param-name="hideEvents" from-field="parameters.hideEvents"/&gt;
+@@ -239,6 +257,9 @@ under the License.
+                 &lt;parameter param-name="partyId" from-field="parameters.partyId"/&gt;
+                 &lt;parameter param-name="fixedAssetId" from-field="parameters.fixedAssetId"/&gt;
+                 &lt;parameter param-name="workEffortTypeId" from-field="parameters.workEffortTypeId"/&gt;
++                &lt;parameter param-name="workEffortName_op" from-field="parameters.workEffortName_op"/&gt;
++                &lt;parameter param-name="workEffortName" from-field="parameters.workEffortName"/&gt;
++                &lt;parameter param-name="workEffortName_ic" from-field="parameters.workEffortName_ic"/&gt;
+                 &lt;parameter param-name="calendarType" from-field="parameters.calendarType"/&gt;
+                 &lt;parameter param-name="facilityId" from-field="parameters.facilityId"/&gt;
+                 &lt;parameter param-name="hideEvents" from-field="parameters.hideEvents"/&gt;
+@@ -250,6 +271,9 @@ under the License.
+                 &lt;parameter param-name="partyId" from-field="parameters.partyId"/&gt;
+                 &lt;parameter param-name="fixedAssetId" from-field="parameters.fixedAssetId"/&gt;
+                 &lt;parameter param-name="workEffortTypeId" from-field="parameters.workEffortTypeId"/&gt;
++                &lt;parameter param-name="workEffortName_op" from-field="parameters.workEffortName_op"/&gt;
++                &lt;parameter param-name="workEffortName" from-field="parameters.workEffortName"/&gt;
++                &lt;parameter param-name="workEffortName_ic" from-field="parameters.workEffortName_ic"/&gt;
+                 &lt;parameter param-name="calendarType" from-field="parameters.calendarType"/&gt;
+                 &lt;parameter param-name="facilityId" from-field="parameters.facilityId"/&gt;
+                 &lt;parameter param-name="hideEvents" from-field="parameters.hideEvents"/&gt;
+@@ -262,6 +286,9 @@ under the License.
+                 &lt;parameter param-name="partyId" from-field="parameters.partyId"/&gt;
+                 &lt;parameter param-name="fixedAssetId" from-field="parameters.fixedAssetId"/&gt;
+                 &lt;parameter param-name="workEffortTypeId" from-field="parameters.workEffortTypeId"/&gt;
++                &lt;parameter param-name="workEffortName_op" from-field="parameters.workEffortName_op"/&gt;
++                &lt;parameter param-name="workEffortName" from-field="parameters.workEffortName"/&gt;
++                &lt;parameter param-name="workEffortName_ic" from-field="parameters.workEffortName_ic"/&gt;
+                 &lt;parameter param-name="calendarType" from-field="parameters.calendarType"/&gt;
+                 &lt;parameter param-name="facilityId" from-field="parameters.facilityId"/&gt;
+                 &lt;parameter param-name="hideEvents" from-field="parameters.hideEvents"/&gt;
+@@ -283,6 +310,9 @@ under the License.
+                 &lt;parameter param-name="partyId" from-field="parameters.partyId"/&gt;
+                 &lt;parameter param-name="fixedAssetId" from-field="parameters.fixedAssetId"/&gt;
+                 &lt;parameter param-name="workEffortTypeId" from-field="parameters.workEffortTypeId"/&gt;
++                &lt;parameter param-name="workEffortName_op" from-field="parameters.workEffortName_op"/&gt;
++                &lt;parameter param-name="workEffortName" from-field="parameters.workEffortName"/&gt;
++                &lt;parameter param-name="workEffortName_ic" from-field="parameters.workEffortName_ic"/&gt;
+                 &lt;parameter param-name="calendarType" from-field="parameters.calendarType"/&gt;
+                 &lt;parameter param-name="facilityId" from-field="parameters.facilityId"/&gt;
+                 &lt;parameter param-name="hideEvents" from-field="parameters.hideEvents"/&gt;
+@@ -297,6 +327,9 @@ under the License.
+                 &lt;parameter param-name="partyId" from-field="parameters.partyId"/&gt;
+                 &lt;parameter param-name="fixedAssetId" from-field="parameters.fixedAssetId"/&gt;
+                 &lt;parameter param-name="workEffortTypeId" from-field="parameters.workEffortTypeId"/&gt;
++                &lt;parameter param-name="workEffortName_op" from-field="parameters.workEffortName_op"/&gt;
++                &lt;parameter param-name="workEffortName" from-field="parameters.workEffortName"/&gt;
++                &lt;parameter param-name="workEffortName_ic" from-field="parameters.workEffortName_ic"/&gt;
+                 &lt;parameter param-name="calendarType" from-field="parameters.calendarType"/&gt;
+                 &lt;parameter param-name="facilityId" from-field="parameters.facilityId"/&gt;
+                 &lt;parameter param-name="hideEvents" from-field="parameters.hideEvents"/&gt;
+@@ -314,6 +347,9 @@ under the License.
+                 &lt;parameter param-name="partyId" from-field="parameters.partyId"/&gt;
+                 &lt;parameter param-name="fixedAssetId" from-field="parameters.fixedAssetId"/&gt;
+                 &lt;parameter param-name="workEffortTypeId" from-field="parameters.workEffortTypeId"/&gt;
++                &lt;parameter param-name="workEffortName_op" from-field="parameters.workEffortName_op"/&gt;
++                &lt;parameter param-name="workEffortName" from-field="parameters.workEffortName"/&gt;
++                &lt;parameter param-name="workEffortName_ic" from-field="parameters.workEffortName_ic"/&gt;
+                 &lt;parameter param-name="calendarType" from-field="parameters.calendarType"/&gt;
+                 &lt;parameter param-name="facilityId" from-field="parameters.facilityId"/&gt;
+                 &lt;parameter param-name="hideEvents" from-field="parameters.hideEvents"/&gt;
+@@ -328,6 +364,9 @@ under the License.
+                 &lt;parameter param-name="partyId" from-field="parameters.partyId"/&gt;
+                 &lt;parameter param-name="fixedAssetId" from-field="parameters.fixedAssetId"/&gt;
+                 &lt;parameter param-name="workEffortTypeId" from-field="parameters.workEffortTypeId"/&gt;
++                &lt;parameter param-name="workEffortName_op" from-field="parameters.workEffortName_op"/&gt;
++                &lt;parameter param-name="workEffortName" from-field="parameters.workEffortName"/&gt;
++                &lt;parameter param-name="workEffortName_ic" from-field="parameters.workEffortName_ic"/&gt;
+                 &lt;parameter param-name="calendarType" from-field="parameters.calendarType"/&gt;
+                 &lt;parameter param-name="facilityId" from-field="parameters.facilityId"/&gt;
+                 &lt;parameter param-name="hideEvents" from-field="parameters.hideEvents"/&gt;</code></pre></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>

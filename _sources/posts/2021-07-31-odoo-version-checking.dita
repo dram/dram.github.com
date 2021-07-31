@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>Odoo版本检查机制</title>
+  <body>
+    <p>Odoo在数据库管理页面会检查版本的兼容性，具体的处理方式是比对数据版本和程序版本的前两位版本好，以下分别予以说明。</p>
+    <section>
+      <title>数据版本</title>
+      <p>数据版本的基于以下值：</p>
+      <screen>SELECT latest_version FROM ir_module_module WHERE name = 'base';</screen>
+    </section>
+    <section>
+      <title>程序版本</title>
+      <p>可以通过以下Python变量或者命令行odoo --version输出确定程序版本：</p>
+      <screen><![CDATA[% odoo shell
+>>> odoo.release.version_info]]></screen>
+    </section>
+  </body>
+</topic>

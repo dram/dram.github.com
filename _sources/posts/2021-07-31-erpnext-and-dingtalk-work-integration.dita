@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>ERPNext和钉钉整合</title>
+  <body>
+    <p>钉钉的webhook的格式文档应该是这一份：https://developers.dingtalk.com/document/app/custom-robot-access</p>
+    <p>大概翻了下，钉钉支持text，markdown，actioncard，feedcard这样几种格式。</p>
+    <p>可以从这里查询ERPNext的字段名：http://127.0.0.1:8000/app/customize-form，以及这里的说明：https://wiki.erpnext.org/display/ENG/Notifications</p>
+    <p>以下是一个简易HTTP服务端，可作为调试：</p>
+    <screen>socat TCP4-LISTEN:8888,fork STDOUT</screen>
+  </body>
+</topic>

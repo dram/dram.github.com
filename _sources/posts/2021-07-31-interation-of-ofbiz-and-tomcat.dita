@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>OFBiz和Tomcat的整合</title>
+  <body>
+    <p>OFBiz使用的是内嵌模式的Tomcat。</p>
+    <p>主要在org.apache.ofbiz.catalina.container.CatalinaContainer中实现，在retrieveTomcatEngineConfig中获取tomcat的engine配置，可以在这里定义virtualhost。</p>
+    <p>在prepareTomcatServer中，可以看到是直接通过实例化来启动tomcat的。</p>
+    <p>Moqui放弃了这一方向，而是转用可提供自服务也可作为app的war模式，可以这样实现是因为，war格式和jar格式是兼容的。</p>
+  </body>
+</topic>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>OFBiz后台任务管理</title>
+  <body>
+    <p>打开Web Tools / Service Engine / Job List页面 找到尚未执行的Send Email服务， 点击cancel job。</p>
+    <p>或者直接在Job manager locks List中禁用所有定时任务。</p>
+  </body>
+</topic>

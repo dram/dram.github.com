@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>Odoo数据库SQL查询</title>
+  <body>
+    <section>
+      <title>项目任务汇总</title>
+      <codeblock><![CDATA[CREATE OR REPLACE FUNCTION project_report(projects text[]) RETURNS SETOF text AS $$
+    SELECT format('%s. %s；', row_number() OVER (ORDER BY t.date_last_stage_update), t.name)
+    FROM project_task t
+    JOIN project_project p ON t.project_id = p.id
+    JOIN project_task_type s ON t.stage_id = s.id
+    WHERE p.name = ANY(projects) AND s.name = 'Next Actions' AND t.kanban_state = 'done'
+    ORDER BY t.date_last_stage_update;
+$$ LANGUAGE sql;]]></codeblock>
+    </section>
+    <section>
+      <title>基于标题筛选笔记</title>
+      <codeblock><![CDATA[CREATE OR REPLACE FUNCTION note_report(query text) RETURNS SETOF text AS $$
+    SELECT format('%s. %s；', row_number() OVER (ORDER BY n.sequence), n.name)
+    FROM note_note n
+    JOIN note_stage_rel r ON n.id = r.note_id
+    JOIN note_stage s ON r.stage_id = s.id
+    WHERE n.color = 10 AND n.name SIMILAR TO concat('%', query, '%') AND s.NAME = 'Next Actions'
+    ORDER BY n.sequence;
+$$ LANGUAGE sql;]]></codeblock>
+    </section>
+    <section>
+      <title>基于标签筛选笔记</title>
+      <codeblock><![CDATA[CREATE OR REPLACE FUNCTION note_report(tags text[]) RETURNS SETOF text AS $$
+    SELECT format('%s. %s；', row_number() OVER (ORDER BY n.write_date), n.name)
+    FROM note_note n
+    JOIN note_tags_rel tr ON n.id = tr.note_id
+    JOIN note_tag t ON tr.tag_id = t.id
+    JOIN note_stage_rel sr ON n.id = sr.note_id
+    JOIN note_stage s ON sr.stage_id = s.id
+    WHERE n.color = 10 AND t.name = ANY(tags) AND s.NAME = 'Next Actions'
+    ORDER BY n.write_date;
+$$ LANGUAGE sql;]]></codeblock>
+    </section>
+  </body>
+</topic>

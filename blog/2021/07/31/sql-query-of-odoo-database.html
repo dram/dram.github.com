@@ -1,0 +1,24 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>Odoo数据库SQL查询</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">Odoo数据库SQL查询</h1><time>31 Jul 2021</time><div><div class="section"><h2 class="sectiontitle">项目任务汇总</h2><pre><code>CREATE OR REPLACE FUNCTION project_report(projects text[]) RETURNS SETOF text AS $$
+    SELECT format('%s. %s；', row_number() OVER (ORDER BY t.date_last_stage_update), t.name)
+    FROM project_task t
+    JOIN project_project p ON t.project_id = p.id
+    JOIN project_task_type s ON t.stage_id = s.id
+    WHERE p.name = ANY(projects) AND s.name = 'Next Actions' AND t.kanban_state = 'done'
+    ORDER BY t.date_last_stage_update;
+$$ LANGUAGE sql;</code></pre></div><div class="section"><h2 class="sectiontitle">基于标题筛选笔记</h2><pre><code>CREATE OR REPLACE FUNCTION note_report(query text) RETURNS SETOF text AS $$
+    SELECT format('%s. %s；', row_number() OVER (ORDER BY n.sequence), n.name)
+    FROM note_note n
+    JOIN note_stage_rel r ON n.id = r.note_id
+    JOIN note_stage s ON r.stage_id = s.id
+    WHERE n.color = 10 AND n.name SIMILAR TO concat('%', query, '%') AND s.NAME = 'Next Actions'
+    ORDER BY n.sequence;
+$$ LANGUAGE sql;</code></pre></div><div class="section"><h2 class="sectiontitle">基于标签筛选笔记</h2><pre><code>CREATE OR REPLACE FUNCTION note_report(tags text[]) RETURNS SETOF text AS $$
+    SELECT format('%s. %s；', row_number() OVER (ORDER BY n.write_date), n.name)
+    FROM note_note n
+    JOIN note_tags_rel tr ON n.id = tr.note_id
+    JOIN note_tag t ON tr.tag_id = t.id
+    JOIN note_stage_rel sr ON n.id = sr.note_id
+    JOIN note_stage s ON sr.stage_id = s.id
+    WHERE n.color = 10 AND t.name = ANY(tags) AND s.NAME = 'Next Actions'
+    ORDER BY n.write_date;
+$$ LANGUAGE sql;</code></pre></div></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>
