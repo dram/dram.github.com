@@ -1,0 +1,45 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>微调OFBiz的FlatGrey样式</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">微调OFBiz的FlatGrey样式</h1><time>01 Aug 2021</time><div><p>以下补丁对OFBiz的FlatGrey做了简单微调，以节省屏幕空间：</p><pre><code>diff --git a/themes/flatgrey/webapp/flatgrey/style.css b/themes/flatgrey/webapp/flatgrey/style.css
+index 303fdd8c71..dfa845d1ce 100644
+--- a/themes/flatgrey/webapp/flatgrey/style.css
++++ b/themes/flatgrey/webapp/flatgrey/style.css
+@@ -269,8 +269,6 @@ th, th a {
+     color: #ccc;
+     font-size: 1em;
+     font-weight: normal;
+-    min-height: 26px; /* Setting must be in px */
+-    height: auto;
+     overflow: auto;
+ }
+ 
+@@ -291,10 +289,14 @@ th, th a {
+ }
+ 
+ .preference-area {
++    display: none;
+     float: right !important;
+ }
+ 
+ #masthead ul .logo-area {
++    position: absolute;
++    top: 0;
++    right: 0;
+     padding: 0.1em 0.8em;
+ }
+ #masthead ul .logo-area img {
+@@ -385,7 +387,7 @@ th, th a {
+     height: 5.2em;
+     overflow: auto;
+     border-bottom: 0.2em solid #47637c;
+-    padding: 0.5em 0 0.1em 0;
++    padding: 0.6em 0;
+ }
+ 
+ #main-navigation ul li {
+@@ -447,6 +449,7 @@ th, th a {
+ #app-navigation h2,
+ #app-navigation h3 {
+     color: #959595;
++    float: right;
+     margin: 0.4em 0 0.4em 0;
+     text-transform: uppercase;
+     text-shadow: 1px 1px 0 #fff; /* Setting must be in px */</code></pre></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>
