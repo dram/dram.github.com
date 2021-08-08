@@ -1,0 +1,121 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>精简加速metasfresh的Swing客户端启动</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">精简加速metasfresh的Swing客户端启动</h1><time>08 Aug 2021</time><div><p>metasfresh自带的Swing客户端，启动速度非常熳，可以通过优化SwingUIApplication以实现加速。将如下内容替换到<span class="filepath">backend/metasfresh-dist/swingui/src/main/java/de/metas/SwingUIApplication.java</span>文件即可：</p><pre><code>package de.metas;
+
+import de.metas.event.EventBusConfig;
+import de.metas.util.Services;
+import org.adempiere.model.tree.IPOTreeSupportFactory;
+import org.adempiere.model.tree.spi.impl.MenuTreeSupport;
+import org.adempiere.util.lang.IAutoCloseable;
+import org.compiere.Adempiere;
+import org.compiere.Adempiere.RunMode;
+import org.compiere.apps.AEnv;
+import org.compiere.apps.ALogin;
+import org.compiere.apps.AMenu;
+import org.compiere.model.I_AD_Menu;
+import org.compiere.model.ModelValidationEngine;
+import org.compiere.util.Env;
+import org.compiere.util.Splash;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.event.EventListener;
+
+@Import({
+	de.metas.security.permissions.record_access.RecordAccessConfigService.class,
+	de.metas.security.permissions.record_access.RecordAccessRepository.class,
+	de.metas.security.permissions.record_access.RecordAccessService.class,
+	de.metas.user.UserGroupRepository.class,
+	de.metas.document.references.zoom_into.NullCustomizedWindowInfoMapRepository.class,
+	de.metas.monitoring.adapter.NoopPerformanceMonitoringService.class,
+	de.metas.StartupListener.class,
+})
+public class SwingUIApplication
+{
+	public static void main(final String[] args)
+	{
+		System.setProperty("org.adempiere.client.lang", "en_US");
+		System.setProperty("spring.main.banner-mode", "off");
+		Adempiere.instance.startup(RunMode.SWING_CLIENT);
+		new SpringApplicationBuilder(SwingUIApplication.class)
+			.headless(false)
+			.web(WebApplicationType.NONE)
+			.beanNameGenerator(new MetasfreshBeanNameGenerator())
+			.run(args);
+	}
+
+	@EventListener(ApplicationReadyEvent.class)
+	public void showMainWindow()
+	{
+		EventBusConfig.disableDistributedEvents();
+		try (IAutoCloseable ac = ModelValidationEngine.postponeInit())
+		{
+			final ALogin login = new ALogin(Splash.getSplash(), Env.getCtx());
+			if (!login.initLogin()) {
+				AEnv.showCenterScreen(login);
+			}
+		}
+		Services.get(IPOTreeSupportFactory.class).register(I_AD_Menu.Table_Name, MenuTreeSupport.class);
+		new AMenu();
+	}
+}</code></pre><p>以上版本虽然启动速度很快，但是因为很多服务没有加载，所有部分功能不可用，如果要提高可用性，可以使用下面的版本，注意，这一版本依赖RabbitMQ服务：</p><pre><code>package de.metas;
+
+import org.compiere.Adempiere;
+import org.compiere.Adempiere.RunMode;
+import org.compiere.apps.AEnv;
+import org.compiere.apps.ALogin;
+import org.compiere.apps.AMenu;
+import org.compiere.util.Env;
+import org.compiere.util.Splash;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.event.EventListener;
+
+@ComponentScan(basePackages = {"de.metas", "org.adempiere"})
+@Import({
+	org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration.class, 
+	org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration.class,
+	org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration.class,
+})
+public class SwingUIApplication
+{
+	@Autowired
+	private ApplicationContext applicationContext;
+
+	public static void main(final String[] args)
+	{
+		System.setProperty("org.adempiere.client.lang", "en_US");
+		System.setProperty("spring.main.banner-mode", "off");
+
+		Adempiere.instance.startup(RunMode.SWING_CLIENT);
+
+		new SpringApplicationBuilder(SwingUIApplication.class)
+			.headless(false)
+			.web(WebApplicationType.NONE)
+			.beanNameGenerator(new MetasfreshBeanNameGenerator())
+			.run(args);
+	}
+
+	@Bean(Adempiere.BEAN_NAME)
+	public Adempiere adempiere()
+	{
+		return Env.getSingleAdempiereInstance(applicationContext);
+	}
+
+	@EventListener(ApplicationReadyEvent.class)
+	public void showMainWindow()
+	{
+		final ALogin login = new ALogin(Splash.getSplash(), Env.getCtx());
+
+		if (!login.initLogin()) {
+			AEnv.showCenterScreen(login);
+		}
+
+		new AMenu();
+	}
+}</code></pre></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>

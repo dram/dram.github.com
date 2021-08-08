@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>metasfresh中的多租户管理</title>
+  <body>
+    <p>ADempiere中包含有Initial Client Setup功能，可以用于在系统中创建多个租户。但metasfresh在这一<xref href="https://github.com/metasfresh/metasfresh/commit/828c5be0f8b7617407d4a407867afe4af207fa61" scope="external">提交</xref>中删除了这部分功能。结合<xref href="https://forum.metasfresh.org/t/mehrere-mandanten-einrichten/1046" scope="external">这里</xref>的讨论，应该是metasfresh官方暂时没有多租户的需求，所以这块功能砍掉了。取而代之的，是Initial Setup Wizard。</p>
+  </body>
+</topic>
