@@ -28,6 +28,7 @@
         <p>点击Eclipse菜单Run > Run Configurations...，选择Java Application > ADempiere-all，点击Arguments标签页，更改VM arguments参数如下，再点击Run，可启动ADempiere客户端：</p>
         <screen><![CDATA[-DPropertyFile=C:/git/adempiere/Adempiere.properties
 -DADEMPIERE_HOME=C:/git/adempiere
+-Dsun.java2d.uiScale=1
 -Xms128M
 -Xmx256M
 -Dorg.adempiere.server.embedded=true]]></screen>
@@ -40,6 +41,12 @@
           <p>2021-08-07</p>
           <ol>
             <li>简化JDK版本指定的处理，直接基于eclipse.ini实现；</li>
+          </ol>
+        </li>
+        <li>
+          <p>2021-08-15</p>
+          <ol>
+            <li>添加启动ADempiere时的高DPI缩放设置，以解决图片放大虚化问题；</li>
           </ol>
         </li>
       </ul>

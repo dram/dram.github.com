@@ -1,4 +1,4 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>精简加速metasfresh的Swing客户端启动</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">精简加速metasfresh的Swing客户端启动</h1><time>08 Aug 2021</time><div><p>metasfresh自带的Swing客户端，启动速度非常熳，可以通过优化SwingUIApplication以实现加速。将如下内容替换到<span class="filepath">backend/metasfresh-dist/swingui/src/main/java/de/metas/SwingUIApplication.java</span>文件即可：</p><pre><code>package de.metas;
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/main.css"><link rel="shortcut icon" href="/images/favicon.png"><title>精简加速metasfresh的Swing客户端启动</title></head><body><header><span id="site-name"><a href="/">dram.me</a></span><nav><ul><li><a href="/blog/about.html">About</a></li><li><a href="/logo/">LOGO</a></li></ul></nav></header><article><h1 class="topictitle1" id="ariaid-title1">精简加速metasfresh的Swing客户端启动</h1><time>08 Aug 2021</time><div><p>metasfresh自带的Swing客户端，启动速度非常熳，本文介绍几种优化方案。</p><div class="section"><h2 class="sectiontitle">ComponentScan优化</h2><p>可以通过优化SwingUIApplication以实现加速。将如下内容替换到<span class="filepath">backend/metasfresh-dist/swingui/src/main/java/de/metas/SwingUIApplication.java</span>文件即可：</p><pre><code>package de.metas;
 
 import de.metas.event.EventBusConfig;
 import de.metas.util.Services;
@@ -57,7 +57,7 @@ public class SwingUIApplication
 		Services.get(IPOTreeSupportFactory.class).register(I_AD_Menu.Table_Name, MenuTreeSupport.class);
 		new AMenu();
 	}
-}</code></pre><p>以上版本虽然启动速度很快，但是因为很多服务没有加载，所有部分功能不可用，如果要提高可用性，可以使用下面的版本，注意，这一版本依赖RabbitMQ服务：</p><pre><code>package de.metas;
+}</code></pre></div><div class="section"><h2 class="sectiontitle">autoconfigure优化</h2><p>以上版本虽然启动速度很快，但是因为很多服务没有加载，所有部分功能不可用，如果要提高可用性，可以使用下面的版本，注意，这一版本依赖RabbitMQ服务：</p><pre><code>package de.metas;
 
 import org.compiere.Adempiere;
 import org.compiere.Adempiere.RunMode;
@@ -118,4 +118,78 @@ public class SwingUIApplication
 
 		new AMenu();
 	}
-}</code></pre></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>
+}</code></pre></div><div class="section"><h2 class="sectiontitle">Jar包优化</h2><p>可以通过以下脚本生成精简版的jar包：</p><pre><code>#!/usr/bin/env python3
+
+import os
+import zipfile
+
+text = open('classpath.txt').read()
+
+paths = sorted(text.strip().split(";"))
+
+selected_paths = []
+
+for path in paths:
+    relative_path = path.replace("\\", "/").replace("C:/Users/name/", "")
+
+    if path.endswith(".jar"):
+        if all(pattern not in relative_path for pattern in ["ant",
+                                                            "apiguardian",
+                                                            "assertj",
+                                                            "barcode4j",
+                                                            "castor",
+                                                            "checker-qual",
+                                                            "cron4j",
+                                                            "ecj",
+                                                            "elasticsearch",
+                                                            "httpcomponents",
+                                                            "google-maps-services",
+                                                            "groovy",
+                                                            "itext",
+                                                            "jmx",
+                                                            "jsonassert",
+                                                            "junit",
+                                                            "log4j",
+                                                            "lucene",
+                                                            "maven",
+                                                            "mockito",
+                                                            "netty",
+                                                            "opentest4j",
+                                                            "pdf-renderer",
+                                                            "reactor",
+                                                            "spring-boot-starter",
+                                                            "spring-boot-test",
+                                                            "springfox",
+                                                            "spring-jdbc",
+                                                            "spring-oxm",
+                                                            "spring-test",
+                                                            "spring-webflux",
+                                                            "spring-webmvc",
+                                                            "swagger",
+                                                            "tomcat",
+                                                            "xmlgraphics",
+                                                            "xmlunit",
+                                                            "zxing"]):
+            print(relative_path)
+            selected_paths.append(relative_path)
+    elif all(pattern not in relative_path for pattern in ["de-metas-common-externalsystem",
+                                                          "de-metas-common-externalreference",
+                                                          "de-metas-common-rest_api",
+                                                          "de.metas.externalreference",
+                                                          "de.metas.externalsystem",
+                                                          "de.metas.payment",
+                                                          "de.metas.serviceprovider",
+                                                          "de.metas.util.web",
+                                                          "de.metas.vertical.healthcare.alberta",
+                                                          "elasticsearch",
+                                                          "msv3",
+                                                          "test"]):
+        print(relative_path)
+        selected_paths.append(relative_path.rstrip("/") + "/")
+
+classpath = "Class-Path: " + " ".join(selected_paths)
+
+with zipfile.ZipFile("metasfresh.jar", "w", zipfile.ZIP_DEFLATED) as f:
+    f.writestr("META-INF/MANIFEST.MF",
+               "Manifest-Version: 1.0\nMain-Class: de.metas.SwingUIApplication\n"
+               + "\n ".join([classpath[i : i + 70] for i in range(0, len(classpath), 70)]) + "\n")</code></pre></div><div class="section"><h2 class="sectiontitle">更新</h2><ul><li><p>2021-08-15</p><ol><li>添加jar包精简方案；</li></ol></li></ul></div></div></article><footer><p>Copyright © 2021 Xin Wang</p></footer></body></html>

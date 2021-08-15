@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>metasfresh数据迁移脚本的管理</title>
+  <body>
+    <p>ADempiere对于Application Dictionary的更改，是通过数据迁移脚本来管理的，具体可以看<xref href="http://wiki.adempiere.io/Generating_Migration_Scripts" scope="external">这里</xref>。</p>
+    <p>这些数据迁移脚本（SQL或者XML文件），可以理解为是对用户在界面中更改Application Dictionary的日志记录。</p>
+    <p>iDempiere沿用了这一机制，具体看<xref href="https://wiki.idempiere.org/en/Generating_Migration_Scripts" scope="external">这里</xref>的说明。</p>
+    <p>而metasfresh在处理上是类似的，不过会做一个判断，如果没有启用ExternalID系统，默认会隐藏Dictionary Maintenance和Log Migration Script开关，相关代码逻辑在Preference.java中实现。</p>
+  </body>
+</topic>

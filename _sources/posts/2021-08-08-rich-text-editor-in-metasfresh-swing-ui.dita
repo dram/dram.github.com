@@ -4,5 +4,17 @@
   <title>metasfresh的Swing UI中富文本编辑器</title>
   <body>
     <p>在metasfresh的Swing UI中，在部分输入框中单击右键，其中包含有“Editor”菜单，点击可打开一个富文本编辑器。相关代码主要在<codeph>org.compiere.grid.ed.menu.TextEditorContextMenuAction.run()</codeph>中实现。另外，表格中的编辑功能，主要在<codeph>VString</codeph>中实现。</p>
+    <p>另外，在ADempiere中，VText用于实现多行文本编辑框。</p>
+    <section>
+      <title>更新</title>
+      <ul>
+        <li>
+          <p>2021-08-15</p>
+          <ol>
+            <li>添加多行文本编辑框的说明；</li>
+          </ol>
+        </li>
+      </ul>
+    </section>
   </body>
 </topic>

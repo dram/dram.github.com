@@ -5,19 +5,18 @@
   <body>
     <p>本文描述metasfresh Eclipse开发环境搭建流程，基于<xref href="https://docs.metasfresh.org/developers_collection/en/getting_started_ide_en.html" scope="external">这里</xref>的说明。如果只是试用，可以参考<xref href="/blog/2021/07/31/metasfresh-installation-and-configuration-web-version.html" scope="peer">这里</xref>。</p>
     <ol>
+      <li><p>自https://www.microsoft.com/openjdk下载安装OpenJDK 11；</p></li>
       <li><p>自https://adoptium.net/下载安装OpenJDK 8；</p></li>
-      <li><p>自https://www.eclipse.org/downloads/packages/release下载解压Eclipse 2018‑12 R（Eclipse IDE for Java Developers），可考虑2020-06 R版，是最后一个支持Java 8的Eclipse版本；</p></li>
-      <li>
-        <p>调整eclipse.ini，在<codeph>--launcher.appendVmargs</codeph>之后添加以下两行：</p>
-        <codeblock>-vm
-C:/Program Files/Temurin/jdk-8.0.302.8-hotspot/bin</codeblock>
-      </li>
+      <li><p>自https://www.eclipse.org/downloads/packages下载解压Eclipse 2021‑06 R（Eclipse IDE for Enterprise Java and Web Developers）；</p></li>
+      <li><p>调整eclipse.ini，更改<codeph>--vm</codeph>值为：<codeph>C:/Program Files/Microsoft/jdk-11.0.11.9-hotspot/bin</codeph>；</p></li>
       <li><p>打开Eclipse，指定工作环境目录，如：C:/workspace/metasfresh；</p></li>
       <li><p>在Eclipse欢迎页面，点击Checkout projects from Git，选择Clone URI，指定URI为https://github.com/metasfresh/metasfresh.git，点击Next，目标目录指定为：C:/git/metasfresh，再点击Next，完成仓库克隆；</p></li>
       <li><p>点击Eclipse菜单Help > Install New Software...，Work with设置为https://projectlombok.org/p2，点击Add，名称设置为lombok，再安装Lombok；</p></li>
       <li><p>点击Eclipse菜单Help > Install New Software...，Work with设置为https://repository.sonatype.org/content/repositories/forge-sites/m2e-extras/0.15.0/N/0.15.0.201206251206/，点击Add，名称设置为m2e-extras，再安装其中的m2e connector for build-helper-maven-plugin；</p></li>
       <li><p>点击Eclipse菜单Project > Build Automatically，禁用自动编译；</p></li>
       <li><p>点击Eclipse菜单Window > Preferences，选择General > Workspace，设置Text file encoding为UTF-8，New text file line delimiter为Unix；</p></li>
+      <li><p>点击Eclipse菜单Window > Preferences，选择Java > Compiler，设置Compiler compliance level为1.8；</p></li>
+      <li><p>点击Eclipse菜单Window > Preferences，选择Java > Installed JREs，点击Add...，Standard VM，选择OpenJDK路径，如：C:/Program Files/Temurin/jdk-8.0.302.8-hotspot，完成添加后在列表中选中该项；</p></li>
       <li>
         <p>下载以下jar包，存放在workspace目录：</p>
         <screen>https://repo.metasfresh.com/repository/mvn-3rdparty/io/github/json-snapshot/json-snapshot-PR/1.0.22/json-snapshot-PR-1.0.22.jar
@@ -56,5 +55,16 @@ pg_restore -U metasfresh -d metasfresh metasfresh_latest.pgdump]]></screen>
 -Xmx1G</screen>
       </li>
     </ol>
+    <section>
+      <title>更新</title>
+      <ul>
+        <li>
+          <p>2021-08-15</p>
+          <ol>
+            <li>更新Eclipse到最新版本；</li>
+          </ol>
+        </li>
+      </ul>
+    </section>
   </body>
 </topic>

@@ -3,8 +3,11 @@
 <topic id="post" xml:lang="zh-cn">
   <title>精简加速metasfresh的Swing客户端启动</title>
   <body>
-    <p>metasfresh自带的Swing客户端，启动速度非常熳，可以通过优化SwingUIApplication以实现加速。将如下内容替换到<filepath>backend/metasfresh-dist/swingui/src/main/java/de/metas/SwingUIApplication.java</filepath>文件即可：</p>
-    <codeblock>package de.metas;
+    <p>metasfresh自带的Swing客户端，启动速度非常熳，本文介绍几种优化方案。</p>
+    <section>
+      <title>ComponentScan优化</title>
+      <p>可以通过优化SwingUIApplication以实现加速。将如下内容替换到<filepath>backend/metasfresh-dist/swingui/src/main/java/de/metas/SwingUIApplication.java</filepath>文件即可：</p>
+      <codeblock>package de.metas;
 
 import de.metas.event.EventBusConfig;
 import de.metas.util.Services;
@@ -64,8 +67,11 @@ public class SwingUIApplication
 		new AMenu();
 	}
 }</codeblock>
-  <p>以上版本虽然启动速度很快，但是因为很多服务没有加载，所有部分功能不可用，如果要提高可用性，可以使用下面的版本，注意，这一版本依赖RabbitMQ服务：</p>
-  <codeblock>package de.metas;
+    </section>
+    <section>
+      <title>autoconfigure优化</title>
+      <p>以上版本虽然启动速度很快，但是因为很多服务没有加载，所有部分功能不可用，如果要提高可用性，可以使用下面的版本，注意，这一版本依赖RabbitMQ服务：</p>
+      <codeblock>package de.metas;
 
 import org.compiere.Adempiere;
 import org.compiere.Adempiere.RunMode;
@@ -127,5 +133,96 @@ public class SwingUIApplication
 		new AMenu();
 	}
 }</codeblock>
+    </section>
+    <section>
+      <title>Jar包优化</title>
+      <p>可以通过以下脚本生成精简版的jar包：</p>
+      <codeblock>#!/usr/bin/env python3
+
+import os
+import zipfile
+
+text = open('classpath.txt').read()
+
+paths = sorted(text.strip().split(";"))
+
+selected_paths = []
+
+for path in paths:
+    relative_path = path.replace("\\", "/").replace("C:/Users/name/", "")
+
+    if path.endswith(".jar"):
+        if all(pattern not in relative_path for pattern in ["ant",
+                                                            "apiguardian",
+                                                            "assertj",
+                                                            "barcode4j",
+                                                            "castor",
+                                                            "checker-qual",
+                                                            "cron4j",
+                                                            "ecj",
+                                                            "elasticsearch",
+                                                            "httpcomponents",
+                                                            "google-maps-services",
+                                                            "groovy",
+                                                            "itext",
+                                                            "jmx",
+                                                            "jsonassert",
+                                                            "junit",
+                                                            "log4j",
+                                                            "lucene",
+                                                            "maven",
+                                                            "mockito",
+                                                            "netty",
+                                                            "opentest4j",
+                                                            "pdf-renderer",
+                                                            "reactor",
+                                                            "spring-boot-starter",
+                                                            "spring-boot-test",
+                                                            "springfox",
+                                                            "spring-jdbc",
+                                                            "spring-oxm",
+                                                            "spring-test",
+                                                            "spring-webflux",
+                                                            "spring-webmvc",
+                                                            "swagger",
+                                                            "tomcat",
+                                                            "xmlgraphics",
+                                                            "xmlunit",
+                                                            "zxing"]):
+            print(relative_path)
+            selected_paths.append(relative_path)
+    elif all(pattern not in relative_path for pattern in ["de-metas-common-externalsystem",
+                                                          "de-metas-common-externalreference",
+                                                          "de-metas-common-rest_api",
+                                                          "de.metas.externalreference",
+                                                          "de.metas.externalsystem",
+                                                          "de.metas.payment",
+                                                          "de.metas.serviceprovider",
+                                                          "de.metas.util.web",
+                                                          "de.metas.vertical.healthcare.alberta",
+                                                          "elasticsearch",
+                                                          "msv3",
+                                                          "test"]):
+        print(relative_path)
+        selected_paths.append(relative_path.rstrip("/") + "/")
+
+classpath = "Class-Path: " + " ".join(selected_paths)
+
+with zipfile.ZipFile("metasfresh.jar", "w", zipfile.ZIP_DEFLATED) as f:
+    f.writestr("META-INF/MANIFEST.MF",
+               "Manifest-Version: 1.0\nMain-Class: de.metas.SwingUIApplication\n"
+               + "\n ".join([classpath[i : i + 70] for i in range(0, len(classpath), 70)]) + "\n")</codeblock>
+    </section>
+    <section>
+      <title>更新</title>
+      <ul>
+        <li>
+          <p>2021-08-15</p>
+          <ol>
+            <li>添加jar包精简方案；</li>
+          </ol>
+        </li>
+      </ul>
+    </section>
   </body>
 </topic>
