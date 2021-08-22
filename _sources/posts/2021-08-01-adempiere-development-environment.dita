@@ -29,6 +29,7 @@
         <screen><![CDATA[-DPropertyFile=C:/git/adempiere/Adempiere.properties
 -DADEMPIERE_HOME=C:/git/adempiere
 -Dsun.java2d.uiScale=1
+-Dswing.useSystemFontSettings=false
 -Xms128M
 -Xmx256M
 -Dorg.adempiere.server.embedded=true]]></screen>
@@ -47,6 +48,12 @@
           <p>2021-08-15</p>
           <ol>
             <li>添加启动ADempiere时的高DPI缩放设置，以解决图片放大虚化问题；</li>
+          </ol>
+        </li>
+        <li>
+          <p>2021-08-21</p>
+          <ol>
+            <li>调整ADempiere-all参数；</li>
           </ol>
         </li>
       </ul>

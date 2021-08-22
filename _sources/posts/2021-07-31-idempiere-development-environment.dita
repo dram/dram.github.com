@@ -31,7 +31,25 @@
         <screen>% cd /mnt/c/git/idempiere
 % bash RUN_SyncDBDev.sh</screen>
       </li>
-      <li> <p>点击Eclipse菜单Run > Run Configurations...，选择Eclipse Application > server.product，点击Run，启动服务。</p></li>
+      <li><p>点击Eclipse菜单Run > Run Configurations...，选择Eclipse Application > server.product，点击Run，启动服务。</p></li>
+      <li>
+        <p>如果需要运行Swing客户端，可以导入idempiere-swing-client仓库，再执行Eclipse Application > swingclient.prodjct，追加以下参数：</p>
+        <screen>-DPropertyFile=${project_loc:org.idempiere.main}/idempiere.properties
+-DIDEMPIERE_HOME=${project_loc:org.idempiere.main}
+-Dsun.java2d.uiScale=1.0
+-Dswing.useSystemFontSettings=false</screen>
+      </li>
     </ol>
+    <section>
+      <title>更新</title>
+      <ul>
+        <li>
+          <p>2021-08-21</p>
+          <ol>
+            <li>添加Swing客户端启动说明；</li>
+          </ol>
+        </li>
+      </ul>
+    </section>
   </body>
 </topic>

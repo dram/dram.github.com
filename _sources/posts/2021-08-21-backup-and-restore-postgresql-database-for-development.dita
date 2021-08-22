@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>开发环境PostgreSQL数据库备份恢复</title>
+  <body>
+    <p>由于iDempiere中很大一部分功能性的数据也存放在数据库中，所以在开发过程中时常会因为一些破坏性的改动而需要恢复数据库到初始状态。</p>
+    <p>关于如何快速备份和恢复PostgreSQL的问题，<xref href="https://dba.stackexchange.com/questions/3394/is-it-possible-to-quickly-create-restore-database-snapshots-with-postgresql" scope="external">这里</xref>有一些讨论。其中适用于开发环境的，是<codeph>CREATE DATABASE ... TEMPLATE ...</codeph>机制，这一方法相对于iDempiere基于dump和migration构建一个全新数据库来说，速度要快很多。</p>
+  </body>
+</topic>
