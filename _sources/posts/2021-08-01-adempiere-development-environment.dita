@@ -4,37 +4,59 @@
   <title>搭建ADempiere开发环境</title>
   <body>
     <p>本文描述ADempiere基于Eclipse的开发环境搭建流程，如果只是试用，可以参考<xref href="/blog/2021/07/25/adempiere-installation-and-configuration.html" scope="peer">这里</xref>。</p>
-    <ol>
-      <li><p>自https://www.microsoft.com/openjdk下载安装OpenJDK 11；</p></li>
-      <li><p>自https://www.eclipse.org/downloads/packages/release下载解压Eclipse 2021‑06 R（Eclipse IDE for Enterprise Java and Web Developers）；</p></li>
-      <li><p>调整eclipse.ini，更改<codeph>--vm</codeph>值为：<codeph>C:/Program Files/Microsoft/jdk-11.0.11.9-hotspot/bin</codeph>；</p></li>
-      <li><p>打开Eclipse，指定工作环境目录，如：C:/workspace/adempiere；</p></li>
-      <li><p>在Eclipse欢迎页面，点击Checkout projects from Git，选择Clone URI，指定URI为https://github.com/adempiere/adempiere.git，点击Next，目标目录指定为：C:/git/adempiere，再点击Next，完成仓库克隆；</p></li>
-      <li><p>点击Eclipse菜单Window > Preferences，选择General > Workspace，设置Text file encoding为UTF-8，New text file line delimiter为Unix；</p></li>
-      <li><p>点击Eclipse菜单File > Import...，再选择General > Existing Projects inot Workspace，点击Next，选择Root Directory，如：C:/git/adempiere（注：不要勾选Search for nested projects）；</p></li>
-      <li>
-        <p>搭建数据库，本文选择在WSL环境中搭建，PostgreSQL服务的安装过程从略，安装完成后，执行以下命令：</p>
-        <screen><![CDATA[% psql postgres postgres
+    <section>
+      <title>Swing UI开发环境</title>
+      <ol>
+        <li><p>自https://www.microsoft.com/openjdk下载安装OpenJDK 11；</p></li>
+        <li><p>自https://www.eclipse.org/downloads/packages/release下载解压Eclipse 2021‑06 R（Eclipse IDE for Enterprise Java and Web Developers）；</p></li>
+        <li><p>调整eclipse.ini，更改<codeph>--vm</codeph>值为：<codeph>C:/Program Files/Microsoft/jdk-11.0.11.9-hotspot/bin</codeph>；</p></li>
+        <li><p>打开Eclipse，指定工作环境目录，如：C:/workspace/adempiere；</p></li>
+        <li><p>在Eclipse欢迎页面，点击Checkout projects from Git，选择Clone URI，指定URI为https://github.com/adempiere/adempiere.git，点击Next，目标目录指定为：C:/git/adempiere，再点击Next，完成仓库克隆；</p></li>
+        <li><p>点击Eclipse菜单Window > Preferences，选择General > Workspace，设置Text file encoding为UTF-8，New text file line delimiter为Unix；</p></li>
+        <li><p>点击Eclipse菜单File > Import...，再选择General > Existing Projects inot Workspace，点击Next，选择Root Directory，如：C:/git/adempiere（注：不要勾选Search for nested projects）；</p></li>
+        <li>
+          <p>搭建数据库，本文选择在WSL环境中搭建，PostgreSQL服务的安装过程从略，安装完成后，执行以下命令：</p>
+          <screen><![CDATA[% psql postgres postgres
 # create role adempiere with login password 'adempiere' ;
 # create database adempiere with owner adempiere ;
 % cd /mnt/c/git/adempiere
 % unzip -p data/seed/Adempiere_pg.jar Adempiere_pg.dmp | psql -d adempiere -U adempiere]]></screen>
-      </li>
-      <li>
-        <p>点击Eclipse菜单Run > Run Configurations...，选择Java Application > Load XML Migrations，点击Arguments标签页，更改VM arguments参数如下，再点击Run，填写数据库信息后，开始迁移数据库到最新版本：</p>
-        <screen><![CDATA[-DADEMPIERE_HOME=C:/git/adempiere]]></screen>
-      </li>
-      <li>
-        <p>点击Eclipse菜单Run > Run Configurations...，选择Java Application > ADempiere-all，点击Arguments标签页，更改VM arguments参数如下，再点击Run，可启动ADempiere客户端：</p>
-        <screen><![CDATA[-DPropertyFile=C:/git/adempiere/Adempiere.properties
+        </li>
+        <li>
+          <p>点击Eclipse菜单Run > Run Configurations...，选择Java Application > Load XML Migrations，点击Arguments标签页，更改VM arguments参数如下，再点击Run，填写数据库信息后，开始迁移数据库到最新版本：</p>
+          <screen><![CDATA[-DADEMPIERE_HOME=C:/git/adempiere]]></screen>
+        </li>
+        <li>
+          <p>点击Eclipse菜单Run > Run Configurations...，选择Java Application > ADempiere-all，点击Arguments标签页，更改VM arguments参数如下，再点击Run，可启动ADempiere客户端：</p>
+          <screen><![CDATA[-DPropertyFile=C:/git/adempiere/Adempiere.properties
 -DADEMPIERE_HOME=C:/git/adempiere
 -Dsun.java2d.uiScale=1
 -Dswing.useSystemFontSettings=false
 -Xms128M
 -Xmx256M
 -Dorg.adempiere.server.embedded=true]]></screen>
-      </li>
-    </ol>
+        </li>
+      </ol>
+    </section>
+    <section>
+      <title>Web UI开发环境</title>
+      <p>ADempiere Web UI开发环境，在以上Swing UI配置的基础上，再执行以下操作：</p>
+      <ol>
+        <li><p>点击Eclipse菜单Window > Show View > Servers，在Servers窗口点击其中链接启动新建Server流程；</p></li>
+        <li><p>选择Apache > Tomcat 9并安装，随后点击Next，点击Add All，再点击Finish；</p></li>
+        <li><p>此时在Run configurations...中已经新增Apache Tomcat项目，更改其中启动参数，添加<codeph>-DPropertyFile=C:/git/adempiere/Adempiere.properties -DADEMPIERE_HOME=C:/git/adempiere</codeph>，点击Run提示缺少jar包；</p></li>
+        <li>
+          <p>从<filepath>C:/git/adempiere/tools/lib</filepath>中拷贝以下jar包到目录<filepath>C:/workspace/adempiere/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/adempiere/WEB-INF/lib</filepath>；</p>
+          <ul>
+            <li>commons-collections4</li>
+            <li>HikariCP</li>
+            <li>oracle</li>
+            <li>slf4j-api</li>
+            <li>slf4j-simple</li>
+          </ul>
+        </li>
+      </ol>
+    </section>
     <section>
       <title>更新</title>
       <ul>
@@ -54,6 +76,12 @@
           <p>2021-08-21</p>
           <ol>
             <li>调整ADempiere-all参数；</li>
+          </ol>
+        </li>
+        <li>
+          <p>2021-09-05</p>
+          <ol>
+            <li>添加WebUI开发环境搭建说明；</li>
           </ol>
         </li>
       </ul>
