@@ -33,7 +33,7 @@
       </li>
       <li><p>点击Eclipse菜单Run > Run Configurations...，选择Eclipse Application > server.product，点击Run，启动服务。</p></li>
       <li>
-        <p>如果需要运行Swing客户端，可以导入idempiere-swing-client仓库，再执行Eclipse Application > swingclient.prodjct，追加以下参数：</p>
+        <p>如果需要运行Swing客户端，可以导入idempiere-swing-client仓库，再执行Eclipse Application > swingclient.project，追加以下参数：</p>
         <screen>-DPropertyFile=${project_loc:org.idempiere.main}/idempiere.properties
 -DIDEMPIERE_HOME=${project_loc:org.idempiere.main}
 -Dsun.java2d.uiScale=1.0
@@ -41,12 +41,22 @@
       </li>
     </ol>
     <section>
+      <title>其他</title>
+      <p>iDempiere的部分依赖包需要从sourceforge网站下载，由于下载过程中，sourceforge会重定向到镜像站，可能存在网络不稳定的情况，可以通过更改org.idempiere.p2.targetplatform.target和org.idempiere.p2.targetplatform.tpd中的相应URL解决，例如调整为：<codeph>https://cfhcable.dl.sourceforge.net/project/jasperstudio/updatesite/6.17.0/</codeph>。</p>
+    </section>
+    <section>
       <title>更新</title>
       <ul>
         <li>
           <p>2021-08-21</p>
           <ol>
             <li>添加Swing客户端启动说明；</li>
+          </ol>
+        </li>
+        <li>
+          <p>2021-09-05</p>
+          <ol>
+            <li>说明sourceforge网络不稳定的解决方案；</li>
           </ol>
         </li>
       </ul>
