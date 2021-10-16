@@ -41,6 +41,13 @@
       </li>
     </ol>
     <section>
+      <title>命令行启动</title>
+      <p>Swing客户端启动：</p>
+      <codeblock>"C:\Program Files\Microsoft\jdk-11.0.12.7-hotspot\bin\java.exe" -Xms128M -Xmx256M -Dosgi.noShutdown=true -DIDEMPIERE_HOME=C:\git\idempiere -DPropertyFile=C:\git\idempiere\idempiere.properties -Dsun.java2d.uiScale=1.0 "-Dswing.plaf.metal.controlFont=Microsoft YaHei UI 14" "-Dswing.plaf.metal.menuFont=Microsoft YaHei UI 14" "-Dswing.plaf.metal.smallFont=Microsoft YaHei UI 14" "-Dswing.plaf.metal.systemFont=Microsoft YaHei UI 15" "-Dswing.plaf.metal.userFont=Microsoft YaHei UI 15" "-Dswing.plaf.metal.windowFont=Microsoft YaHei UI 15" -classpath "C:\workspace\idempiere\.metadata\.plugins\org.eclipse.pde.core\.bundle_pool\plugins\org.eclipse.equinox.launcher_1.6.200.v20210416-2027.jar" org.eclipse.equinox.launcher.Main -product org.adempiere.ui.swing.client_product -configuration file:C:/workspace/idempiere/.metadata/.plugins/org.eclipse.pde.core/swingclient.product/ -dev file:C:/workspace/idempiere/.metadata/.plugins/org.eclipse.pde.core/swingclient.product/dev.properties</codeblock>
+      <p>Web服务启动：</p>
+      <codeblock>"C:\Program Files\Microsoft\jdk-11.0.12.7-hotspot\bin\java.exe" -Dosgi.noShutdown=true -Djetty.home=C:\git\idempiere\jettyhome -Djetty.etc.config.urls=etc/jetty.xml,etc/jetty-deployer.xml,etc/jetty-ssl.xml,etc/jetty-ssl-context.xml,etc/jetty-http.xml,etc/jetty-https.xml,etc/jetty-threadpool.xml -DIDEMPIERE_HOME=C:\git\idempiere -DPropertyFile=C:\git\idempiere\idempiere.properties -Dsun.java2d.uiScale=1.0 "-Dswing.plaf.metal.controlFont=Microsoft YaHei UI 14" "-Dswing.plaf.metal.menuFont=Microsoft YaHei UI 14" "-Dswing.plaf.metal.smallFont=Microsoft YaHei UI 14" "-Dswing.plaf.metal.systemFont=Microsoft YaHei UI 14" "-Dswing.plaf.metal.userFont=Microsoft YaHei UI 14" "-Dswing.plaf.metal.windowFont=Microsoft YaHei UI 14" -classpath "C:\workspace\idempiere\.metadata\.plugins\org.eclipse.pde.core\.bundle_pool\plugins\org.eclipse.equinox.launcher_1.6.200.v20210416-2027.jar" org.eclipse.equinox.launcher.Main -product org.adempiere.server.server_product -configuration file:C:/workspace/idempiere/.metadata/.plugins/org.eclipse.pde.core/server.product/ -dev file:C:/workspace/idempiere/.metadata/.plugins/org.eclipse.pde.core/server.product/dev.properties</codeblock>
+    </section>
+    <section>
       <title>其他</title>
       <p>iDempiere的部分依赖包需要从sourceforge网站下载，由于下载过程中，sourceforge会重定向到镜像站，可能存在网络不稳定的情况，可以通过更改org.idempiere.p2.targetplatform.target和org.idempiere.p2.targetplatform.tpd中的相应URL解决，例如调整为：<codeph>https://cfhcable.dl.sourceforge.net/project/jasperstudio/updatesite/6.17.0/</codeph>。</p>
     </section>
@@ -57,6 +64,12 @@
           <p>2021-09-05</p>
           <ol>
             <li>说明sourceforge网络不稳定的解决方案；</li>
+          </ol>
+        </li>
+        <li>
+          <p>2021-10-16</p>
+          <ol>
+            <li>添加基于开发环境的App和Web启动说明；</li>
           </ol>
         </li>
       </ul>

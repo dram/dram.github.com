@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA 2.0 Topic//EN" "topic.dtd">
+<topic id="post" xml:lang="zh-cn">
+  <title>搭建Scipio ERP开发环境</title>
+  <body>
+    <p>本文描述Scipio在Eclipse的开发环境搭建流程。如果只是试用，可以参考<xref href="/blog/2021/07/03/scipio-erp-installation-and-configuration.html" scope="peer">这里</xref>。</p>
+    <ol>
+      <li><p>自https://www.microsoft.com/openjdk下载安装OpenJDK 11；</p></li>
+      <li><p>自https://adoptium.net/下载安装OpenJDK 8；</p></li>
+      <li><p>自https://www.eclipse.org/downloads/packages下载解压Eclipse 2021‑06 R（Eclipse IDE for Enterprise Java and Web Developers）；</p></li>
+      <li><p>调整eclipse.ini，更改<codeph>--vm</codeph>值为：<codeph>C:/Program Files/Microsoft/jdk-11.0.11.9-hotspot/bin</codeph>；</p></li>
+      <li><p>打开Eclipse，指定工作环境目录，如：C:/workspace/scipio-erp；</p></li>
+      <li><p>在Eclipse欢迎页面，点击Checkout projects from Git，选择Clone URI，指定URI为<codeph>git@github.com:ilscipio/scipio-erp.git</codeph>，点击Next，目标目录指定为：C:/git/scipio-erp，再点击Next，完成仓库克隆；</p></li>
+      <li><p>点击Eclipse菜单Window > Preferences，选择General > Workspace，设置Text file encoding为UTF-8，New text file line delimiter为Unix；</p></li>
+      <li><p>点击Eclipse菜单Window > Preferences，选择Java > Compiler，设置Compiler compliance level为1.8；</p></li>
+      <li><p>点击Eclipse菜单Window > Preferences，选择Java > Installed JREs，点击Add...，Standard VM，选择OpenJDK路径，如：C:/Program Files/Temurin/jdk-8.0.302.8-hotspot，完成添加后在列表中选中该项，再点击Edit...，点击Add External JARs，添加tools.jar；</p></li>
+      <li>
+        <p>在Windows命令行中，执行以下命令（最后一步如果出错中断，可能需要清空缓存，可以基于Eclipse的Git插件的clean功能处理）：</p>
+        <screen>cd c:\git\scipio-erp
+set JAVA_HOME=C:\Program Files\Temurin\jdk-8.0.302.8-hotspot
+ant build-withlibsrc</screen>
+      </li>
+      <li>
+        <p>创建<filepath>C:\git\scipio-erp\initial.xml</filepath>文件，内容如下：</p>
+        <codeblock><![CDATA[<entity-engine-xml>
+  <Party partyId="admin" partyTypeId="PERSON" statusId="PARTY_ENABLED"/>
+  <PartyRole partyId="admin" roleTypeId="CAL_OWNER"/>
+  <UserLogin userLoginId="admin" partyId="admin" currentPassword="{SHA}47ca69ebb4bdc9ae0adec130880165d2cc05db1a" lastLocale="en"/>
+  <UserLoginSecurityGroup groupId="SUPER" userLoginId="admin" fromDate="2001-01-01 12:00:00.0"/>
+</entity-engine-xml>]]></codeblock>
+        <p>执行以下命令初始化数据：</p>
+        <screen>C:\Program Files\Temurin\jdk-8.0.302.8-hotspot\bin\java -jar ofbiz.jar load-data readers=seed file=initial.xml</screen>
+      </li>
+      <li>
+        <p>下载以下文件到C:/git/scipio-erp目录：</p>
+        <ol>
+          <li>https://raw.githubusercontent.com/dram/scipio-erp/eclipse/.classpath</li>
+          <li>https://raw.githubusercontent.com/dram/scipio-erp/eclipse/.project</li>
+        </ol>
+      </li>
+      <li><p>在Eclipse中基于Existing Projects into Workspace导入项目；</p></li>
+      <li><p>在C:/git/scipio-erp/runtime目录创建gitinfo.ftl和svninfo.ftl空文件；</p></li>
+      <li><p>点击Eclipse菜单Run > Run Configurations...，右键点击Java Application，选择New Configuration，Name设置为scipio，Main class设置为<codeph>org.ofbiz.base.start.Start</codeph>；</p></li>
+      <li><p>之后在Run Configurations中执行scipio配置项启动服务。</p></li>
+    </ol>
+  </body>
+</topic>
