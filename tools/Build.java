@@ -229,7 +229,7 @@ class Build {
 
     LOGGER.log(Level.INFO, "Loading project configuration ...");
 
-    ProjectHelper.configureProject(project, new File("tools/dita-ot-3.6.1/build.xml"));
+    ProjectHelper.configureProject(project, new File("tools/dita-ot-3.7/build.xml"));
 
     Path workingDirectory = Files.createTempDirectory(Paths.get("/dev/shm"), "dita");
 
